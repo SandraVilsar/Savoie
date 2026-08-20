@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TaskFlow - Reviews</title>
   <style>
-    /* ---------- RESET & BASE (Apple style) ---------- */
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,7 +31,6 @@
     input:focus, textarea:focus { border-color:#007aff; box-shadow:0 0 0 4px rgba(0,122,255,0.15); }
     .container { max-width:1100px; margin:0 auto; padding:0 24px; }
 
-    /* ---------- NAVIGATION ---------- */
     .navbar {
       background:rgba(255,255,255,0.92); backdrop-filter:saturate(180%) blur(20px);
       -webkit-backdrop-filter:saturate(180%) blur(20px);
@@ -55,7 +53,6 @@
     .auth-btn.outline { background:transparent; color:#007aff; border:1px solid #007aff; }
     .auth-btn:hover { opacity:0.8; }
 
-    /* ---------- SECTIONS ---------- */
     main { flex: 1; }
     section { padding:60px 0; display:none; }
     section.active-section { display:block; }
@@ -71,14 +68,13 @@
     .contact-form { max-width:500px; display:flex; flex-direction:column; gap:16px; margin-top:20px; }
     .contact-form button { align-self:flex-start; background:#007aff; color:#fff; padding:12px 32px; border-radius:980px; font-weight:500; }
 
-    /* Long text about */
     .long-text { 
       background:#fff; border-radius:20px; padding:30px; 
       box-shadow:0 4px 20px rgba(0,0,0,0.04); line-height:1.8;
       color:#1d1d1f; font-size:1.05rem;
     }
 
-    /* ---------- DIRECTORY (Répertoire) ---------- */
+    /* Directory */
     .team-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -105,7 +101,7 @@
     .team-card h4 { font-weight:600; font-size:1rem; margin-bottom:4px; }
     .team-card p { color:#6e6e73; font-size:0.8rem; }
 
-    /* ---------- DASHBOARD ---------- */
+    /* Dashboard - Single task */
     #section-dashboard .balance-box {
       background:#fff; border-radius:24px; padding:24px 32px;
       box-shadow:0 4px 20px rgba(0,0,0,0.04); margin-bottom:40px;
@@ -115,47 +111,64 @@
     .balance-amount { font-size:2.8rem; font-weight:700; letter-spacing:-0.02em; color:#000; }
     .balance-amount small { font-size:1.2rem; font-weight:400; color:#6e6e73; margin-left:6px; }
 
-    .task-item {
-      background:#fff; border-radius:16px; padding:18px 24px; margin-bottom:14px;
-      display:flex; align-items:center; gap:18px;
-      box-shadow:0 2px 10px rgba(0,0,0,0.02); border:1px solid #e8e8ed;
-      transition:border 0.2s; flex-wrap:wrap;
+    .task-container {
+      background:#fff; border-radius:20px; padding:30px 24px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.04);
+      margin-top:20px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
     }
-    .task-item:hover { border-color:#007aff; }
-    .task-img img { width:60px; height:60px; border-radius:12px; object-fit:cover; background:#e8e8ed; }
-    .task-info { flex:1; min-width:150px; }
-    .task-info h4 { font-weight:500; font-size:1.05rem; }
-    .task-info .reward { font-size:0.9rem; color:#007aff; font-weight:500; }
-    .task-info .badge {
-      background:#ff9500; color:#fff; font-size:0.65rem; font-weight:600;
-      padding:2px 10px; border-radius:40px; display:inline-block; margin-left:8px;
+    .task-container img {
+      width:200px;
+      height:200px;
+      border-radius:16px;
+      object-fit:cover;
+      background:#e8e8ed;
+      margin-bottom:16px;
     }
-    .task-info .badge.x3 { background:#34c759; }
-    .task-info .badge.x4 { background:#af52de; }
-    .task-action { display:flex; gap:8px; align-items:center; }
-    .task-action button {
-      background:#007aff; color:#fff; padding:6px 18px; border-radius:980px;
-      font-weight:500; font-size:0.85rem;
+    .task-container h3 { font-weight:600; font-size:1.5rem; margin-bottom:8px; }
+    .task-container .reward { font-size:1.2rem; color:#007aff; font-weight:500; margin-bottom:12px; }
+    .task-container .badge {
+      background:#ff9500; color:#fff; font-size:0.8rem; font-weight:600;
+      padding:4px 14px; border-radius:40px; display:inline-block;
     }
-    .task-action button:disabled { opacity:0.4; cursor:not-allowed; }
-    .task-action button.secondary { background:#e8e8ed; color:#1d1d1f; }
-    .task-action button.success { background:#34c759; }
-    .task-status { font-size:0.8rem; color:#6e6e73; }
+    .task-container .badge.x3 { background:#34c759; }
+    .task-container .badge.x4 { background:#af52de; }
+    .task-container .task-action { margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .task-container .task-action button {
+      background:#007aff; color:#fff; padding:8px 28px; border-radius:980px;
+      font-weight:500; font-size:1rem;
+    }
+    .task-container .task-action button:disabled { opacity:0.4; cursor:not-allowed; }
+    .task-container .task-action button.secondary { background:#e8e8ed; color:#1d1d1f; }
+    .task-container .task-action button.success { background:#34c759; }
+    .task-status { font-size:0.9rem; color:#6e6e73; margin-top:8px; }
 
     .review-form {
-      margin-top:12px; padding-top:16px; border-top:1px solid #e8e8ed;
-      display:flex; flex-direction:column; gap:14px; width:100%;
+      width:100%;
+      margin-top:20px; padding-top:20px; border-top:1px solid #e8e8ed;
+      display:flex; flex-direction:column; gap:16px;
+      align-items:center;
     }
     .review-form .stars {
-      display:flex; gap:6px; font-size:1.8rem; cursor:pointer;
+      display:flex; gap:10px; font-size:2.2rem; cursor:pointer;
     }
     .review-form .stars span { color:#d2d2d7; transition:color 0.15s; }
     .review-form .stars span.active { color:#ffb800; }
-    .review-form textarea { min-height:100px; resize:vertical; }
-    .review-form .char-counter { font-size:0.8rem; color:#86868b; text-align:right; }
+    .review-form textarea { min-height:120px; resize:vertical; max-width:500px; }
+    .review-form .char-counter { font-size:0.9rem; color:#86868b; }
     .review-form .char-counter.valid { color:#34c759; }
+    .review-form button { background:#34c759; color:#fff; padding:10px 36px; border-radius:980px; font-weight:600; }
 
-    /* ---------- FOOTER ---------- */
+    .task-progress {
+      margin-top:12px;
+      font-size:0.9rem;
+      color:#86868b;
+    }
+
+    /* Footer */
     footer {
       background: #f5f5f7;
       border-top: 1px solid #d2d2d7;
@@ -186,7 +199,7 @@
       color: #86868b;
     }
 
-    /* ---------- MODAL ---------- */
+    /* Modal */
     .modal-overlay {
       position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.4); backdrop-filter:blur(8px);
@@ -213,7 +226,7 @@
       .nav-links { justify-content:center; gap:14px; }
       .section-title { font-size:1.8rem; }
       .balance-amount { font-size:2rem; }
-      .task-item { flex-direction:column; align-items:stretch; }
+      .task-container img { width:150px; height:150px; }
       footer .container { flex-direction:column; gap:16px; text-align:center; }
       footer .footer-links { justify-content:center; }
     }
@@ -251,9 +264,7 @@
       <div class="card"><h3 data-i18n="about_card2_title">⚡ Vision</h3><p data-i18n="about_card2_text">Every opinion counts and pays instantly.</p></div>
       <div class="card"><h3 data-i18n="about_card3_title">💡 Values</h3><p data-i18n="about_card3_text">Trust, transparency, and fair rewards.</p></div>
     </div>
-    <div class="long-text" data-i18n="about_long">
-      <!-- Le contenu long est injecté via JS pour gérer les langues -->
-    </div>
+    <div class="long-text" data-i18n="about_long"></div>
   </section>
 
   <!-- HISTORY -->
@@ -280,13 +291,11 @@
     </div>
   </section>
 
-  <!-- DIRECTORY (Répertoire) -->
+  <!-- DIRECTORY -->
   <section id="section-directory">
     <h2 class="section-title" data-i18n="directory_title">Our Team</h2>
     <p class="section-sub" data-i18n="directory_sub">Meet the 25 talented people behind TaskFlow.</p>
-    <div class="team-grid" id="teamGrid">
-      <!-- généré par JS -->
-    </div>
+    <div class="team-grid" id="teamGrid"></div>
   </section>
 
   <!-- DASHBOARD -->
@@ -301,8 +310,11 @@
       </div>
     </div>
 
-    <h3 style="font-weight:500; margin-bottom:16px;" data-i18n="tasks_title">Available tasks (500)</h3>
-    <div id="taskList"></div>
+    <h3 style="font-weight:500; margin-bottom:8px;" data-i18n="tasks_title">Current task</h3>
+    <div id="taskContainer" class="task-container">
+      <!-- Rempli par JS -->
+    </div>
+    <div class="task-progress" id="taskProgress"></div>
   </section>
 </main>
 
@@ -342,7 +354,7 @@
   (function() {
     'use strict';
 
-    // ---------- TRADUCTIONS (raccourcies pour la lisibilité, mais complètes) ----------
+    // ---------- TRADUCTIONS (raccourcies) ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -362,7 +374,7 @@
         contact_title:"Get in touch", contact_sub:"We'd love to hear from you.",
         contact_name:"Name", contact_email:"Email", contact_msg:"Your message...", contact_send:"Send message",
         balance_label:"Your balance", tasks_count_label:"Tasks completed",
-        tasks_title:"Available tasks",
+        tasks_title:"Current task",
         signin:"Sign in", signup:"Sign up", signin_sub:"Access your dashboard", signup_sub:"Create your account",
         switch_login:"Already have an account?", switch_register:"Don't have an account?",
         logout:"Logout", invalid_creds:"Invalid username or password.",
@@ -373,7 +385,9 @@
         product:"Product", min_chars:"Minimum 160 characters", 
         select_stars:"Select 1 to 5 stars", task_accepted:"Task accepted, write your review below.",
         footer_about:"About", footer_contact:"Contact", footer_revision:"Re-vision", footer_directory:"Directory",
-        directory_title:"Our Team", directory_sub:"Meet the 25 talented people behind TaskFlow."
+        directory_title:"Our Team", directory_sub:"Meet the 25 talented people behind TaskFlow.",
+        next_task:"Next task",
+        no_more_tasks:"🎉 All tasks completed! Come back later."
       },
       fr: {
         about_title:"À propos de TaskFlow",
@@ -393,7 +407,7 @@
         contact_title:"Contactez-nous", contact_sub:"Nous serions ravis de vous entendre.",
         contact_name:"Nom", contact_email:"Email", contact_msg:"Votre message...", contact_send:"Envoyer",
         balance_label:"Votre solde", tasks_count_label:"Tâches réalisées",
-        tasks_title:"Tâches disponibles",
+        tasks_title:"Tâche en cours",
         signin:"Se connecter", signup:"S'inscrire", signin_sub:"Accédez à votre tableau de bord", signup_sub:"Créez votre compte",
         switch_login:"Déjà un compte ?", switch_register:"Pas encore de compte ?",
         logout:"Déconnexion", invalid_creds:"Nom d'utilisateur ou mot de passe incorrect.",
@@ -404,7 +418,9 @@
         product:"Produit", min_chars:"160 caractères minimum",
         select_stars:"Sélectionnez 1 à 5 étoiles", task_accepted:"Tâche acceptée, écrivez votre avis.",
         footer_about:"À propos", footer_contact:"Contact", footer_revision:"Révision", footer_directory:"Répertoire",
-        directory_title:"Notre équipe", directory_sub:"Rencontrez les 25 personnes talentueuses derrière TaskFlow."
+        directory_title:"Notre équipe", directory_sub:"Rencontrez les 25 personnes talentueuses derrière TaskFlow.",
+        next_task:"Tâche suivante",
+        no_more_tasks:"🎉 Toutes les tâches sont terminées ! Revenez plus tard."
       },
       es: {
         about_title:"Acerca de TaskFlow",
@@ -424,7 +440,7 @@
         contact_title:"Ponte en contacto", contact_sub:"Nos encantaría saber de ti.",
         contact_name:"Nombre", contact_email:"Correo", contact_msg:"Tu mensaje...", contact_send:"Enviar",
         balance_label:"Tu saldo", tasks_count_label:"Tareas completadas",
-        tasks_title:"Tareas disponibles",
+        tasks_title:"Tarea actual",
         signin:"Iniciar sesión", signup:"Registrarse", signin_sub:"Accede a tu panel", signup_sub:"Crea tu cuenta",
         switch_login:"¿Ya tienes cuenta?", switch_register:"¿No tienes cuenta?",
         logout:"Cerrar sesión", invalid_creds:"Usuario o contraseña incorrectos.",
@@ -435,7 +451,9 @@
         product:"Producto", min_chars:"Mínimo 160 caracteres",
         select_stars:"Selecciona 1 a 5 estrellas", task_accepted:"Tarea aceptada, escribe tu reseña.",
         footer_about:"Acerca de", footer_contact:"Contacto", footer_revision:"Re-visión", footer_directory:"Directorio",
-        directory_title:"Nuestro equipo", directory_sub:"Conoce a las 25 personas talentosas detrás de TaskFlow."
+        directory_title:"Nuestro equipo", directory_sub:"Conoce a las 25 personas talentosas detrás de TaskFlow.",
+        next_task:"Siguiente tarea",
+        no_more_tasks:"🎉 ¡Todas las tareas completadas! Vuelve más tarde."
       }
     };
 
@@ -446,6 +464,8 @@
     let tasksData = [];
     let completedIds = [];
     let acceptedIds = [];
+    let currentTaskIndex = 0;      // index dans tasksData (non complétées)
+    let currentTask = null;
 
     // ---------- DOM REFS ----------
     const $ = s => document.querySelector(s);
@@ -474,18 +494,20 @@
     const switchText = $('#switchText');
     const switchAction = $('#switchAction');
     const balanceDisplay = $('#balanceDisplay');
-    const taskList = $('#taskList');
     const completedCount = $('#completedCount');
+    const taskContainer = $('#taskContainer');
+    const taskProgress = $('#taskProgress');
     const teamGrid = $('#teamGrid');
 
     let isLoginMode = true;
 
-    // ---------- TEAM DATA (25 membres, photos professionnelles) ----------
+    // ---------- TEAM DATA (25 membres, photos d'adultes) ----------
+    // Remplacement des IDs enfants (2 et 4) par 26 et 27
     const teamMembers = [
       { id: 1, name: "Jean Dupont", position: "President & CEO", img: "https://i.pravatar.cc/150?img=1" },
-      { id: 2, name: "Marie Curie", position: "Chief Technology Officer", img: "https://i.pravatar.cc/150?img=2" },
+      { id: 26, name: "Marie Curie", position: "Chief Technology Officer", img: "https://i.pravatar.cc/150?img=26" },
       { id: 3, name: "Amadou Diallo", position: "VP of Marketing", img: "https://i.pravatar.cc/150?img=3" },
-      { id: 4, name: "Sophie Martin", position: "Chief Operating Officer", img: "https://i.pravatar.cc/150?img=4" },
+      { id: 27, name: "Sophie Martin", position: "Chief Operating Officer", img: "https://i.pravatar.cc/150?img=27" },
       { id: 5, name: "Carlos Gomez", position: "Senior Accountant", img: "https://i.pravatar.cc/150?img=5" },
       { id: 6, name: "Emily Johnson", position: "Head of Product", img: "https://i.pravatar.cc/150?img=6" },
       { id: 7, name: "David Kim", position: "Lead Developer", img: "https://i.pravatar.cc/150?img=7" },
@@ -509,7 +531,7 @@
       { id: 25, name: "Hannah Green", position: "Executive Assistant", img: "https://i.pravatar.cc/150?img=25" }
     ];
 
-    // ---------- GENERATE 500 TASKS ----------
+    // ---------- GENERATE 500 TASKS (avec images basées sur le produit) ----------
     function generateTasks() {
       const products = [
         "Wireless Headphones", "Smart Watch", "Running Shoes", "Coffee Maker",
@@ -525,12 +547,15 @@
         if (i % 7 === 0) { multiplier = 3; special = true; }
         else if (i % 11 === 0) { multiplier = 4; special = true; }
         const reward = parseFloat((base * multiplier).toFixed(2));
-        const pIdx = i % products.length;
-        const product = products[pIdx] + (i > products.length ? ` ${Math.floor(i/products.length)}` : '');
+        const pIdx = (i-1) % products.length;
+        let product = products[pIdx];
+        if (i > products.length) product += ` ${Math.floor((i-1)/products.length) + 1}`;
+        // Image seed basée sur le nom du produit (pour avoir une image cohérente)
+        const seed = encodeURIComponent(product.replace(/\s/g, '-').toLowerCase());
         tasks.push({
           id: i,
           product: product,
-          image: `https://picsum.photos/seed/${i + 100}/200/200`,
+          image: `https://picsum.photos/seed/${seed}/300/300`,
           baseReward: base,
           multiplier: multiplier,
           reward: reward,
@@ -582,7 +607,7 @@
       updateModalTexts();
       updateAuthButtons();
       renderTeam();
-      renderTasks();
+      renderCurrentTask();
     }
 
     function updateModalTexts() {
@@ -679,6 +704,7 @@
         setCurrentUser(null);
       }
       currentUser = null; balanceCache = 0; completedIds = []; acceptedIds = [];
+      currentTaskIndex = 0;
       tasksData.forEach(t => t.status = 'pending');
       updateUIAfterLogout();
       showSection('about');
@@ -695,19 +721,22 @@
         else task.status = 'pending';
       });
       setCurrentUser(username);
+      // Trouver le premier index de tâche non complétée
+      currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
+      if (currentTaskIndex === -1) currentTaskIndex = tasksData.length; // tout terminé
     }
 
     // ---------- UI UPDATE ----------
     function updateUIAfterLogin() {
       updateAuthButtons();
       updateBalanceDisplay();
-      renderTasks();
       updateCompletedCount();
-      // Show dashboard if not already
+      renderCurrentTask();
     }
     function updateUIAfterLogout() {
       updateAuthButtons();
-      taskList.innerHTML = '';
+      taskContainer.innerHTML = '';
+      taskProgress.textContent = '';
       balanceDisplay.textContent = '$0.00';
       completedCount.textContent = '0';
     }
@@ -719,7 +748,7 @@
       completedCount.textContent = completedIds.length;
     }
 
-    // ---------- RENDER TEAM (25 membres) ----------
+    // ---------- RENDER TEAM ----------
     function renderTeam() {
       let html = '';
       teamMembers.forEach(m => {
@@ -734,70 +763,84 @@
       teamGrid.innerHTML = html;
     }
 
-    // ---------- RENDER TASKS ----------
-    function renderTasks() {
-      if (!currentUser) {
-        taskList.innerHTML = `<p style="color:#6e6e73;">${i18n[currentLang].signin} to see tasks.</p>`;
-        return;
-      }
+    // ---------- RENDER CURRENT TASK ----------
+    function renderCurrentTask() {
       const t = i18n[currentLang];
-      const visible = tasksData.filter(task => task.status !== 'completed');
-      if (visible.length === 0) {
-        taskList.innerHTML = `<p style="color:#6e6e73;">🎉 All tasks completed! Come back later.</p>`;
+      if (!currentUser) {
+        taskContainer.innerHTML = `<p style="color:#6e6e73;">${t.signin} to see tasks.</p>`;
+        taskProgress.textContent = '';
         return;
       }
-      let html = '';
-      visible.forEach(task => {
-        const isAccepted = task.status === 'accepted';
-        const rewardStr = `$${task.reward.toFixed(2)}`;
-        let badgeHtml = '';
-        if (task.special) {
-          badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
-        }
-        let actionHtml = '';
-        if (isAccepted) {
-          actionHtml = `<button class="secondary" disabled>${t.write_review}...</button>`;
-        } else {
-          actionHtml = `<button data-action="accept" data-id="${task.id}">${t.accept}</button>`;
-        }
 
-        html += `
-          <div class="task-item" data-id="${task.id}">
-            <div class="task-img"><img src="${task.image}" alt="${task.product}" loading="lazy"></div>
-            <div class="task-info">
-              <h4>${task.product} ${badgeHtml}</h4>
-              <div class="reward">+ ${rewardStr}</div>
+      // Trouver la prochaine tâche non complétée à partir de currentTaskIndex
+      let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
+      if (nextIdx === -1) {
+        // Vérifier si tout est complété
+        const allDone = tasksData.every(task => task.status === 'completed');
+        if (allDone) {
+          taskContainer.innerHTML = `<p style="color:#34c759; font-size:1.2rem;">${t.no_more_tasks}</p>`;
+          taskProgress.textContent = `${completedIds.length} / ${tasksData.length}`;
+          return;
+        }
+        // Sinon, on remet à zéro (cas où il y a des tâches en "accepted" mais plus de pending)
+        nextIdx = tasksData.findIndex(task => task.status !== 'completed');
+        if (nextIdx === -1) {
+          taskContainer.innerHTML = `<p style="color:#34c759;">${t.no_more_tasks}</p>`;
+          taskProgress.textContent = `${completedIds.length} / ${tasksData.length}`;
+          return;
+        }
+      }
+      currentTaskIndex = nextIdx;
+      const task = tasksData[currentTaskIndex];
+      if (!task) {
+        taskContainer.innerHTML = `<p>${t.no_more_tasks}</p>`;
+        return;
+      }
+
+      const isAccepted = task.status === 'accepted';
+      const rewardStr = `$${task.reward.toFixed(2)}`;
+      let badgeHtml = '';
+      if (task.special) {
+        badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
+      }
+      let actionHtml = '';
+      if (isAccepted) {
+        actionHtml = `<button class="secondary" disabled>${t.write_review}...</button>`;
+      } else {
+        actionHtml = `<button data-action="accept" data-id="${task.id}">${t.accept}</button>`;
+      }
+
+      let html = `
+        <img src="${task.image}" alt="${task.product}" loading="lazy">
+        <h3>${task.product} ${badgeHtml}</h3>
+        <div class="reward">+ ${rewardStr}</div>
+        <div class="task-action">
+          ${actionHtml}
+          <span class="task-status">${isAccepted ? t.task_accepted : ''}</span>
+        </div>
+        ${isAccepted ? `
+          <div class="review-form" data-id="${task.id}">
+            <div class="stars" data-id="${task.id}">
+              ${[1,2,3,4,5].map(s => `<span data-value="${s}">★</span>`).join('')}
             </div>
-            <div class="task-action">
-              ${actionHtml}
-              <span class="task-status">${isAccepted ? t.task_accepted : ''}</span>
-            </div>
-            ${isAccepted ? `
-              <div class="review-form" data-id="${task.id}">
-                <div class="stars" data-id="${task.id}">
-                  ${[1,2,3,4,5].map(s => `<span data-value="${s}">★</span>`).join('')}
-                </div>
-                <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="160"></textarea>
-                <div class="char-counter" data-id="${task.id}">0 / 160</div>
-                <button data-action="submit" data-id="${task.id}" class="success">${t.submit_review}</button>
-              </div>
-            ` : ''}
+            <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="160"></textarea>
+            <div class="char-counter" data-id="${task.id}">0 / 160</div>
+            <button data-action="submit" data-id="${task.id}" class="success">${t.submit_review}</button>
           </div>
-        `;
-      });
+        ` : ''}
+      `;
+      taskContainer.innerHTML = html;
+      taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
-      taskList.innerHTML = html;
-
-      // Accept
-      taskList.querySelectorAll('[data-action="accept"]').forEach(btn => {
+      // Événements
+      taskContainer.querySelectorAll('[data-action="accept"]').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = parseInt(btn.dataset.id, 10);
           acceptTask(id);
         });
       });
 
-      // Stars
-      taskList.querySelectorAll('.stars').forEach(starDiv => {
+      taskContainer.querySelectorAll('.stars').forEach(starDiv => {
         const id = parseInt(starDiv.dataset.id, 10);
         const spans = starDiv.querySelectorAll('span');
         spans.forEach(span => {
@@ -809,8 +852,7 @@
         });
       });
 
-      // Textarea counter
-      taskList.querySelectorAll('.review-form textarea').forEach(ta => {
+      taskContainer.querySelectorAll('.review-form textarea').forEach(ta => {
         const id = parseInt(ta.dataset.id, 10);
         const counter = document.querySelector(`.char-counter[data-id="${id}"]`);
         ta.addEventListener('input', () => {
@@ -820,8 +862,7 @@
         });
       });
 
-      // Submit
-      taskList.querySelectorAll('[data-action="submit"]').forEach(btn => {
+      taskContainer.querySelectorAll('[data-action="submit"]').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = parseInt(btn.dataset.id, 10);
           submitReview(id);
@@ -837,7 +878,7 @@
       task.status = 'accepted';
       if (!acceptedIds.includes(taskId)) acceptedIds.push(taskId);
       setAccepted(currentUser, acceptedIds);
-      renderTasks();
+      renderCurrentTask();
     }
 
     function submitReview(taskId) {
@@ -845,7 +886,7 @@
       const task = tasksData.find(t => t.id === taskId);
       if (!task || task.status !== 'accepted') return;
 
-      const container = document.querySelector(`.task-item[data-id="${taskId}"]`);
+      const container = document.querySelector('.task-container');
       const starsDiv = container.querySelector('.stars');
       const selectedStars = parseInt(starsDiv.dataset.selected || '0', 10);
       const textarea = container.querySelector('textarea');
@@ -856,10 +897,12 @@
       if (selectedStars === 0) { alert(t.select_stars); return; }
       if (comment.length < 160) { alert(`${t.min_chars} (${comment.length}/160)`); return; }
 
+      // Mettre à jour la balance
       balanceCache += task.reward;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
 
+      // Marquer comme complétée
       task.status = 'completed';
       if (!completedIds.includes(taskId)) completedIds.push(taskId);
       setCompleted(currentUser, completedIds);
@@ -867,7 +910,10 @@
       setAccepted(currentUser, acceptedIds);
       updateCompletedCount();
 
-      renderTasks();
+      // Passer à la tâche suivante
+      currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
+      if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
+      renderCurrentTask();
     }
 
     // ---------- INIT ----------
@@ -876,7 +922,6 @@
       const detected = detectLanguage();
       applyLanguage(detected);
 
-      // Restaurer la session si un utilisateur est stocké
       const savedUser = getCurrentUser();
       if (savedUser) {
         const users = getUsers();
@@ -884,10 +929,8 @@
           currentUser = savedUser;
           loadUserData(savedUser);
           updateUIAfterLogin();
-          // On affiche le dashboard par défaut s'il est connecté
           showSection('dashboard');
         } else {
-          // L'utilisateur n'existe plus dans la base locale
           setCurrentUser(null);
           currentUser = null;
           updateUIAfterLogout();
@@ -898,14 +941,12 @@
         balanceCache = 0;
         completedIds = [];
         acceptedIds = [];
+        currentTaskIndex = 0;
         updateUIAfterLogout();
         showSection('about');
       }
 
-      // Rendre l'équipe (les noms sont fixes, pas besoin de traduction)
       renderTeam();
-
-      // Événements de langue
       langBtns.forEach(btn => {
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
       });
@@ -915,4 +956,4 @@
   })();
 </script>
 </body>
-                                   </html>
+  </html>
