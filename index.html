@@ -31,7 +31,6 @@
     input:focus, textarea:focus { border-color:#007aff; box-shadow:0 0 0 4px rgba(0,122,255,0.15); }
     .container { max-width:1100px; margin:0 auto; padding:0 24px; }
 
-    /* Nav */
     .navbar {
       background:rgba(255,255,255,0.92); backdrop-filter:saturate(180%) blur(20px);
       -webkit-backdrop-filter:saturate(180%) blur(20px);
@@ -75,7 +74,6 @@
       color:#1d1d1f; font-size:1.05rem;
     }
 
-    /* Directory */
     .team-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -102,7 +100,6 @@
     .team-card h4 { font-weight:600; font-size:1rem; margin-bottom:4px; }
     .team-card p { color:#6e6e73; font-size:0.8rem; }
 
-    /* Dashboard - Single task */
     #section-dashboard .balance-box {
       background:#fff; border-radius:24px; padding:24px 32px;
       box-shadow:0 4px 20px rgba(0,0,0,0.04); margin-bottom:40px;
@@ -137,13 +134,6 @@
     }
     .task-container .badge.x3 { background:#34c759; }
     .task-container .badge.x4 { background:#af52de; }
-    .task-container .task-action { margin-top:16px; }
-    .task-container .task-action button {
-      background:#007aff; color:#fff; padding:8px 28px; border-radius:980px;
-      font-weight:500; font-size:1rem;
-    }
-    .task-container .task-action button:disabled { opacity:0.4; cursor:not-allowed; }
-    .task-container .task-action button.success { background:#34c759; }
 
     .review-form {
       width:100%;
@@ -167,11 +157,9 @@
       color:#86868b;
     }
 
-    /* Withdraw modal (reuse same modal overlay) */
+    /* Withdraw modal */
     #withdrawModal .modal-box { max-width:480px; }
-    #withdrawModal input { margin-bottom:12px; }
 
-    /* Footer */
     footer {
       background: #f5f5f7;
       border-top: 1px solid #d2d2d7;
@@ -202,7 +190,6 @@
       color: #86868b;
     }
 
-    /* Modals */
     .modal-overlay {
       position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.4); backdrop-filter:blur(8px);
@@ -374,7 +361,7 @@
   (function() {
     'use strict';
 
-    // ---------- TRADUCTIONS (raccourcies) ----------
+    // ---------- TRADUCTIONS (raccourcies, identiques à avant) ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -489,7 +476,7 @@
       }
     };
 
-    // ---------- STATE ----------
+    // ---------- ÉTAT ----------
     let currentLang = 'en';
     let currentUser = null;
     let balanceCache = 0;
@@ -537,7 +524,7 @@
 
     let isLoginMode = true;
 
-    // ---------- TEAM DATA (25 membres, photos d'adultes) ----------
+    // ---------- TEAM DATA (inchangé) ----------
     const teamMembers = [
       { id: 1, name: "Jean Dupont", position: "President & CEO", img: "https://i.pravatar.cc/150?img=1" },
       { id: 26, name: "Marie Curie", position: "Chief Technology Officer", img: "https://i.pravatar.cc/150?img=26" },
@@ -566,41 +553,538 @@
       { id: 25, name: "Hannah Green", position: "Executive Assistant", img: "https://i.pravatar.cc/150?img=25" }
     ];
 
-    // ---------- GENERATE 500 TASKS (avec images basées sur le produit) ----------
+    // ---------- 500 NOMS D'ARTICLES (issus du CSV) ----------
+    const articleNames = [
+      "Wireless Headphones: Buying Guide",
+      "Smart Watch: Buying Guide",
+      "Running Shoes: Buying Guide",
+      "Coffee Maker: Buying Guide",
+      "Desk Lamp: Buying Guide",
+      "Backpack: Buying Guide",
+      "Bluetooth Speaker: Buying Guide",
+      "Webcam: Buying Guide",
+      "Keyboard: Buying Guide",
+      "Mouse: Buying Guide",
+      "Monitor: Buying Guide",
+      "USB Hub: Buying Guide",
+      "Phone Case: Buying Guide",
+      "Charger: Buying Guide",
+      "Power Bank: Buying Guide",
+      "Fitness Tracker: Buying Guide",
+      "E-reader: Buying Guide",
+      "Tablet Stand: Buying Guide",
+      "Laptop Sleeve: Buying Guide",
+      "Action Camera: Buying Guide",
+      "Wireless Headphones: Best Features to Look For",
+      "Smart Watch: Best Features to Look For",
+      "Running Shoes: Best Features to Look For",
+      "Coffee Maker: Best Features to Look For",
+      "Desk Lamp: Best Features to Look For",
+      "Backpack: Best Features to Look For",
+      "Bluetooth Speaker: Best Features to Look For",
+      "Webcam: Best Features to Look For",
+      "Keyboard: Best Features to Look For",
+      "Mouse: Best Features to Look For",
+      "Monitor: Best Features to Look For",
+      "USB Hub: Best Features to Look For",
+      "Phone Case: Best Features to Look For",
+      "Charger: Best Features to Look For",
+      "Power Bank: Best Features to Look For",
+      "Fitness Tracker: Best Features to Look For",
+      "E-reader: Best Features to Look For",
+      "Tablet Stand: Best Features to Look For",
+      "Laptop Sleeve: Best Features to Look For",
+      "Action Camera: Best Features to Look For",
+      "Wireless Headphones: Top Choices for Everyday Use",
+      "Smart Watch: Top Choices for Everyday Use",
+      "Running Shoes: Top Choices for Everyday Use",
+      "Coffee Maker: Top Choices for Everyday Use",
+      "Desk Lamp: Top Choices for Everyday Use",
+      "Backpack: Top Choices for Everyday Use",
+      "Bluetooth Speaker: Top Choices for Everyday Use",
+      "Webcam: Top Choices for Everyday Use",
+      "Keyboard: Top Choices for Everyday Use",
+      "Mouse: Top Choices for Everyday Use",
+      "Monitor: Top Choices for Everyday Use",
+      "USB Hub: Top Choices for Everyday Use",
+      "Phone Case: Top Choices for Everyday Use",
+      "Charger: Top Choices for Everyday Use",
+      "Power Bank: Top Choices for Everyday Use",
+      "Fitness Tracker: Top Choices for Everyday Use",
+      "E-reader: Top Choices for Everyday Use",
+      "Tablet Stand: Top Choices for Everyday Use",
+      "Laptop Sleeve: Top Choices for Everyday Use",
+      "Action Camera: Top Choices for Everyday Use",
+      "Wireless Headphones: Best Options for Work",
+      "Smart Watch: Best Options for Work",
+      "Running Shoes: Best Options for Work",
+      "Coffee Maker: Best Options for Work",
+      "Desk Lamp: Best Options for Work",
+      "Backpack: Best Options for Work",
+      "Bluetooth Speaker: Best Options for Work",
+      "Webcam: Best Options for Work",
+      "Keyboard: Best Options for Work",
+      "Mouse: Best Options for Work",
+      "Monitor: Best Options for Work",
+      "USB Hub: Best Options for Work",
+      "Phone Case: Best Options for Work",
+      "Charger: Best Options for Work",
+      "Power Bank: Best Options for Work",
+      "Fitness Tracker: Best Options for Work",
+      "E-reader: Best Options for Work",
+      "Tablet Stand: Best Options for Work",
+      "Laptop Sleeve: Best Options for Work",
+      "Action Camera: Best Options for Work",
+      "Wireless Headphones: Best Options for Travel",
+      "Smart Watch: Best Options for Travel",
+      "Running Shoes: Best Options for Travel",
+      "Coffee Maker: Best Options for Travel",
+      "Desk Lamp: Best Options for Travel",
+      "Backpack: Best Options for Travel",
+      "Bluetooth Speaker: Best Options for Travel",
+      "Webcam: Best Options for Travel",
+      "Keyboard: Best Options for Travel",
+      "Mouse: Best Options for Travel",
+      "Monitor: Best Options for Travel",
+      "USB Hub: Best Options for Travel",
+      "Phone Case: Best Options for Travel",
+      "Charger: Best Options for Travel",
+      "Power Bank: Best Options for Travel",
+      "Fitness Tracker: Best Options for Travel",
+      "E-reader: Best Options for Travel",
+      "Tablet Stand: Best Options for Travel",
+      "Laptop Sleeve: Best Options for Travel",
+      "Action Camera: Best Options for Travel",
+      "Wireless Headphones: Best Budget Options",
+      "Smart Watch: Best Budget Options",
+      "Running Shoes: Best Budget Options",
+      "Coffee Maker: Best Budget Options",
+      "Desk Lamp: Best Budget Options",
+      "Backpack: Best Budget Options",
+      "Bluetooth Speaker: Best Budget Options",
+      "Webcam: Best Budget Options",
+      "Keyboard: Best Budget Options",
+      "Mouse: Best Budget Options",
+      "Monitor: Best Budget Options",
+      "USB Hub: Best Budget Options",
+      "Phone Case: Best Budget Options",
+      "Charger: Best Budget Options",
+      "Power Bank: Best Budget Options",
+      "Fitness Tracker: Best Budget Options",
+      "E-reader: Best Budget Options",
+      "Tablet Stand: Best Budget Options",
+      "Laptop Sleeve: Best Budget Options",
+      "Action Camera: Best Budget Options",
+      "Wireless Headphones: Premium Options Worth Considering",
+      "Smart Watch: Premium Options Worth Considering",
+      "Running Shoes: Premium Options Worth Considering",
+      "Coffee Maker: Premium Options Worth Considering",
+      "Desk Lamp: Premium Options Worth Considering",
+      "Backpack: Premium Options Worth Considering",
+      "Bluetooth Speaker: Premium Options Worth Considering",
+      "Webcam: Premium Options Worth Considering",
+      "Keyboard: Premium Options Worth Considering",
+      "Mouse: Premium Options Worth Considering",
+      "Monitor: Premium Options Worth Considering",
+      "USB Hub: Premium Options Worth Considering",
+      "Phone Case: Premium Options Worth Considering",
+      "Charger: Premium Options Worth Considering",
+      "Power Bank: Premium Options Worth Considering",
+      "Fitness Tracker: Premium Options Worth Considering",
+      "E-reader: Premium Options Worth Considering",
+      "Tablet Stand: Premium Options Worth Considering",
+      "Laptop Sleeve: Premium Options Worth Considering",
+      "Action Camera: Premium Options Worth Considering",
+      "Wireless Headphones: How to Choose the Right One",
+      "Smart Watch: How to Choose the Right One",
+      "Running Shoes: How to Choose the Right One",
+      "Coffee Maker: How to Choose the Right One",
+      "Desk Lamp: How to Choose the Right One",
+      "Backpack: How to Choose the Right One",
+      "Bluetooth Speaker: How to Choose the Right One",
+      "Webcam: How to Choose the Right One",
+      "Keyboard: How to Choose the Right One",
+      "Mouse: How to Choose the Right One",
+      "Monitor: How to Choose the Right One",
+      "USB Hub: How to Choose the Right One",
+      "Phone Case: How to Choose the Right One",
+      "Charger: How to Choose the Right One",
+      "Power Bank: How to Choose the Right One",
+      "Fitness Tracker: How to Choose the Right One",
+      "E-reader: How to Choose the Right One",
+      "Tablet Stand: How to Choose the Right One",
+      "Laptop Sleeve: How to Choose the Right One",
+      "Action Camera: How to Choose the Right One",
+      "Wireless Headphones: Key Features Explained",
+      "Smart Watch: Key Features Explained",
+      "Running Shoes: Key Features Explained",
+      "Coffee Maker: Key Features Explained",
+      "Desk Lamp: Key Features Explained",
+      "Backpack: Key Features Explained",
+      "Bluetooth Speaker: Key Features Explained",
+      "Webcam: Key Features Explained",
+      "Keyboard: Key Features Explained",
+      "Mouse: Key Features Explained",
+      "Monitor: Key Features Explained",
+      "USB Hub: Key Features Explained",
+      "Phone Case: Key Features Explained",
+      "Charger: Key Features Explained",
+      "Power Bank: Key Features Explained",
+      "Fitness Tracker: Key Features Explained",
+      "E-reader: Key Features Explained",
+      "Tablet Stand: Key Features Explained",
+      "Laptop Sleeve: Key Features Explained",
+      "Action Camera: Key Features Explained",
+      "Wireless Headphones: Common Mistakes to Avoid",
+      "Smart Watch: Common Mistakes to Avoid",
+      "Running Shoes: Common Mistakes to Avoid",
+      "Coffee Maker: Common Mistakes to Avoid",
+      "Desk Lamp: Common Mistakes to Avoid",
+      "Backpack: Common Mistakes to Avoid",
+      "Bluetooth Speaker: Common Mistakes to Avoid",
+      "Webcam: Common Mistakes to Avoid",
+      "Keyboard: Common Mistakes to Avoid",
+      "Mouse: Common Mistakes to Avoid",
+      "Monitor: Common Mistakes to Avoid",
+      "USB Hub: Common Mistakes to Avoid",
+      "Phone Case: Common Mistakes to Avoid",
+      "Charger: Common Mistakes to Avoid",
+      "Power Bank: Common Mistakes to Avoid",
+      "Fitness Tracker: Common Mistakes to Avoid",
+      "E-reader: Common Mistakes to Avoid",
+      "Tablet Stand: Common Mistakes to Avoid",
+      "Laptop Sleeve: Common Mistakes to Avoid",
+      "Action Camera: Common Mistakes to Avoid",
+      "Wireless Headphones: Best Options for Students",
+      "Smart Watch: Best Options for Students",
+      "Running Shoes: Best Options for Students",
+      "Coffee Maker: Best Options for Students",
+      "Desk Lamp: Best Options for Students",
+      "Backpack: Best Options for Students",
+      "Bluetooth Speaker: Best Options for Students",
+      "Webcam: Best Options for Students",
+      "Keyboard: Best Options for Students",
+      "Mouse: Best Options for Students",
+      "Monitor: Best Options for Students",
+      "USB Hub: Best Options for Students",
+      "Phone Case: Best Options for Students",
+      "Charger: Best Options for Students",
+      "Power Bank: Best Options for Students",
+      "Fitness Tracker: Best Options for Students",
+      "E-reader: Best Options for Students",
+      "Tablet Stand: Best Options for Students",
+      "Laptop Sleeve: Best Options for Students",
+      "Action Camera: Best Options for Students",
+      "Wireless Headphones: Best Options for Home Use",
+      "Smart Watch: Best Options for Home Use",
+      "Running Shoes: Best Options for Home Use",
+      "Coffee Maker: Best Options for Home Use",
+      "Desk Lamp: Best Options for Home Use",
+      "Backpack: Best Options for Home Use",
+      "Bluetooth Speaker: Best Options for Home Use",
+      "Webcam: Best Options for Home Use",
+      "Keyboard: Best Options for Home Use",
+      "Mouse: Best Options for Home Use",
+      "Monitor: Best Options for Home Use",
+      "USB Hub: Best Options for Home Use",
+      "Phone Case: Best Options for Home Use",
+      "Charger: Best Options for Home Use",
+      "Power Bank: Best Options for Home Use",
+      "Fitness Tracker: Best Options for Home Use",
+      "E-reader: Best Options for Home Use",
+      "Tablet Stand: Best Options for Home Use",
+      "Laptop Sleeve: Best Options for Home Use",
+      "Action Camera: Best Options for Home Use",
+      "Wireless Headphones: Best Options for Beginners",
+      "Smart Watch: Best Options for Beginners",
+      "Running Shoes: Best Options for Beginners",
+      "Coffee Maker: Best Options for Beginners",
+      "Desk Lamp: Best Options for Beginners",
+      "Backpack: Best Options for Beginners",
+      "Bluetooth Speaker: Best Options for Beginners",
+      "Webcam: Best Options for Beginners",
+      "Keyboard: Best Options for Beginners",
+      "Mouse: Best Options for Beginners",
+      "Monitor: Best Options for Beginners",
+      "USB Hub: Best Options for Beginners",
+      "Phone Case: Best Options for Beginners",
+      "Charger: Best Options for Beginners",
+      "Power Bank: Best Options for Beginners",
+      "Fitness Tracker: Best Options for Beginners",
+      "E-reader: Best Options for Beginners",
+      "Tablet Stand: Best Options for Beginners",
+      "Laptop Sleeve: Best Options for Beginners",
+      "Action Camera: Best Options for Beginners",
+      "Wireless Headphones: Best Options for Professionals",
+      "Smart Watch: Best Options for Professionals",
+      "Running Shoes: Best Options for Professionals",
+      "Coffee Maker: Best Options for Professionals",
+      "Desk Lamp: Best Options for Professionals",
+      "Backpack: Best Options for Professionals",
+      "Bluetooth Speaker: Best Options for Professionals",
+      "Webcam: Best Options for Professionals",
+      "Keyboard: Best Options for Professionals",
+      "Mouse: Best Options for Professionals",
+      "Monitor: Best Options for Professionals",
+      "USB Hub: Best Options for Professionals",
+      "Phone Case: Best Options for Professionals",
+      "Charger: Best Options for Professionals",
+      "Power Bank: Best Options for Professionals",
+      "Fitness Tracker: Best Options for Professionals",
+      "E-reader: Best Options for Professionals",
+      "Tablet Stand: Best Options for Professionals",
+      "Laptop Sleeve: Best Options for Professionals",
+      "Action Camera: Best Options for Professionals",
+      "Wireless Headphones: Best Options for Fitness",
+      "Smart Watch: Best Options for Fitness",
+      "Running Shoes: Best Options for Fitness",
+      "Coffee Maker: Best Options for Fitness",
+      "Desk Lamp: Best Options for Fitness",
+      "Backpack: Best Options for Fitness",
+      "Bluetooth Speaker: Best Options for Fitness",
+      "Webcam: Best Options for Fitness",
+      "Keyboard: Best Options for Fitness",
+      "Mouse: Best Options for Fitness",
+      "Monitor: Best Options for Fitness",
+      "USB Hub: Best Options for Fitness",
+      "Phone Case: Best Options for Fitness",
+      "Charger: Best Options for Fitness",
+      "Power Bank: Best Options for Fitness",
+      "Fitness Tracker: Best Options for Fitness",
+      "E-reader: Best Options for Fitness",
+      "Tablet Stand: Best Options for Fitness",
+      "Laptop Sleeve: Best Options for Fitness",
+      "Action Camera: Best Options for Fitness",
+      "Wireless Headphones: Best Options for Small Spaces",
+      "Smart Watch: Best Options for Small Spaces",
+      "Running Shoes: Best Options for Small Spaces",
+      "Coffee Maker: Best Options for Small Spaces",
+      "Desk Lamp: Best Options for Small Spaces",
+      "Backpack: Best Options for Small Spaces",
+      "Bluetooth Speaker: Best Options for Small Spaces",
+      "Webcam: Best Options for Small Spaces",
+      "Keyboard: Best Options for Small Spaces",
+      "Mouse: Best Options for Small Spaces",
+      "Monitor: Best Options for Small Spaces",
+      "USB Hub: Best Options for Small Spaces",
+      "Phone Case: Best Options for Small Spaces",
+      "Charger: Best Options for Small Spaces",
+      "Power Bank: Best Options for Small Spaces",
+      "Fitness Tracker: Best Options for Small Spaces",
+      "E-reader: Best Options for Small Spaces",
+      "Tablet Stand: Best Options for Small Spaces",
+      "Laptop Sleeve: Best Options for Small Spaces",
+      "Action Camera: Best Options for Small Spaces",
+      "Wireless Headphones: Best Options for Long-Term Use",
+      "Smart Watch: Best Options for Long-Term Use",
+      "Running Shoes: Best Options for Long-Term Use",
+      "Coffee Maker: Best Options for Long-Term Use",
+      "Desk Lamp: Best Options for Long-Term Use",
+      "Backpack: Best Options for Long-Term Use",
+      "Bluetooth Speaker: Best Options for Long-Term Use",
+      "Webcam: Best Options for Long-Term Use",
+      "Keyboard: Best Options for Long-Term Use",
+      "Mouse: Best Options for Long-Term Use",
+      "Monitor: Best Options for Long-Term Use",
+      "USB Hub: Best Options for Long-Term Use",
+      "Phone Case: Best Options for Long-Term Use",
+      "Charger: Best Options for Long-Term Use",
+      "Power Bank: Best Options for Long-Term Use",
+      "Fitness Tracker: Best Options for Long-Term Use",
+      "E-reader: Best Options for Long-Term Use",
+      "Tablet Stand: Best Options for Long-Term Use",
+      "Laptop Sleeve: Best Options for Long-Term Use",
+      "Action Camera: Best Options for Long-Term Use",
+      "Wireless Headphones: Best Options for Remote Work",
+      "Smart Watch: Best Options for Remote Work",
+      "Running Shoes: Best Options for Remote Work",
+      "Coffee Maker: Best Options for Remote Work",
+      "Desk Lamp: Best Options for Remote Work",
+      "Backpack: Best Options for Remote Work",
+      "Bluetooth Speaker: Best Options for Remote Work",
+      "Webcam: Best Options for Remote Work",
+      "Keyboard: Best Options for Remote Work",
+      "Mouse: Best Options for Remote Work",
+      "Monitor: Best Options for Remote Work",
+      "USB Hub: Best Options for Remote Work",
+      "Phone Case: Best Options for Remote Work",
+      "Charger: Best Options for Remote Work",
+      "Power Bank: Best Options for Remote Work",
+      "Fitness Tracker: Best Options for Remote Work",
+      "E-reader: Best Options for Remote Work",
+      "Tablet Stand: Best Options for Remote Work",
+      "Laptop Sleeve: Best Options for Remote Work",
+      "Action Camera: Best Options for Remote Work",
+      "Wireless Headphones: Best Options for Outdoor Use",
+      "Smart Watch: Best Options for Outdoor Use",
+      "Running Shoes: Best Options for Outdoor Use",
+      "Coffee Maker: Best Options for Outdoor Use",
+      "Desk Lamp: Best Options for Outdoor Use",
+      "Backpack: Best Options for Outdoor Use",
+      "Bluetooth Speaker: Best Options for Outdoor Use",
+      "Webcam: Best Options for Outdoor Use",
+      "Keyboard: Best Options for Outdoor Use",
+      "Mouse: Best Options for Outdoor Use",
+      "Monitor: Best Options for Outdoor Use",
+      "USB Hub: Best Options for Outdoor Use",
+      "Phone Case: Best Options for Outdoor Use",
+      "Charger: Best Options for Outdoor Use",
+      "Power Bank: Best Options for Outdoor Use",
+      "Fitness Tracker: Best Options for Outdoor Use",
+      "E-reader: Best Options for Outdoor Use",
+      "Tablet Stand: Best Options for Outdoor Use",
+      "Laptop Sleeve: Best Options for Outdoor Use",
+      "Action Camera: Best Options for Outdoor Use",
+      "Wireless Headphones: Best Options for Gifts",
+      "Smart Watch: Best Options for Gifts",
+      "Running Shoes: Best Options for Gifts",
+      "Coffee Maker: Best Options for Gifts",
+      "Desk Lamp: Best Options for Gifts",
+      "Backpack: Best Options for Gifts",
+      "Bluetooth Speaker: Best Options for Gifts",
+      "Webcam: Best Options for Gifts",
+      "Keyboard: Best Options for Gifts",
+      "Mouse: Best Options for Gifts",
+      "Monitor: Best Options for Gifts",
+      "USB Hub: Best Options for Gifts",
+      "Phone Case: Best Options for Gifts",
+      "Charger: Best Options for Gifts",
+      "Power Bank: Best Options for Gifts",
+      "Fitness Tracker: Best Options for Gifts",
+      "E-reader: Best Options for Gifts",
+      "Tablet Stand: Best Options for Gifts",
+      "Laptop Sleeve: Best Options for Gifts",
+      "Action Camera: Best Options for Gifts",
+      "Wireless Headphones: Care and Maintenance Guide",
+      "Smart Watch: Care and Maintenance Guide",
+      "Running Shoes: Care and Maintenance Guide",
+      "Coffee Maker: Care and Maintenance Guide",
+      "Desk Lamp: Care and Maintenance Guide",
+      "Backpack: Care and Maintenance Guide",
+      "Bluetooth Speaker: Care and Maintenance Guide",
+      "Webcam: Care and Maintenance Guide",
+      "Keyboard: Care and Maintenance Guide",
+      "Mouse: Care and Maintenance Guide",
+      "Monitor: Care and Maintenance Guide",
+      "USB Hub: Care and Maintenance Guide",
+      "Phone Case: Care and Maintenance Guide",
+      "Charger: Care and Maintenance Guide",
+      "Power Bank: Care and Maintenance Guide",
+      "Fitness Tracker: Care and Maintenance Guide",
+      "E-reader: Care and Maintenance Guide",
+      "Tablet Stand: Care and Maintenance Guide",
+      "Laptop Sleeve: Care and Maintenance Guide",
+      "Action Camera: Care and Maintenance Guide",
+      "Wireless Headphones: Setup and Getting Started Guide",
+      "Smart Watch: Setup and Getting Started Guide",
+      "Running Shoes: Setup and Getting Started Guide",
+      "Coffee Maker: Setup and Getting Started Guide",
+      "Desk Lamp: Setup and Getting Started Guide",
+      "Backpack: Setup and Getting Started Guide",
+      "Bluetooth Speaker: Setup and Getting Started Guide",
+      "Webcam: Setup and Getting Started Guide",
+      "Keyboard: Setup and Getting Started Guide",
+      "Mouse: Setup and Getting Started Guide",
+      "Monitor: Setup and Getting Started Guide",
+      "USB Hub: Setup and Getting Started Guide",
+      "Phone Case: Setup and Getting Started Guide",
+      "Charger: Setup and Getting Started Guide",
+      "Power Bank: Setup and Getting Started Guide",
+      "Fitness Tracker: Setup and Getting Started Guide",
+      "E-reader: Setup and Getting Started Guide",
+      "Tablet Stand: Setup and Getting Started Guide",
+      "Laptop Sleeve: Setup and Getting Started Guide",
+      "Action Camera: Setup and Getting Started Guide",
+      "Wireless Headphones: Size and Fit Guide",
+      "Smart Watch: Size and Fit Guide",
+      "Running Shoes: Size and Fit Guide",
+      "Coffee Maker: Size and Fit Guide",
+      "Desk Lamp: Size and Fit Guide",
+      "Backpack: Size and Fit Guide",
+      "Bluetooth Speaker: Size and Fit Guide",
+      "Webcam: Size and Fit Guide",
+      "Keyboard: Size and Fit Guide",
+      "Mouse: Size and Fit Guide",
+      "Monitor: Size and Fit Guide",
+      "USB Hub: Size and Fit Guide",
+      "Phone Case: Size and Fit Guide",
+      "Charger: Size and Fit Guide",
+      "Power Bank: Size and Fit Guide",
+      "Fitness Tracker: Size and Fit Guide",
+      "E-reader: Size and Fit Guide",
+      "Tablet Stand: Size and Fit Guide",
+      "Laptop Sleeve: Size and Fit Guide",
+      "Action Camera: Size and Fit Guide",
+      "Wireless Headphones: Performance Comparison Guide",
+      "Smart Watch: Performance Comparison Guide",
+      "Running Shoes: Performance Comparison Guide",
+      "Coffee Maker: Performance Comparison Guide",
+      "Desk Lamp: Performance Comparison Guide",
+      "Backpack: Performance Comparison Guide",
+      "Bluetooth Speaker: Performance Comparison Guide",
+      "Webcam: Performance Comparison Guide",
+      "Keyboard: Performance Comparison Guide",
+      "Mouse: Performance Comparison Guide",
+      "Monitor: Performance Comparison Guide",
+      "USB Hub: Performance Comparison Guide",
+      "Phone Case: Performance Comparison Guide",
+      "Charger: Performance Comparison Guide",
+      "Power Bank: Performance Comparison Guide",
+      "Fitness Tracker: Performance Comparison Guide",
+      "E-reader: Performance Comparison Guide",
+      "Tablet Stand: Performance Comparison Guide",
+      "Laptop Sleeve: Performance Comparison Guide",
+      "Action Camera: Performance Comparison Guide",
+      "Wireless Headphones: 2026 Buyer’s Guide",
+      "Smart Watch: 2026 Buyer’s Guide",
+      "Running Shoes: 2026 Buyer’s Guide",
+      "Coffee Maker: 2026 Buyer’s Guide",
+      "Desk Lamp: 2026 Buyer’s Guide",
+      "Backpack: 2026 Buyer’s Guide",
+      "Bluetooth Speaker: 2026 Buyer’s Guide",
+      "Webcam: 2026 Buyer’s Guide",
+      "Keyboard: 2026 Buyer’s Guide",
+      "Mouse: 2026 Buyer’s Guide",
+      "Monitor: 2026 Buyer’s Guide",
+      "USB Hub: 2026 Buyer’s Guide",
+      "Phone Case: 2026 Buyer’s Guide",
+      "Charger: 2026 Buyer’s Guide",
+      "Power Bank: 2026 Buyer’s Guide",
+      "Fitness Tracker: 2026 Buyer’s Guide",
+      "E-reader: 2026 Buyer’s Guide",
+      "Tablet Stand: 2026 Buyer’s Guide",
+      "Laptop Sleeve: 2026 Buyer’s Guide",
+      "Action Camera: 2026 Buyer’s Guide"
+    ];
+
+    // ---------- GÉNÉRATION DES TÂCHES (avec les nouveaux noms) ----------
     function generateTasks() {
-      const products = [
-        "Wireless Headphones", "Smart Watch", "Running Shoes", "Coffee Maker",
-        "Desk Lamp", "Backpack", "Bluetooth Speaker", "Webcam", "Keyboard",
-        "Mouse", "Monitor", "USB Hub", "Phone Case", "Charger", "Power Bank",
-        "Fitness Tracker", "E-reader", "Tablet Stand", "Laptop Sleeve", "Action Camera"
-      ];
       const tasks = [];
-      for (let i = 1; i <= 500; i++) {
+      for (let i = 0; i < articleNames.length; i++) {
         const base = parseFloat((Math.floor(Math.random() * 8) + 2) / 10);
         let multiplier = 1;
         let special = false;
-        if (i % 7 === 0) { multiplier = 3; special = true; }
-        else if (i % 11 === 0) { multiplier = 4; special = true; }
+        if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
+        else if ((i+1) % 11 === 0) { multiplier = 4; special = true; }
         const reward = parseFloat((base * multiplier).toFixed(2));
-        const pIdx = (i-1) % products.length;
-        let product = products[pIdx];
-        if (i > products.length) product += ` ${Math.floor((i-1)/products.length) + 1}`;
-        const seed = encodeURIComponent(product.replace(/\s/g, '-').toLowerCase());
+        const name = articleNames[i];
+        // Génération d'un seed lisible (on enlève les caractères spéciaux)
+        const seed = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
         tasks.push({
-          id: i,
-          product: product,
-          image: `https://picsum.photos/seed/${seed}/300/300`,
+          id: i + 1,
+          product: name,
+          image: `https://picsum.photos/seed/${encodeURIComponent(seed)}/300/300`,
           baseReward: base,
           multiplier: multiplier,
           reward: reward,
           special: special,
-          status: 'pending'   // 'pending' ou 'completed'
+          status: 'pending'
         });
       }
       return tasks;
     }
 
-    // ---------- PERSISTENCE ----------
+    // ---------- PERSISTENCE (inchangée) ----------
     function getUsers() { try { return JSON.parse(localStorage.getItem('taskflow_users')) || {}; } catch { return {}; } }
     function saveUsers(u) { localStorage.setItem('taskflow_users', JSON.stringify(u)); }
     function getBalance(u) { return parseFloat(localStorage.getItem(`tf_balance_${u}`) || '0'); }
@@ -610,7 +1094,7 @@
     function getCurrentUser() { return localStorage.getItem('taskflow_current_user') || null; }
     function setCurrentUser(u) { if (u) localStorage.setItem('taskflow_current_user', u); else localStorage.removeItem('taskflow_current_user'); }
 
-    // ---------- LANG ----------
+    // ---------- LANG (inchangé) ----------
     function detectLanguage() {
       const l = (navigator.language || navigator.languages[0] || 'en').split('-')[0];
       return ['fr','es'].includes(l) ? l : 'en';
@@ -640,7 +1124,6 @@
       updateAuthButtons();
       renderTeam();
       renderCurrentTask();
-      // Update withdraw modal text
       document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
       document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
       document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
@@ -794,7 +1277,7 @@
       teamGrid.innerHTML = html;
     }
 
-    // ---------- RENDER CURRENT TASK (sans bouton Accepter) ----------
+    // ---------- RENDER CURRENT TASK ----------
     function renderCurrentTask() {
       const t = i18n[currentLang];
       if (!currentUser) {
@@ -803,7 +1286,6 @@
         return;
       }
 
-      // Trouver la prochaine tâche non complétée
       let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
       if (nextIdx === -1) {
         const allDone = tasksData.every(task => task.status === 'completed');
@@ -849,7 +1331,6 @@
       taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
       // Événements
-      // Stars
       taskContainer.querySelectorAll('.stars').forEach(starDiv => {
         const id = parseInt(starDiv.dataset.id, 10);
         const spans = starDiv.querySelectorAll('span');
@@ -862,7 +1343,6 @@
         });
       });
 
-      // Textarea counter
       taskContainer.querySelectorAll('.review-form textarea').forEach(ta => {
         const id = parseInt(ta.dataset.id, 10);
         const counter = document.querySelector(`.char-counter[data-id="${id}"]`);
@@ -873,7 +1353,6 @@
         });
       });
 
-      // Submit
       taskContainer.querySelectorAll('[data-action="submit"]').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = parseInt(btn.dataset.id, 10);
@@ -882,7 +1361,7 @@
       });
     }
 
-    // ---------- SUBMIT REVIEW (sans accept) ----------
+    // ---------- SUBMIT REVIEW ----------
     function submitReview(taskId) {
       if (!currentUser) return;
       const task = tasksData.find(t => t.id === taskId);
@@ -899,24 +1378,21 @@
       if (selectedStars === 0) { alert(t.select_stars); return; }
       if (comment.length < 160) { alert(`${t.min_chars} (${comment.length}/160)`); return; }
 
-      // Mettre à jour la balance
       balanceCache += task.reward;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
 
-      // Marquer comme complétée
       task.status = 'completed';
       if (!completedIds.includes(taskId)) completedIds.push(taskId);
       setCompleted(currentUser, completedIds);
       updateCompletedCount();
 
-      // Passer à la tâche suivante
       currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
       renderCurrentTask();
     }
 
-    // ---------- WITHDRAW (Retrait) ----------
+    // ---------- WITHDRAW ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
       withdrawModal.classList.add('open');
@@ -942,7 +1418,6 @@
         alert(t.withdraw_insufficient.replace('${balance}', balanceCache.toFixed(2)));
         return;
       }
-      // Process withdrawal
       balanceCache -= amount;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
@@ -989,4 +1464,4 @@
   })();
 </script>
 </body>
-      </html>
+  </html>
