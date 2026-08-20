@@ -107,6 +107,7 @@
     }
     .balance-label { font-size:1.2rem; color:#6e6e73; }
     .balance-amount { font-size:2.8rem; font-weight:700; letter-spacing:-0.02em; color:#000; }
+    .balance-amount small { font-size:1.2rem; font-weight:400; color:#6e6e73; margin-left:6px; }
 
     .task-container {
       background:#fff; border-radius:20px; padding:30px 24px;
@@ -158,6 +159,7 @@
 
     #withdrawModal .modal-box { max-width:520px; }
     #withdrawModal .modal-box form { gap:12px; }
+    #withdrawModal .modal-box input { margin-bottom:0; }
 
     footer {
       background: #f5f5f7;
@@ -209,18 +211,6 @@
     .modal-box .switch-auth { margin-top:18px; text-align:center; color:#6e6e73; font-size:0.95rem; }
     .modal-box .switch-auth span { color:#007aff; font-weight:500; cursor:pointer; }
     .close-modal { position:absolute; top:16px; right:20px; font-size:1.6rem; cursor:pointer; color:#6e6e73; }
-
-    /* Spinner */
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 0.8s ease-in-out infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width:700px) {
       .navbar .container { flex-direction:column; gap:12px; }
@@ -286,10 +276,10 @@
     <h2 class="section-title" data-i18n="contact_title">Get in touch</h2>
     <p class="section-sub" data-i18n="contact_sub">We'd love to hear from you.</p>
     <div class="contact-form">
-      <input type="text" placeholder="Name" data-i18n-placeholder="contact_name">
-      <input type="email" placeholder="Email" data-i18n-placeholder="contact_email">
-      <textarea rows="4" placeholder="Your message..." data-i18n-placeholder="contact_msg"></textarea>
-      <button data-i18n="contact_send">Send message</button>
+      <input type="text" id="contactName" placeholder="Name" data-i18n-placeholder="contact_name">
+      <input type="email" id="contactEmail" placeholder="Email" data-i18n-placeholder="contact_email">
+      <textarea id="contactMessage" rows="4" placeholder="Your message..." data-i18n-placeholder="contact_msg"></textarea>
+      <button id="contactSubmit" data-i18n="contact_send">Send message</button>
     </div>
   </section>
 
@@ -368,7 +358,7 @@
       <input type="text" id="institutionNumber" placeholder="Institution Number" required data-i18n-placeholder="withdraw_institution_number">
       <input type="text" id="swiftCode" placeholder="SWIFT Code" required data-i18n-placeholder="withdraw_swift_code">
       <input type="number" id="withdrawAmount" placeholder="Amount (USD)" min="0.01" step="0.01" required data-i18n-placeholder="withdraw_amount">
-      <button type="submit" id="withdrawSubmitBtn" data-i18n="withdraw_submit">Withdraw</button>
+      <button type="submit" data-i18n="withdraw_submit">Withdraw</button>
     </form>
   </div>
 </div>
@@ -421,10 +411,8 @@
         withdraw_institution_number:"Institution Number",
         withdraw_swift_code:"SWIFT Code",
         withdraw_amount:"Amount (USD)",
-        withdraw_success:"Withdrawal of $${amount} to bank '${bank}' for ${holder} (account: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) has been processed and email sent.",
-        withdraw_insufficient:"Insufficient balance. You have $${balance} available.",
-        withdraw_email_error:"Withdrawal processed but there was an error sending the email. Please contact support.",
-        withdraw_email_success:"Withdrawal confirmation email sent successfully."
+        withdraw_success:"Withdrawal of $${amount} to bank '${bank}' for ${holder} (account: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) has been processed.",
+        withdraw_insufficient:"Insufficient balance. You have $${balance} available."
       },
       fr: {
         about_title:"À propos de TaskFlow",
@@ -467,10 +455,8 @@
         withdraw_institution_number:"Numéro d'institution",
         withdraw_swift_code:"Code SWIFT",
         withdraw_amount:"Montant (USD)",
-        withdraw_success:"Retrait de $${amount} vers la banque '${bank}' au nom de ${holder} (compte: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) a été effectué et l'email envoyé.",
-        withdraw_insufficient:"Solde insuffisant. Vous avez $${balance} disponible.",
-        withdraw_email_error:"Retrait effectué mais une erreur est survenue lors de l'envoi de l'email. Veuillez contacter le support.",
-        withdraw_email_success:"Email de confirmation de retrait envoyé avec succès."
+        withdraw_success:"Retrait de $${amount} vers la banque '${bank}' au nom de ${holder} (compte: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) a été effectué.",
+        withdraw_insufficient:"Solde insuffisant. Vous avez $${balance} disponible."
       },
       es: {
         about_title:"Acerca de TaskFlow",
@@ -513,15 +499,10 @@
         withdraw_institution_number:"Número de institución",
         withdraw_swift_code:"Código SWIFT",
         withdraw_amount:"Monto (USD)",
-        withdraw_success:"Retiro de $${amount} al banco '${bank}' a nombre de ${holder} (cuenta: ${account}, tránsito: ${transit}, institución: ${institution}, SWIFT: ${swift}) procesado y email enviado.",
-        withdraw_insufficient:"Saldo insuficiente. Tienes $${balance} disponible.",
-        withdraw_email_error:"Retiro procesado pero hubo un error al enviar el email. Contacta al soporte.",
-        withdraw_email_success:"Email de confirmación de retiro enviado con éxito."
+        withdraw_success:"Retiro de $${amount} al banco '${bank}' a nombre de ${holder} (cuenta: ${account}, tránsito: ${transit}, institución: ${institution}, SWIFT: ${swift}) procesado.",
+        withdraw_insufficient:"Saldo insuficiente. Tienes $${balance} disponible."
       }
     };
-
-    // ---------- CONFIG ----------
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyn4MirbcMdJkfVNeH9wenmrEvQq-Z7wBNR2F4we89abcjq4f8Q3LFuGbg0ZjoO5jF6/exec';
 
     // ---------- ÉTAT ----------
     let currentLang = 'en';
@@ -566,7 +547,6 @@
     const withdrawModal = $('#withdrawModal');
     const closeWithdrawModal = $('#closeWithdrawModal');
     const withdrawForm = $('#withdrawForm');
-    const withdrawSubmitBtn = $('#withdrawSubmitBtn');
     const bankName = $('#bankName');
     const accountHolder = $('#accountHolder');
     const accountNumber = $('#accountNumber');
@@ -574,6 +554,12 @@
     const institutionNumber = $('#institutionNumber');
     const swiftCode = $('#swiftCode');
     const withdrawAmount = $('#withdrawAmount');
+
+    // Contact form elements
+    const contactName = $('#contactName');
+    const contactEmail = $('#contactEmail');
+    const contactMessage = $('#contactMessage');
+    const contactSubmit = $('#contactSubmit');
 
     let isLoginMode = true;
 
@@ -1178,7 +1164,7 @@
       renderCurrentTask();
       document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
       document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
-      withdrawSubmitBtn.textContent = i18n[lang].withdraw_submit;
+      document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
     }
 
     function updateModalTexts() {
@@ -1444,20 +1430,6 @@
       renderCurrentTask();
     }
 
-    // ---------- SEND TO GAS ----------
-    function sendWithdrawalEmail(data) {
-      return fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Important pour les requêtes depuis un site statique vers GAS
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
-      .then(() => ({ success: true }))
-      .catch(() => ({ success: false, error: 'Network error' }));
-    }
-
     // ---------- WITHDRAW ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
@@ -1471,9 +1443,8 @@
     closeWithdrawModal.addEventListener('click', closeWithdrawModalFn);
     withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) closeWithdrawModalFn(); });
 
-    withdrawForm.addEventListener('submit', async (e) => {
+    withdrawForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      
       const bank = bankName.value.trim();
       const holder = accountHolder.value.trim();
       const account = accountNumber.value.trim();
@@ -1483,7 +1454,6 @@
       const amount = parseFloat(withdrawAmount.value);
       const t = i18n[currentLang];
 
-      // Validation
       if (!bank || !holder || !account || !transit || !institution || !swift) {
         alert('All bank fields are required.');
         return;
@@ -1497,53 +1467,46 @@
         return;
       }
 
-      // Désactiver le bouton et afficher un spinner
-      withdrawSubmitBtn.disabled = true;
-      withdrawSubmitBtn.innerHTML = '<span class="spinner"></span> Processing...';
+      balanceCache -= amount;
+      setBalance(currentUser, balanceCache);
+      updateBalanceDisplay();
 
-      try {
-        // 1. Envoyer les données au Google Apps Script
-        const emailData = {
-          username: currentUser,
-          bankName: bank,
-          accountHolder: holder,
-          accountNumber: account,
-          transitNumber: transit,
-          institutionNumber: institution,
-          swiftCode: swift,
-          amount: amount,
-          timestamp: new Date().toISOString()
-        };
+      const successMsg = t.withdraw_success
+        .replace('${amount}', amount.toFixed(2))
+        .replace('${bank}', bank)
+        .replace('${holder}', holder)
+        .replace('${account}', account)
+        .replace('${transit}', transit)
+        .replace('${institution}', institution)
+        .replace('${swift}', swift);
 
-        const result = await sendWithdrawalEmail(emailData);
-        
-        // 2. Si l'email a été envoyé (ou tenté), on procède au retrait
-        balanceCache -= amount;
-        setBalance(currentUser, balanceCache);
-        updateBalanceDisplay();
-
-        // Message de succès
-        const successMsg = t.withdraw_success
-          .replace('${amount}', amount.toFixed(2))
-          .replace('${bank}', bank)
-          .replace('${holder}', holder)
-          .replace('${account}', account)
-          .replace('${transit}', transit)
-          .replace('${institution}', institution)
-          .replace('${swift}', swift);
-        
-        alert(successMsg);
-        closeWithdrawModalFn();
-
-      } catch (error) {
-        alert(t.withdraw_email_error);
-        console.error('Withdrawal error:', error);
-      } finally {
-        // Réactiver le bouton
-        withdrawSubmitBtn.disabled = false;
-        withdrawSubmitBtn.textContent = t.withdraw_submit;
-      }
+      alert(successMsg);
+      closeWithdrawModalFn();
     });
+
+    // ---------- CONTACT FORM (mailto avec données) ----------
+    function sendContactEmail(e) {
+      e.preventDefault();
+      const name = contactName.value.trim();
+      const email = contactEmail.value.trim();
+      const message = contactMessage.value.trim();
+
+      if (!name || !email || !message) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      // Construire le mailto
+      const subject = `Contact from ${name}`;
+      const body = `Message: ${message}%0D%0A%0D%0AFrom: ${name} (${email})`;
+      const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      // Ouvrir le client mail
+      window.location.href = mailtoLink;
+
+      // Optionnel : réinitialiser le formulaire
+      // contactForm.reset();
+    }
 
     // ---------- INIT ----------
     function init() {
@@ -1578,10 +1541,13 @@
       langBtns.forEach(btn => {
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
       });
+
+      // Écouter l'envoi du formulaire de contact
+      contactSubmit.addEventListener('click', sendContactEmail);
     }
 
     init();
   })();
 </script>
 </body>
-      </html>
+    </html>
