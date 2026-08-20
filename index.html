@@ -13,6 +13,9 @@
       color: #1d1d1f;
       line-height:1.5;
       -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     a { text-decoration:none; color:inherit; }
     button {
@@ -53,6 +56,7 @@
     .auth-btn:hover { opacity:0.8; }
 
     /* ---------- SECTIONS ---------- */
+    main { flex: 1; }
     section { padding:60px 0; display:none; }
     section.active-section { display:block; }
     .section-title { font-size:2.4rem; font-weight:600; letter-spacing:-0.02em; margin-bottom:24px; }
@@ -67,6 +71,40 @@
     .contact-form { max-width:500px; display:flex; flex-direction:column; gap:16px; margin-top:20px; }
     .contact-form button { align-self:flex-start; background:#007aff; color:#fff; padding:12px 32px; border-radius:980px; font-weight:500; }
 
+    /* Long text about */
+    .long-text { 
+      background:#fff; border-radius:20px; padding:30px; 
+      box-shadow:0 4px 20px rgba(0,0,0,0.04); line-height:1.8;
+      color:#1d1d1f; font-size:1.05rem;
+    }
+
+    /* ---------- DIRECTORY (Répertoire) ---------- */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .team-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      transition: transform 0.2s;
+    }
+    .team-card:hover { transform: translateY(-4px); }
+    .team-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      background: #e8e8ed;
+    }
+    .team-card h4 { font-weight:600; font-size:1.1rem; }
+    .team-card p { color:#6e6e73; font-size:0.9rem; }
+
     /* ---------- DASHBOARD ---------- */
     #section-dashboard .balance-box {
       background:#fff; border-radius:24px; padding:24px 32px;
@@ -77,7 +115,6 @@
     .balance-amount { font-size:2.8rem; font-weight:700; letter-spacing:-0.02em; color:#000; }
     .balance-amount small { font-size:1.2rem; font-weight:400; color:#6e6e73; margin-left:6px; }
 
-    /* Task list */
     .task-item {
       background:#fff; border-radius:16px; padding:18px 24px; margin-bottom:14px;
       display:flex; align-items:center; gap:18px;
@@ -105,7 +142,6 @@
     .task-action button.success { background:#34c759; }
     .task-status { font-size:0.8rem; color:#6e6e73; }
 
-    /* Review form (inline) */
     .review-form {
       margin-top:12px; padding-top:16px; border-top:1px solid #e8e8ed;
       display:flex; flex-direction:column; gap:14px; width:100%;
@@ -118,6 +154,37 @@
     .review-form textarea { min-height:100px; resize:vertical; }
     .review-form .char-counter { font-size:0.8rem; color:#86868b; text-align:right; }
     .review-form .char-counter.valid { color:#34c759; }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      background: #f5f5f7;
+      border-top: 1px solid #d2d2d7;
+      padding: 28px 0 20px;
+      margin-top: 20px;
+    }
+    footer .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    footer .footer-links a {
+      font-size: 0.85rem;
+      color: #1d1d1f;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    footer .footer-links a:hover { opacity: 1; }
+    footer .copy {
+      font-size: 0.8rem;
+      color: #86868b;
+    }
 
     /* ---------- MODAL ---------- */
     .modal-overlay {
@@ -147,6 +214,8 @@
       .section-title { font-size:1.8rem; }
       .balance-amount { font-size:2rem; }
       .task-item { flex-direction:column; align-items:stretch; }
+      footer .container { flex-direction:column; gap:16px; text-align:center; }
+      footer .footer-links { justify-content:center; }
     }
   </style>
 </head>
@@ -182,6 +251,9 @@
       <div class="card"><h3 data-i18n="about_card2_title">⚡ Vision</h3><p data-i18n="about_card2_text">Every opinion counts and pays instantly.</p></div>
       <div class="card"><h3 data-i18n="about_card3_title">💡 Values</h3><p data-i18n="about_card3_text">Trust, transparency, and fair rewards.</p></div>
     </div>
+    <div class="long-text" data-i18n="about_long">
+      <!-- Le contenu long est injecté via JS pour gérer les langues -->
+    </div>
   </section>
 
   <!-- HISTORY -->
@@ -208,6 +280,15 @@
     </div>
   </section>
 
+  <!-- DIRECTORY (Répertoire) -->
+  <section id="section-directory">
+    <h2 class="section-title" data-i18n="directory_title">Our Team</h2>
+    <p class="section-sub" data-i18n="directory_sub">Meet the people behind TaskFlow.</p>
+    <div class="team-grid" id="teamGrid">
+      <!-- généré par JS -->
+    </div>
+  </section>
+
   <!-- DASHBOARD -->
   <section id="section-dashboard">
     <div class="balance-box">
@@ -224,6 +305,19 @@
     <div id="taskList"></div>
   </section>
 </main>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a data-section="about" data-i18n="footer_about">About</a>
+      <a data-section="contact" data-i18n="footer_contact">Contact</a>
+      <a data-section="history" data-i18n="footer_revision">Re-vision</a>
+      <a data-section="directory" data-i18n="footer_directory">Directory</a>
+    </div>
+    <div class="copy">&copy; 2026 TaskFlow</div>
+  </div>
+</footer>
 
 <!-- ====== AUTH MODAL ====== -->
 <div class="modal-overlay" id="authModal">
@@ -251,10 +345,17 @@
     // ---------- TRADUCTIONS ----------
     const i18n = {
       en: {
-        about_title:"About TaskFlow", about_desc:"Earn real money by sharing honest opinions on products.",
-        about_card1_title:"🎯 Mission", about_card1_text:"Empower users to earn through micro-reviews.",
-        about_card2_title:"⚡ Vision", about_card2_text:"Every opinion counts and pays instantly.",
-        about_card3_title:"💡 Values", about_card3_text:"Trust, transparency, and fair rewards.",
+        about_title:"About TaskFlow",
+        about_desc:"Earn real money by sharing honest opinions on products.",
+        about_card1_title:"🎯 Mission",
+        about_card1_text:"Empower users to earn through micro-reviews.",
+        about_card2_title:"⚡ Vision",
+        about_card2_text:"Every opinion counts and pays instantly.",
+        about_card3_title:"💡 Values",
+        about_card3_text:"Trust, transparency, and fair rewards.",
+        // Long about (1200+ chars)
+        about_long: `TaskFlow was born from a simple yet powerful observation: in today's digital economy, every individual interaction holds intrinsic value. We believe that micro-tasks, such as sharing honest product reviews, should not only contribute to the community but also provide tangible, immediate rewards to the contributors. Our platform is engineered to bridge the gap between consumer feedback and financial empowerment. We operate on a foundation of radical transparency, ensuring that every cent earned is clearly displayed and instantly accessible. Our sophisticated matching algorithm pairs users with products that align with their interests, making the review process engaging and authentic. We are committed to fostering a global community where trust is paramount. Every review submitted on TaskFlow undergoes rigorous quality checks to maintain the integrity of our ecosystem. We envision a future where every voice, no matter how small, can influence market trends and earn a fair share of the value it generates. Our team is dedicated to continuous innovation, constantly refining our user experience to be seamless and intuitive. We are not just a platform; we are a movement towards a more equitable digital marketplace. By choosing TaskFlow, you join a family of forward-thinking individuals who believe that effort deserves immediate, meaningful compensation. Together, we are redefining the landscape of online feedback, one review at a time.`,
+
         history_title:"Our Story", history_sub:"Key milestones since day one.",
         history_2023:"Founded in Paris with a simple idea.",
         history_2024:"Launched the beta version, 10k users.",
@@ -268,18 +369,32 @@
         switch_login:"Already have an account?", switch_register:"Don't have an account?",
         logout:"Logout", invalid_creds:"Invalid username or password.",
         user_exists:"Username already taken.", success_reg:"Account created! Please sign in.",
-        // Task specific
         accept:"Accept task", submit_review:"Submit review", write_review:"Write review",
         stars:"Stars", comment:"Comment", char_remaining:"characters remaining",
         special:"SPECIAL", multiplier:"x", task_completed:"Completed",
         product:"Product", min_chars:"Minimum 160 characters", 
-        select_stars:"Select 1 to 5 stars", task_accepted:"Task accepted, write your review below."
+        select_stars:"Select 1 to 5 stars", task_accepted:"Task accepted, write your review below.",
+        // footer
+        footer_about:"About", footer_contact:"Contact", footer_revision:"Re-vision", footer_directory:"Directory",
+        // directory
+        directory_title:"Our Team", directory_sub:"Meet the people behind TaskFlow.",
+        // Team (names & positions)
+        team_name1:"Jean Dupont", team_pos1:"President & CEO",
+        team_name2:"Marie Curie", team_pos2:"Chief Technology Officer",
+        team_name3:"Amadou Diallo", team_pos3:"Vice President of Marketing",
+        team_name4:"Sophie Martin", team_pos4:"Chief Operating Officer",
+        team_name5:"Carlos Gomez", team_pos5:"Senior Accountant"
       },
       fr: {
-        about_title:"À propos de TaskFlow", about_desc:"Gagnez de l'argent réel en partageant des avis honnêtes.",
-        about_card1_title:"🎯 Mission", about_card1_text:"Permettre aux utilisateurs de gagner via des micro-avis.",
-        about_card2_title:"⚡ Vision", about_card2_text:"Chaque avis compte et paie instantanément.",
-        about_card3_title:"💡 Valeurs", about_card3_text:"Confiance, transparence et récompenses équitables.",
+        about_title:"À propos de TaskFlow",
+        about_desc:"Gagnez de l'argent réel en partageant des avis honnêtes.",
+        about_card1_title:"🎯 Mission",
+        about_card1_text:"Permettre aux utilisateurs de gagner via des micro-avis.",
+        about_card2_title:"⚡ Vision",
+        about_card2_text:"Chaque avis compte et paie instantanément.",
+        about_card3_title:"💡 Valeurs",
+        about_card3_text:"Confiance, transparence et récompenses équitables.",
+        about_long: `TaskFlow est né d'une observation simple mais puissante : dans l'économie numérique d'aujourd'hui, chaque interaction individuelle possède une valeur intrinsèque. Nous croyons que les micro-tâches, comme le partage d'avis honnêtes sur des produits, ne devraient pas seulement contribuer à la communauté, mais aussi offrir des récompenses tangibles et immédiates à leurs auteurs. Notre plateforme est conçue pour combler le fossé entre les retours des consommateurs et l'autonomisation financière. Nous fonctionnons sur une base de transparence radicale, garantissant que chaque centime gagné est clairement affiché et instantanément accessible. Notre algorithme de mise en relation sophistiqué associe les utilisateurs à des produits correspondant à leurs centres d'intérêt, rendant le processus d'avis engageant et authentique. Nous nous engageons à favoriser une communauté mondiale où la confiance est primordiale. Chaque avis soumis sur TaskFlow fait l'objet de contrôles de qualité rigoureux pour maintenir l'intégrité de notre écosystème. Nous envisageons un avenir où chaque voix, aussi petite soit-elle, peut influencer les tendances du marché et recevoir une juste part de la valeur qu'elle génère. Notre équipe est dédiée à l'innovation continue, affinant constamment notre expérience utilisateur pour la rendre fluide et intuitive. Nous ne sommes pas seulement une plateforme ; nous sommes un mouvement vers un marché numérique plus équitable. En choisissant TaskFlow, vous rejoignez une famille d'individus visionnaires qui croient que l'effort mérite une compensation immédiate et significative. Ensemble, nous redéfinissons le paysage des avis en ligne, un avis à la fois.`,
         history_title:"Notre histoire", history_sub:"Les étapes clés depuis le début.",
         history_2023:"Fondé à Paris avec une idée simple.",
         history_2024:"Lancement bêta, 10k utilisateurs.",
@@ -297,13 +412,25 @@
         stars:"Étoiles", comment:"Commentaire", char_remaining:"caractères restants",
         special:"SPÉCIAL", multiplier:"x", task_completed:"Terminée",
         product:"Produit", min_chars:"160 caractères minimum",
-        select_stars:"Sélectionnez 1 à 5 étoiles", task_accepted:"Tâche acceptée, écrivez votre avis."
+        select_stars:"Sélectionnez 1 à 5 étoiles", task_accepted:"Tâche acceptée, écrivez votre avis.",
+        footer_about:"À propos", footer_contact:"Contact", footer_revision:"Révision", footer_directory:"Répertoire",
+        directory_title:"Notre équipe", directory_sub:"Rencontrez les personnes derrière TaskFlow.",
+        team_name1:"Jean Dupont", team_pos1:"Président & CEO",
+        team_name2:"Marie Curie", team_pos2:"Directrice Technique",
+        team_name3:"Amadou Diallo", team_pos3:"Vice-Président Marketing",
+        team_name4:"Sophie Martin", team_pos4:"Directrice Administrative",
+        team_name5:"Carlos Gomez", team_pos5:"Comptable Senior"
       },
       es: {
-        about_title:"Acerca de TaskFlow", about_desc:"Gana dinero real compartiendo opiniones honestas.",
-        about_card1_title:"🎯 Misión", about_card1_text:"Empoderar a los usuarios para ganar con micro-reseñas.",
-        about_card2_title:"⚡ Visión", about_card2_text:"Cada opinión cuenta y paga al instante.",
-        about_card3_title:"💡 Valores", about_card3_text:"Confianza, transparencia y recompensas justas.",
+        about_title:"Acerca de TaskFlow",
+        about_desc:"Gana dinero real compartiendo opiniones honestas.",
+        about_card1_title:"🎯 Misión",
+        about_card1_text:"Empoderar a los usuarios para ganar con micro-reseñas.",
+        about_card2_title:"⚡ Visión",
+        about_card2_text:"Cada opinión cuenta y paga al instante.",
+        about_card3_title:"💡 Valores",
+        about_card3_text:"Confianza, transparencia y recompensas justas.",
+        about_long: `TaskFlow nació de una observación simple pero poderosa: en la economía digital actual, cada interacción individual tiene un valor intrínseco. Creemos que las microtareas, como compartir reseñas honestas de productos, no solo deberían contribuir a la comunidad, sino también proporcionar recompensas tangibles e inmediatas a los contribuyentes. Nuestra plataforma está diseñada para cerrar la brecha entre la opinión de los consumidores y el empoderamiento financiero. Operamos sobre una base de transparencia radical, asegurando que cada centavo ganado se muestre claramente y sea accesible al instante. Nuestro sofisticado algoritmo de emparejamiento une a los usuarios con productos que se alinean con sus intereses, haciendo que el proceso de reseña sea atractivo y auténtico. Estamos comprometidos a fomentar una comunidad global donde la confianza sea primordial. Cada reseña enviada en TaskFlow pasa por rigurosos controles de calidad para mantener la integridad de nuestro ecosistema. Visualizamos un futuro donde cada voz, por pequeña que sea, pueda influir en las tendencias del mercado y obtener una parte justa del valor que genera. Nuestro equipo está dedicado a la innovación continua, refinando constantemente nuestra experiencia de usuario para que sea fluida e intuitiva. No somos solo una plataforma; somos un movimiento hacia un mercado digital más equitativo. Al elegir TaskFlow, te unes a una familia de personas con visión de futuro que creen que el esfuerzo merece una compensación inmediata y significativa. Juntos, estamos redefiniendo el panorama de la retroalimentación en línea, una reseña a la vez.`,
         history_title:"Nuestra historia", history_sub:"Hitos clave desde el primer día.",
         history_2023:"Fundado en París con una idea simple.",
         history_2024:"Lanzamiento beta, 10k usuarios.",
@@ -321,17 +448,24 @@
         stars:"Estrellas", comment:"Comentario", char_remaining:"caracteres restantes",
         special:"ESPECIAL", multiplier:"x", task_completed:"Completada",
         product:"Producto", min_chars:"Mínimo 160 caracteres",
-        select_stars:"Selecciona 1 a 5 estrellas", task_accepted:"Tarea aceptada, escribe tu reseña."
+        select_stars:"Selecciona 1 a 5 estrellas", task_accepted:"Tarea aceptada, escribe tu reseña.",
+        footer_about:"Acerca de", footer_contact:"Contacto", footer_revision:"Re-visión", footer_directory:"Directorio",
+        directory_title:"Nuestro equipo", directory_sub:"Conoce a las personas detrás de TaskFlow.",
+        team_name1:"Jean Dupont", team_pos1:"Presidente & CEO",
+        team_name2:"Marie Curie", team_pos2:"Directora Técnica",
+        team_name3:"Amadou Diallo", team_pos3:"Vicepresidente de Marketing",
+        team_name4:"Sophie Martin", team_pos4:"Directora de Operaciones",
+        team_name5:"Carlos Gomez", team_pos5:"Contador Senior"
       }
     };
 
     // ---------- STATE ----------
     let currentLang = 'en';
     let currentUser = null;
-    let balanceCache = 0;               // in dollars
+    let balanceCache = 0;
     let tasksData = [];
-    let completedIds = [];             // IDs of tasks already fully submitted
-    let acceptedIds = [];             // IDs of tasks currently accepted (waiting for review)
+    let completedIds = [];
+    let acceptedIds = [];
 
     // ---------- DOM REFS ----------
     const $ = s => document.querySelector(s);
@@ -341,6 +475,7 @@
       about: $('#section-about'),
       history: $('#section-history'),
       contact: $('#section-contact'),
+      directory: $('#section-directory'),
       dashboard: $('#section-dashboard'),
     };
     const navLinks = $$('[data-section]');
@@ -361,8 +496,18 @@
     const balanceDisplay = $('#balanceDisplay');
     const taskList = $('#taskList');
     const completedCount = $('#completedCount');
+    const teamGrid = $('#teamGrid');
 
     let isLoginMode = true;
+
+    // ---------- TEAM DATA ----------
+    const teamMembers = [
+      { id: 1, nameKey: 'team_name1', posKey: 'team_pos1', img: 'https://i.pravatar.cc/150?img=1' },
+      { id: 2, nameKey: 'team_name2', posKey: 'team_pos2', img: 'https://i.pravatar.cc/150?img=2' },
+      { id: 3, nameKey: 'team_name3', posKey: 'team_pos3', img: 'https://i.pravatar.cc/150?img=3' },
+      { id: 4, nameKey: 'team_name4', posKey: 'team_pos4', img: 'https://i.pravatar.cc/150?img=4' },
+      { id: 5, nameKey: 'team_name5', posKey: 'team_pos5', img: 'https://i.pravatar.cc/150?img=5' }
+    ];
 
     // ---------- GENERATE 500 TASKS ----------
     function generateTasks() {
@@ -374,7 +519,7 @@
       ];
       const tasks = [];
       for (let i = 1; i <= 500; i++) {
-        const base = parseFloat((Math.floor(Math.random() * 8) + 2) / 10); // 0.2 to 1.0
+        const base = parseFloat((Math.floor(Math.random() * 8) + 2) / 10);
         let multiplier = 1;
         let special = false;
         if (i % 7 === 0) { multiplier = 3; special = true; }
@@ -390,13 +535,13 @@
           multiplier: multiplier,
           reward: reward,
           special: special,
-          status: 'pending' // pending | accepted | completed
+          status: 'pending'
         });
       }
       return tasks;
     }
 
-    // ---------- PERSISTENCE (localStorage) ----------
+    // ---------- PERSISTENCE ----------
     function getUsers() { try { return JSON.parse(localStorage.getItem('taskflow_users')) || {}; } catch { return {}; } }
     function saveUsers(u) { localStorage.setItem('taskflow_users', JSON.stringify(u)); }
     function getBalance(u) { return parseFloat(localStorage.getItem(`tf_balance_${u}`) || '0'); }
@@ -416,16 +561,27 @@
       if (!i18n[lang]) lang = 'en';
       currentLang = lang;
       langBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+      
+      // Traductions standard
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
-        if (i18n[lang] && i18n[lang][key] !== undefined) el.textContent = i18n[lang][key];
+        if (i18n[lang] && i18n[lang][key] !== undefined) {
+          // Si c'est le long texte, on le met dans innerHTML pour les retours à la ligne
+          if (key === 'about_long') {
+            el.innerHTML = i18n[lang][key];
+          } else {
+            el.textContent = i18n[lang][key];
+          }
+        }
       });
       document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.dataset.i18nPlaceholder;
         if (i18n[lang] && i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
       });
+      
       updateModalTexts();
       updateAuthButtons();
+      renderTeam();
       renderTasks();
     }
 
@@ -498,7 +654,6 @@
           balanceCache = getBalance(username);
           completedIds = getCompleted(username);
           acceptedIds = getAccepted(username);
-          // Sync status on tasks
           tasksData.forEach(task => {
             if (completedIds.includes(task.id)) task.status = 'completed';
             else if (acceptedIds.includes(task.id)) task.status = 'accepted';
@@ -556,6 +711,24 @@
       completedCount.textContent = completedIds.length;
     }
 
+    // ---------- RENDER TEAM ----------
+    function renderTeam() {
+      const t = i18n[currentLang];
+      let html = '';
+      teamMembers.forEach(m => {
+        const name = t[m.nameKey] || m.nameKey;
+        const pos = t[m.posKey] || m.posKey;
+        html += `
+          <div class="team-card">
+            <img src="${m.img}" alt="${name}" loading="lazy">
+            <h4>${name}</h4>
+            <p>${pos}</p>
+          </div>
+        `;
+      });
+      teamGrid.innerHTML = html;
+    }
+
     // ---------- RENDER TASKS ----------
     function renderTasks() {
       if (!currentUser) {
@@ -563,33 +736,21 @@
         return;
       }
       const t = i18n[currentLang];
-      let html = '';
-      // Show only pending and accepted (not completed)
       const visible = tasksData.filter(task => task.status !== 'completed');
       if (visible.length === 0) {
         taskList.innerHTML = `<p style="color:#6e6e73;">🎉 All tasks completed! Come back later.</p>`;
         return;
       }
-      // Show max 20 per page for performance? Let's show all, but we have 500, so we show paginated. Let's do 20 per page.
-      // I'll add a simple pagination to avoid DOM overload.
-      const perPage = 20;
-      const totalPages = Math.ceil(visible.length / perPage);
-      let currentPage = 1; // we'll store in closure
-      // We'll just render first page and add a load more button? Or simpler: let's show all but with scroll.
-      // For 500 items, DOM is fine (500 divs). Let's just render all.
+      let html = '';
       visible.forEach(task => {
         const isAccepted = task.status === 'accepted';
-        const isCompleted = task.status === 'completed';
         const rewardStr = `$${task.reward.toFixed(2)}`;
         let badgeHtml = '';
         if (task.special) {
           badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
         }
         let actionHtml = '';
-        let statusText = '';
-        if (isCompleted) {
-          actionHtml = `<button disabled class="success">${t.task_completed}</button>`;
-        } else if (isAccepted) {
+        if (isAccepted) {
           actionHtml = `<button class="secondary" disabled>${t.write_review}...</button>`;
         } else {
           actionHtml = `<button data-action="accept" data-id="${task.id}">${t.accept}</button>`;
@@ -622,16 +783,15 @@
 
       taskList.innerHTML = html;
 
-      // ---- Event listeners ----
-      // Accept buttons
+      // Accept
       taskList.querySelectorAll('[data-action="accept"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
           const id = parseInt(btn.dataset.id, 10);
           acceptTask(id);
         });
       });
 
-      // Star selection
+      // Stars
       taskList.querySelectorAll('.stars').forEach(starDiv => {
         const id = parseInt(starDiv.dataset.id, 10);
         const spans = starDiv.querySelectorAll('span');
@@ -639,13 +799,12 @@
           span.addEventListener('click', () => {
             const val = parseInt(span.dataset.value, 10);
             spans.forEach(s => s.classList.toggle('active', parseInt(s.dataset.value, 10) <= val));
-            // Store selected stars in data attribute
             starDiv.dataset.selected = val;
           });
         });
       });
 
-      // Textarea char counter
+      // Textarea counter
       taskList.querySelectorAll('.review-form textarea').forEach(ta => {
         const id = parseInt(ta.dataset.id, 10);
         const counter = document.querySelector(`.char-counter[data-id="${id}"]`);
@@ -656,9 +815,9 @@
         });
       });
 
-      // Submit review buttons
+      // Submit
       taskList.querySelectorAll('[data-action="submit"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
           const id = parseInt(btn.dataset.id, 10);
           submitReview(id);
         });
@@ -692,7 +851,6 @@
       if (selectedStars === 0) { alert(t.select_stars); return; }
       if (comment.length < 160) { alert(`${t.min_chars} (${comment.length}/160)`); return; }
 
-      // --- SUCCESS ---
       balanceCache += task.reward;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
@@ -700,7 +858,6 @@
       task.status = 'completed';
       if (!completedIds.includes(taskId)) completedIds.push(taskId);
       setCompleted(currentUser, completedIds);
-      // Remove from accepted
       acceptedIds = acceptedIds.filter(id => id !== taskId);
       setAccepted(currentUser, acceptedIds);
       updateCompletedCount();
@@ -711,7 +868,6 @@
     // ---------- INIT ----------
     function init() {
       tasksData = generateTasks();
-      // Sort so special tasks appear first? Just keep as generated.
       const detected = detectLanguage();
       applyLanguage(detected);
 
@@ -725,6 +881,9 @@
       langBtns.forEach(btn => {
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
       });
+
+      // Rendre l'équipe au cas où
+      renderTeam();
     }
 
     init();
