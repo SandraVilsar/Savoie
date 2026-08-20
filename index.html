@@ -401,7 +401,7 @@
     // =============================================================
     const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-contact';
 
-    // ---------- TRADUCTIONS ----------
+    // ---------- TRADUCTIONS (with new withdrawal error messages) ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -446,6 +446,8 @@
         withdraw_amount:"Amount (USD)",
         withdraw_success:"Withdrawal of $${amount} to bank '${bank}' for ${holder} (account: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) has been processed.",
         withdraw_insufficient:"Insufficient balance. You have $${balance} available.",
+        withdraw_error_required:"All bank fields are required.",
+        withdraw_error_amount_invalid:"Please enter a valid positive amount.",
         contact_success:"✅ Message sent successfully! We'll get back to you shortly.",
         contact_error:"❌ Something went wrong. Please try again later.",
         contact_sending:"⏳ Sending..."
@@ -493,6 +495,8 @@
         withdraw_amount:"Montant (USD)",
         withdraw_success:"Retrait de $${amount} vers la banque '${bank}' au nom de ${holder} (compte: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) a été effectué.",
         withdraw_insufficient:"Solde insuffisant. Vous avez $${balance} disponible.",
+        withdraw_error_required:"Tous les champs bancaires sont obligatoires.",
+        withdraw_error_amount_invalid:"Veuillez saisir un montant valide et positif.",
         contact_success:"✅ Message envoyé ! Nous vous répondrons sous peu.",
         contact_error:"❌ Une erreur est survenue. Veuillez réessayer plus tard.",
         contact_sending:"⏳ Envoi en cours..."
@@ -540,6 +544,8 @@
         withdraw_amount:"Monto (USD)",
         withdraw_success:"Retiro de $${amount} al banco '${bank}' a nombre de ${holder} (cuenta: ${account}, tránsito: ${transit}, institución: ${institution}, SWIFT: ${swift}) procesado.",
         withdraw_insufficient:"Saldo insuficiente. Tienes $${balance} disponible.",
+        withdraw_error_required:"Todos los campos bancarios son obligatorios.",
+        withdraw_error_amount_invalid:"Ingresa un monto válido y positivo.",
         contact_success:"✅ ¡Mensaje enviado! Te responderemos pronto.",
         contact_error:"❌ Ocurrió un error. Por favor, inténtalo de nuevo más tarde.",
         contact_sending:"⏳ Enviando..."
@@ -1473,7 +1479,7 @@
       renderCurrentTask();
     }
 
-    // ---------- WITHDRAW ----------
+    // ---------- WITHDRAW (FIXED: error messages now translated) ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
       withdrawModal.classList.add('open');
@@ -1497,12 +1503,13 @@
       const amount = parseFloat(withdrawAmount.value);
       const t = i18n[currentLang];
 
+      // Use translated error messages
       if (!bank || !holder || !account || !transit || !institution || !swift) {
-        alert('All bank fields are required.');
+        alert(t.withdraw_error_required);
         return;
       }
       if (isNaN(amount) || amount <= 0) {
-        alert('Please enter a valid positive amount.');
+        alert(t.withdraw_error_amount_invalid);
         return;
       }
       if (amount > balanceCache) {
@@ -1510,6 +1517,7 @@
         return;
       }
 
+      // Process withdrawal
       balanceCache -= amount;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
@@ -1628,4 +1636,4 @@
   })();
 </script>
 </body>
-    </html>
+      </html>
