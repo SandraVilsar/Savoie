@@ -397,10 +397,9 @@
     'use strict';
 
     // =============================================================
-    // CONFIGURATION
+    // CONFIGURATION — SUPABASE EDGE FUNCTION
     // =============================================================
-    // 🔥 Votre URL Google Apps Script (mise à jour)
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKZ9TVOw9-QlJfPLv6AvfNGKmCxG0oKovduiIduh6JwATDtyTR2wUZ4SG8lJErkGLP/exec';
+    const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-contact';
 
     // ---------- TRADUCTIONS ----------
     const i18n = {
@@ -1528,7 +1527,7 @@
       closeWithdrawModalFn();
     });
 
-    // ---------- CONTACT FORM (ENVOI VERS GOOGLE APPS SCRIPT) ----------
+    // ---------- CONTACT FORM (SUPABASE EDGE FUNCTION) ----------
     async function sendContactEmail(e) {
       e.preventDefault();
       
@@ -1544,12 +1543,10 @@
       const t = i18n[currentLang];
       const statusEl = contactStatus;
       
-      // Afficher le statut "Envoi en cours"
       statusEl.className = 'loading';
       statusEl.textContent = t.contact_sending;
       
       try {
-        // Préparer les données
         const data = {
           name: name,
           email: email,
@@ -1558,43 +1555,36 @@
           userEmail: currentUser?.email || 'Not provided'
         };
 
-        // Envoyer vers Google Apps Script
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
+        const response = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
-          mode: 'no-cors', // Important pour Google Apps Script
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data)
         });
 
-        // Avec mode: 'no-cors', on ne peut pas lire la réponse
-        // On considère que c'est un succès
-        statusEl.className = 'success';
-        statusEl.textContent = t.contact_success;
-        
-        // Réinitialiser le formulaire
-        contactName.value = '';
-        contactEmail.value = '';
-        contactMessage.value = '';
-        
-        // Cacher le message après 5 secondes
-        setTimeout(() => {
-          statusEl.className = '';
-          statusEl.textContent = '';
-        }, 5000);
-        
+        const result = await response.json();
+
+        if (response.ok && result.success !== false) {
+          statusEl.className = 'success';
+          statusEl.textContent = t.contact_success;
+          contactName.value = '';
+          contactEmail.value = '';
+          contactMessage.value = '';
+        } else {
+          statusEl.className = 'error';
+          statusEl.textContent = result.error || t.contact_error;
+        }
       } catch (error) {
         console.error('Contact form error:', error);
         statusEl.className = 'error';
         statusEl.textContent = t.contact_error;
-        
-        // Cacher le message après 5 secondes
-        setTimeout(() => {
-          statusEl.className = '';
-          statusEl.textContent = '';
-        }, 5000);
       }
+
+      setTimeout(() => {
+        statusEl.className = '';
+        statusEl.textContent = '';
+      }, 5000);
     }
 
     // ---------- INIT ----------
@@ -1631,7 +1621,6 @@
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
       });
 
-      // Écouter l'envoi du formulaire de contact
       contactSubmit.addEventListener('click', sendContactEmail);
     }
 
@@ -1639,4 +1628,4 @@
   })();
 </script>
 </body>
-  </html>
+    </html>
