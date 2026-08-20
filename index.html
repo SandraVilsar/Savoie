@@ -1,1 +1,944 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow</title>
+  <style>
+    /* -------------------- RESET & BASE (Apple style) -------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      border: none;
+      background: none;
+      padding: 8px 18px;
+      border-radius: 980px;
+      transition: all 0.2s ease;
+    }
+    input, textarea {
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px 14px;
+      border: 1px solid #d2d2d7;
+      border-radius: 12px;
+      background: #fff;
+      width: 100%;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #007aff;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
+    /* -------------------- NAVIGATION (Apple style) -------------------- */
+    .navbar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .nav-logo {
+      font-weight: 600;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+      color: #000;
+    }
+    .nav-logo span {
+      color: #007aff;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      font-size: 0.95rem;
+      color: #1d1d1f;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .nav-links a:hover { opacity: 1; }
+    .nav-links .lang-btn {
+      background: #e8e8ed;
+      padding: 4px 10px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      color: #1d1d1f;
+      display: inline-flex;
+      gap: 4px;
+    }
+    .nav-links .lang-btn.active {
+      background: #007aff;
+      color: #fff;
+    }
+    .auth-btn {
+      background: #007aff;
+      color: #fff;
+      font-weight: 500;
+      padding: 6px 20px;
+      border-radius: 980px;
+      font-size: 0.9rem;
+    }
+    .auth-btn.outline {
+      background: transparent;
+      color: #007aff;
+      border: 1px solid #007aff;
+    }
+    .auth-btn:hover { opacity: 0.8; }
+
+    /* -------------------- SECTIONS -------------------- */
+    section {
+      padding: 60px 0;
+      display: none;
+    }
+    section.active-section {
+      display: block;
+    }
+    .section-title {
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .section-sub {
+      font-size: 1.2rem;
+      color: #86868b;
+      max-width: 600px;
+      margin-bottom: 40px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 30px 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    }
+    .card h3 { font-weight: 600; font-size: 1.2rem; margin-bottom: 8px; }
+    .card p { color: #6e6e73; }
+
+    /* Timeline (History) */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+      border-left: 3px solid #007aff;
+      padding-left: 24px;
+    }
+    .timeline-item .year {
+      font-weight: 600;
+      color: #007aff;
+      min-width: 70px;
+    }
+
+    /* Contact form */
+    .contact-form {
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .contact-form button {
+      align-self: flex-start;
+      background: #007aff;
+      color: #fff;
+      padding: 12px 32px;
+      border-radius: 980px;
+      font-weight: 500;
+    }
+
+    /* -------------------- DASHBOARD (Tâches + Balance) -------------------- */
+    #section-dashboard .balance-box {
+      background: #fff;
+      border-radius: 24px;
+      padding: 30px 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .balance-label {
+      font-size: 1.2rem;
+      color: #6e6e73;
+    }
+    .balance-amount {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #000;
+    }
+    .balance-amount small {
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: #6e6e73;
+      margin-left: 6px;
+    }
+    .task-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      border: 1px solid #e8e8ed;
+      transition: border 0.2s;
+    }
+    .task-item:hover { border-color: #007aff; }
+    .task-info h4 { font-weight: 500; font-size: 1.05rem; }
+    .task-info .reward {
+      font-size: 0.9rem;
+      color: #007aff;
+      font-weight: 500;
+    }
+    .task-action button {
+      background: #007aff;
+      color: #fff;
+      padding: 6px 18px;
+      border-radius: 980px;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    .task-action button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .task-action button:hover:not(:disabled) { opacity: 0.8; }
+
+    /* -------------------- MODAL (Login / Register) -------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px 36px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-box h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 6px; }
+    .modal-box p.sub { color: #6e6e73; margin-bottom: 24px; }
+    .modal-box form { display: flex; flex-direction: column; gap: 16px; }
+    .modal-box form button {
+      background: #007aff;
+      color: #fff;
+      padding: 12px;
+      border-radius: 980px;
+      font-weight: 600;
+    }
+    .modal-box .switch-auth {
+      margin-top: 18px;
+      text-align: center;
+      color: #6e6e73;
+      font-size: 0.95rem;
+    }
+    .modal-box .switch-auth span {
+      color: #007aff;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .modal-box .close-modal {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #6e6e73;
+    }
+    .modal-box { position: relative; }
+
+    /* -------------------- RESPONSIVE -------------------- */
+    @media (max-width: 700px) {
+      .navbar .container { flex-direction: column; gap: 12px; }
+      .nav-links { justify-content: center; gap: 14px; }
+      .section-title { font-size: 1.8rem; }
+      .balance-amount { font-size: 2rem; }
+      .task-item { flex-wrap: wrap; gap: 10px; }
+    }
+    /* cache hint */
+    .cache-hint {
+      font-size: 0.75rem;
+      color: #86868b;
+      margin-top: 8px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== NAVIGATION ========== -->
+<nav class="navbar">
+  <div class="container">
+    <div class="nav-logo">Task<span>Flow</span></div>
+    <div class="nav-links">
+      <a data-section="about">About</a>
+      <a data-section="history">History</a>
+      <a data-section="contact">Contact</a>
+      <!-- Dashboard (visible uniquement connecté) -->
+      <a data-section="dashboard" id="nav-dashboard" style="display:none;">Dashboard</a>
+      <!-- Langues -->
+      <span class="lang-btn" data-lang="fr">FR</span>
+      <span class="lang-btn active" data-lang="en">EN</span>
+      <span class="lang-btn" data-lang="es">ES</span>
+      <!-- Auth -->
+      <button class="auth-btn" id="authBtn">Sign in</button>
+      <button class="auth-btn outline" id="logoutBtn" style="display:none;">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== SECTIONS ========== -->
+<main class="container">
+
+  <!-- ABOUT -->
+  <section id="section-about" class="active-section">
+    <h1 class="section-title" data-i18n="about_title">About TaskFlow</h1>
+    <p class="section-sub" data-i18n="about_desc">We help you turn small actions into real rewards. Simple, transparent, and efficient.</p>
+    <div class="card-grid">
+      <div class="card"><h3 data-i18n="about_card1_title">🎯 Mission</h3><p data-i18n="about_card1_text">Empower users to achieve more through micro-tasks.</p></div>
+      <div class="card"><h3 data-i18n="about_card2_title">⚡ Vision</h3><p data-i18n="about_card2_text">A world where every effort counts and is valued instantly.</p></div>
+      <div class="card"><h3 data-i18n="about_card3_title">💡 Values</h3><p data-i18n="about_card3_text">Trust, transparency, and innovation at the core.</p></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="section-history">
+    <h2 class="section-title" data-i18n="history_title">Our Story</h2>
+    <p class="section-sub" data-i18n="history_sub">Key milestones since day one.</p>
+    <div class="timeline">
+      <div class="timeline-item"><span class="year">2023</span><span data-i18n="history_2023">Founded in Paris with a simple idea.</span></div>
+      <div class="timeline-item"><span class="year">2024</span><span data-i18n="history_2024">Launched the beta version, 10k users.</span></div>
+      <div class="timeline-item"><span class="year">2025</span><span data-i18n="history_2025">Global expansion &amp; new reward system.</span></div>
+      <div class="timeline-item"><span class="year">2026</span><span data-i18n="history_2026">TaskFlow becomes a benchmark in micro-tasking.</span></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="section-contact">
+    <h2 class="section-title" data-i18n="contact_title">Get in touch</h2>
+    <p class="section-sub" data-i18n="contact_sub">We'd love to hear from you. Drop us a message.</p>
+    <div class="contact-form">
+      <input type="text" placeholder="Name" data-i18n-placeholder="contact_name">
+      <input type="email" placeholder="Email" data-i18n-placeholder="contact_email">
+      <textarea rows="4" placeholder="Your message..." data-i18n-placeholder="contact_msg"></textarea>
+      <button data-i18n="contact_send">Send message</button>
+    </div>
+  </section>
+
+  <!-- DASHBOARD (Balance + Tasks) – caché par défaut -->
+  <section id="section-dashboard">
+    <div class="balance-box">
+      <div>
+        <div class="balance-label" data-i18n="balance_label">Your balance</div>
+        <div class="balance-amount" id="balanceDisplay">0 <small>pts</small></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.8rem; color:#6e6e73;" data-i18n="cache_status">Cache sync</div>
+        <div style="font-size:0.8rem; color:#007aff;" id="cacheStatus">⏳ syncing...</div>
+      </div>
+    </div>
+
+    <h3 style="font-weight:500; margin-bottom:16px;" data-i18n="tasks_title">Available tasks</h3>
+    <div id="taskList"></div>
+    <div class="cache-hint" data-i18n="cache_hint">* Balance saved to local storage every 10 seconds (cache simulation).</div>
+  </section>
+</main>
+
+<!-- ========== AUTH MODAL ========== -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box">
+    <span class="close-modal" id="closeModal">&times;</span>
+    <h2 id="modalTitle">Sign in</h2>
+    <p class="sub" id="modalSub">Access your dashboard</p>
+    <form id="authForm">
+      <input type="text" id="authUsername" placeholder="Username" required>
+      <input type="password" id="authPassword" placeholder="Password" required>
+      <button type="submit" id="authSubmitBtn">Sign in</button>
+    </form>
+    <div class="switch-auth">
+      <span id="switchText">Don't have an account?</span>
+      <span id="switchAction">Register</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+  (function() {
+    'use strict';
+
+    // -------- TRADUCTIONS --------
+    const i18n = {
+      en: {
+        about_title: "About TaskFlow",
+        about_desc: "We help you turn small actions into real rewards. Simple, transparent, and efficient.",
+        about_card1_title: "🎯 Mission",
+        about_card1_text: "Empower users to achieve more through micro-tasks.",
+        about_card2_title: "⚡ Vision",
+        about_card2_text: "A world where every effort counts and is valued instantly.",
+        about_card3_title: "💡 Values",
+        about_card3_text: "Trust, transparency, and innovation at the core.",
+        history_title: "Our Story",
+        history_sub: "Key milestones since day one.",
+        history_2023: "Founded in Paris with a simple idea.",
+        history_2024: "Launched the beta version, 10k users.",
+        history_2025: "Global expansion & new reward system.",
+        history_2026: "TaskFlow becomes a benchmark in micro-tasking.",
+        contact_title: "Get in touch",
+        contact_sub: "We'd love to hear from you. Drop us a message.",
+        contact_name: "Name",
+        contact_email: "Email",
+        contact_msg: "Your message...",
+        contact_send: "Send message",
+        balance_label: "Your balance",
+        cache_status: "Cache sync",
+        cache_hint: "* Balance saved to local storage every 10 seconds (cache simulation).",
+        tasks_title: "Available tasks",
+        signin: "Sign in",
+        signup: "Sign up",
+        signin_sub: "Access your dashboard",
+        signup_sub: "Create your account",
+        switch_login: "Already have an account?",
+        switch_register: "Don't have an account?",
+        logout: "Logout",
+        task_done: "Done",
+        task_do: "Do it",
+        welcome: "Welcome",
+        invalid_creds: "Invalid username or password.",
+        user_exists: "Username already taken.",
+        success_reg: "Account created! Please sign in."
+      },
+      fr: {
+        about_title: "À propos de TaskFlow",
+        about_desc: "Nous vous aidons à transformer de petites actions en récompenses réelles. Simple, transparent et efficace.",
+        about_card1_title: "🎯 Mission",
+        about_card1_text: "Permettre aux utilisateurs d'atteindre plus grâce aux micro-tâches.",
+        about_card2_title: "⚡ Vision",
+        about_card2_text: "Un monde où chaque effort compte et est valorisé instantanément.",
+        about_card3_title: "💡 Valeurs",
+        about_card3_text: "Confiance, transparence et innovation au cœur.",
+        history_title: "Notre histoire",
+        history_sub: "Les étapes clés depuis le début.",
+        history_2023: "Fondé à Paris avec une idée simple.",
+        history_2024: "Lancement de la version bêta, 10k utilisateurs.",
+        history_2025: "Expansion mondiale et nouveau système de récompenses.",
+        history_2026: "TaskFlow devient une référence dans le micro-tasking.",
+        contact_title: "Contactez-nous",
+        contact_sub: "Nous serions ravis de vous entendre. Envoyez-nous un message.",
+        contact_name: "Nom",
+        contact_email: "Email",
+        contact_msg: "Votre message...",
+        contact_send: "Envoyer",
+        balance_label: "Votre solde",
+        cache_status: "Synchronisation cache",
+        cache_hint: "* Solde sauvegardé dans le stockage local toutes les 10 secondes (simulation cache).",
+        tasks_title: "Tâches disponibles",
+        signin: "Se connecter",
+        signup: "S'inscrire",
+        signin_sub: "Accédez à votre tableau de bord",
+        signup_sub: "Créez votre compte",
+        switch_login: "Déjà un compte ?",
+        switch_register: "Pas encore de compte ?",
+        logout: "Déconnexion",
+        task_done: "Fait",
+        task_do: "Faire",
+        welcome: "Bienvenue",
+        invalid_creds: "Nom d'utilisateur ou mot de passe incorrect.",
+        user_exists: "Ce nom d'utilisateur est déjà pris.",
+        success_reg: "Compte créé ! Veuillez vous connecter."
+      },
+      es: {
+        about_title: "Acerca de TaskFlow",
+        about_desc: "Te ayudamos a convertir pequeñas acciones en recompensas reales. Simple, transparente y eficiente.",
+        about_card1_title: "🎯 Misión",
+        about_card1_text: "Empoderar a los usuarios para lograr más a través de microtareas.",
+        about_card2_title: "⚡ Visión",
+        about_card2_text: "Un mundo donde cada esfuerzo cuenta y se valora al instante.",
+        about_card3_title: "💡 Valores",
+        about_card3_text: "Confianza, transparencia e innovación en el centro.",
+        history_title: "Nuestra historia",
+        history_sub: "Hitos clave desde el primer día.",
+        history_2023: "Fundado en París con una idea simple.",
+        history_2024: "Lanzamiento de la versión beta, 10k usuarios.",
+        history_2025: "Expansión global y nuevo sistema de recompensas.",
+        history_2026: "TaskFlow se convierte en un referente en microtareas.",
+        contact_title: "Ponte en contacto",
+        contact_sub: "Nos encantaría saber de ti. Envíanos un mensaje.",
+        contact_name: "Nombre",
+        contact_email: "Correo",
+        contact_msg: "Tu mensaje...",
+        contact_send: "Enviar",
+        balance_label: "Tu saldo",
+        cache_status: "Sincronización caché",
+        cache_hint: "* Saldo guardado en almacenamiento local cada 10 segundos (simulación de caché).",
+        tasks_title: "Tareas disponibles",
+        signin: "Iniciar sesión",
+        signup: "Registrarse",
+        signin_sub: "Accede a tu panel",
+        signup_sub: "Crea tu cuenta",
+        switch_login: "¿Ya tienes cuenta?",
+        switch_register: "¿No tienes cuenta?",
+        logout: "Cerrar sesión",
+        task_done: "Hecho",
+        task_do: "Hacer",
+        welcome: "Bienvenido",
+        invalid_creds: "Usuario o contraseña incorrectos.",
+        user_exists: "El nombre de usuario ya existe.",
+        success_reg: "¡Cuenta creada! Por favor, inicia sesión."
+      }
+    };
+
+    // -------- ÉTAT --------
+    let currentLang = 'en';
+    let currentUser = null;            // nom d'utilisateur connecté
+    let balanceCache = 0;              // mémoire (cache)
+    let tasksCompleted = [];           // liste des id de tâches faites
+    let syncInterval = null;
+
+    // -------- DONNÉES TÂCHES --------
+    const tasksData = [
+      { id: 1, reward: 10, title: { en: "Read the documentation", fr: "Lire la documentation", es: "Leer la documentación" } },
+      { id: 2, reward: 20, title: { en: "Complete your profile", fr: "Compléter votre profil", es: "Completar tu perfil" } },
+      { id: 3, reward: 30, title: { en: "Share on social media", fr: "Partager sur les réseaux", es: "Compartir en redes" } },
+      { id: 4, reward: 50, title: { en: "Write a testimonial", fr: "Écrire un témoignage", es: "Escribir un testimonio" } },
+    ];
+
+    // -------- RÉFÉRENCES DOM --------
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    const sections = {
+      about: $('#section-about'),
+      history: $('#section-history'),
+      contact: $('#section-contact'),
+      dashboard: $('#section-dashboard'),
+    };
+    const navLinks = $$('[data-section]');
+    const langBtns = $$('[data-lang]');
+    const authBtn = $('#authBtn');
+    const logoutBtn = $('#logoutBtn');
+    const navDashboard = $('#nav-dashboard');
+
+    const modal = $('#authModal');
+    const closeModal = $('#closeModal');
+    const modalTitle = $('#modalTitle');
+    const modalSub = $('#modalSub');
+    const authForm = $('#authForm');
+    const authUsername = $('#authUsername');
+    const authPassword = $('#authPassword');
+    const authSubmitBtn = $('#authSubmitBtn');
+    const switchText = $('#switchText');
+    const switchAction = $('#switchAction');
+
+    const balanceDisplay = $('#balanceDisplay');
+    const taskList = $('#taskList');
+    const cacheStatus = $('#cacheStatus');
+
+    let isLoginMode = true;
+
+    // -------- FONCTIONS LANGUE --------
+    function detectLanguage() {
+      const navLang = navigator.language || navigator.languages[0] || 'en';
+      const lang = navLang.split('-')[0];
+      if (lang === 'fr') return 'fr';
+      if (lang === 'es') return 'es';
+      return 'en';
+    }
+
+    function applyLanguage(lang) {
+      if (!i18n[lang]) lang = 'en';
+      currentLang = lang;
+      // Mettre à jour les boutons actifs
+      langBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      // Traduire tous les éléments avec data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (i18n[lang] && i18n[lang][key] !== undefined) {
+          el.textContent = i18n[lang][key];
+        }
+      });
+      // Placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (i18n[lang] && i18n[lang][key] !== undefined) {
+          el.placeholder = i18n[lang][key];
+        }
+      });
+      // Mettre à jour les textes dynamiques du modal
+      updateModalTexts();
+      // Mettre à jour les boutons auth
+      updateAuthButtons();
+      // Re-render les tâches
+      renderTasks();
+      // Mettre à jour le titre du dashboard si nécessaire
+    }
+
+    function updateModalTexts() {
+      const t = i18n[currentLang];
+      if (isLoginMode) {
+        modalTitle.textContent = t.signin;
+        modalSub.textContent = t.signin_sub;
+        authSubmitBtn.textContent = t.signin;
+        switchText.textContent = t.switch_register;
+        switchAction.textContent = t.signup;
+      } else {
+        modalTitle.textContent = t.signup;
+        modalSub.textContent = t.signup_sub;
+        authSubmitBtn.textContent = t.signup;
+        switchText.textContent = t.switch_login;
+        switchAction.textContent = t.signin;
+      }
+    }
+
+    function updateAuthButtons() {
+      const t = i18n[currentLang];
+      if (currentUser) {
+        authBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        logoutBtn.textContent = t.logout;
+        navDashboard.style.display = 'inline';
+      } else {
+        authBtn.style.display = 'inline-block';
+        authBtn.textContent = t.signin;
+        logoutBtn.style.display = 'none';
+        navDashboard.style.display = 'none';
+      }
+    }
+
+    // -------- NAVIGATION SECTIONS --------
+    function showSection(sectionId) {
+      Object.keys(sections).forEach(key => {
+        sections[key].classList.toggle('active-section', key === sectionId);
+      });
+      // Mettre à jour les liens actifs
+      navLinks.forEach(link => {
+        const sec = link.dataset.section;
+        link.style.fontWeight = (sec === sectionId) ? '600' : '400';
+        link.style.opacity = (sec === sectionId) ? '1' : '0.7';
+      });
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const sec = link.dataset.section;
+        // Si dashboard et non connecté, on redirige vers login
+        if (sec === 'dashboard' && !currentUser) {
+          openModal();
+          return;
+        }
+        showSection(sec);
+      });
+    });
+
+    // -------- AUTH MODAL --------
+    function openModal(mode) {
+      if (mode !== undefined) isLoginMode = mode;
+      else isLoginMode = true;
+      updateModalTexts();
+      authForm.reset();
+      modal.classList.add('open');
+    }
+    function closeModalFn() {
+      modal.classList.remove('open');
+    }
+    authBtn.addEventListener('click', () => openModal(true));
+    closeModal.addEventListener('click', closeModalFn);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFn(); });
+
+    switchAction.addEventListener('click', () => {
+      isLoginMode = !isLoginMode;
+      updateModalTexts();
+    });
+
+    // -------- GESTION DES UTILISATEURS (localStorage) --------
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem('taskflow_users')) || {}; } catch { return {}; }
+    }
+    function saveUsers(users) {
+      localStorage.setItem('taskflow_users', JSON.stringify(users));
+    }
+
+    function getBalance(username) {
+      const val = localStorage.getItem(`taskflow_balance_${username}`);
+      return val ? parseInt(val, 10) : 0;
+    }
+    function setBalance(username, value) {
+      localStorage.setItem(`taskflow_balance_${username}`, String(value));
+    }
+
+    function getCompleted(username) {
+      try {
+        return JSON.parse(localStorage.getItem(`taskflow_done_${username}`)) || [];
+      } catch { return []; }
+    }
+    function setCompleted(username, arr) {
+      localStorage.setItem(`taskflow_done_${username}`, JSON.stringify(arr));
+    }
+
+    // -------- LOGIN / REGISTER --------
+    authForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = authUsername.value.trim();
+      const password = authPassword.value.trim();
+      if (!username || !password) return;
+
+      const users = getUsers();
+      const t = i18n[currentLang];
+
+      if (isLoginMode) {
+        // LOGIN
+        if (users[username] && users[username] === password) {
+          currentUser = username;
+          balanceCache = getBalance(username);
+          tasksCompleted = getCompleted(username);
+          closeModalFn();
+          updateUIAfterLogin();
+          showSection('dashboard');
+        } else {
+          alert(t.invalid_creds);
+        }
+      } else {
+        // REGISTER
+        if (users[username]) {
+          alert(t.user_exists);
+          return;
+        }
+        users[username] = password;
+        saveUsers(users);
+        setBalance(username, 0);
+        setCompleted(username, []);
+        alert(t.success_reg);
+        // Basculer en mode login
+        isLoginMode = true;
+        updateModalTexts();
+        authForm.reset();
+      }
+    });
+
+    // -------- LOGOUT --------
+    logoutBtn.addEventListener('click', () => {
+      if (currentUser) {
+        // Sync final
+        syncBalanceToStorage();
+        setCompleted(currentUser, tasksCompleted);
+      }
+      currentUser = null;
+      balanceCache = 0;
+      tasksCompleted = [];
+      if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+      updateUIAfterLogout();
+      showSection('about');
+    });
+
+    // -------- MISE À JOUR UI (connexion) --------
+    function updateUIAfterLogin() {
+      updateAuthButtons();
+      renderTasks();
+      updateBalanceDisplay();
+      startCacheSync();
+      // Afficher le dashboard dans le nav
+      navDashboard.style.display = 'inline';
+      // Forcer l'affichage de la section dashboard si elle n'est pas active
+      if (!sections.dashboard.classList.contains('active-section')) {
+        showSection('dashboard');
+      }
+    }
+
+    function updateUIAfterLogout() {
+      updateAuthButtons();
+      navDashboard.style.display = 'none';
+      taskList.innerHTML = '';
+      balanceDisplay.innerHTML = `0 <small>pts</small>`;
+      cacheStatus.textContent = '⏳ disconnected';
+    }
+
+    // -------- CACHE (simulé) --------
+    function startCacheSync() {
+      if (syncInterval) clearInterval(syncInterval);
+      // Sync toutes les 10 secondes
+      syncInterval = setInterval(() => {
+        if (currentUser) {
+          syncBalanceToStorage();
+          setCompleted(currentUser, tasksCompleted);
+          cacheStatus.textContent = '✅ synced at ' + new Date().toLocaleTimeString();
+        }
+      }, 10000);
+      cacheStatus.textContent = '⏳ syncing...';
+    }
+
+    function syncBalanceToStorage() {
+      if (currentUser) {
+        setBalance(currentUser, balanceCache);
+      }
+    }
+
+    // -------- BALANCE --------
+    function updateBalanceDisplay() {
+      balanceDisplay.innerHTML = `${balanceCache} <small>pts</small>`;
+    }
+
+    // -------- TÂCHES --------
+    function renderTasks() {
+      const t = i18n[currentLang];
+      if (!taskList) return;
+      if (!currentUser) {
+        taskList.innerHTML = `<p style="color:#6e6e73;">${t.signin} to see tasks.</p>`;
+        return;
+      }
+      if (tasksData.length === 0) {
+        taskList.innerHTML = `<p style="color:#6e6e73;">${t.tasks_title} (none)</p>`;
+        return;
+      }
+      let html = '';
+      tasksData.forEach(task => {
+        const done = tasksCompleted.includes(task.id);
+        const title = task.title[currentLang] || task.title.en;
+        html += `
+          <div class="task-item" data-task-id="${task.id}">
+            <div class="task-info">
+              <h4>${title}</h4>
+              <div class="reward">+${task.reward} pts</div>
+            </div>
+            <div class="task-action">
+              <button ${done ? 'disabled' : ''} data-action="complete" data-id="${task.id}">
+                ${done ? t.task_done : t.task_do}
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      taskList.innerHTML = html;
+
+      // Événements sur les boutons "Faire"
+      taskList.querySelectorAll('[data-action="complete"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const taskId = parseInt(btn.dataset.id, 10);
+          completeTask(taskId);
+        });
+      });
+    }
+
+    function completeTask(taskId) {
+      if (!currentUser) return;
+      if (tasksCompleted.includes(taskId)) return;
+      const task = tasksData.find(t => t.id === taskId);
+      if (!task) return;
+
+      // Incrémenter le cache (mémoire)
+      balanceCache += task.reward;
+      tasksCompleted.push(taskId);
+      updateBalanceDisplay();
+      // Mise à jour UI du bouton
+      renderTasks();
+      // Le sync se fera via l'intervalle (ou on pourrait forcer un sync rapide, mais on respecte la consigne)
+      cacheStatus.textContent = '🔄 updated in cache, waiting for sync...';
+      // Option : on peut aussi sauvegarder les tâches complétées immédiatement (car peu de données)
+      setCompleted(currentUser, tasksCompleted);
+      // On ne sauvegarde PAS la balance ici (seulement via l'intervalle)
+    }
+
+    // -------- INIT --------
+    function init() {
+      // Détection langue
+      const detected = detectLanguage();
+      applyLanguage(detected);
+
+      // Vérifier si un utilisateur est déjà connecté (session)
+      // On va simplement garder en mémoire, mais pas de session persistante pour la démo.
+      // On peut éventuellement stocker le nom, mais on ne le fait pas pour la sécurité (static).
+      // On force la déconnexion au chargement pour la démo.
+      currentUser = null;
+      balanceCache = 0;
+      tasksCompleted = [];
+      updateUIAfterLogout();
+      showSection('about');
+
+      // Événements manuels de langue
+      langBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lang = btn.dataset.lang;
+          applyLanguage(lang);
+        });
+      });
+
+      // Afficher la balance si connecté (non)
+    }
+
+    init();
+
+    // Exposer quelques fonctions pour le debug (optionnel)
+    window.__debug = { currentUser, balanceCache, tasksCompleted, syncBalanceToStorage };
+
+  })();
+</script>
+</body>
+  </html>
