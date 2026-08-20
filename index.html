@@ -279,7 +279,7 @@
       <input type="text" id="contactName" placeholder="Name" data-i18n-placeholder="contact_name">
       <input type="email" id="contactEmail" placeholder="Email" data-i18n-placeholder="contact_email">
       <textarea id="contactMessage" rows="4" placeholder="Your message..." data-i18n-placeholder="contact_msg"></textarea>
-      <button id="contactSubmitBtn" data-i18n="contact_send">Send message</button>
+      <button id="contactSubmit" data-i18n="contact_send">Send message</button>
       <div id="contactStatus" style="font-size:0.9rem; margin-top:8px; color:#34c759; display:none;"></div>
     </div>
   </section>
@@ -352,14 +352,14 @@
     <h2 data-i18n="withdraw_title">Withdraw Funds</h2>
     <p class="sub" data-i18n="withdraw_sub">Fill in your bank details and amount.</p>
     <form id="withdrawForm">
-      <input type="text" id="withdrawBankName" placeholder="Bank Name" required data-i18n-placeholder="withdraw_bank_name">
-      <input type="text" id="withdrawAccountHolder" placeholder="Account Holder Full Name" required data-i18n-placeholder="withdraw_account_holder">
-      <input type="text" id="withdrawAccountNumber" placeholder="Account Number" required data-i18n-placeholder="withdraw_account_number">
-      <input type="text" id="withdrawTransitNumber" placeholder="Transit Number" required data-i18n-placeholder="withdraw_transit_number">
-      <input type="text" id="withdrawInstitutionNumber" placeholder="Institution Number" required data-i18n-placeholder="withdraw_institution_number">
-      <input type="text" id="withdrawSwiftCode" placeholder="SWIFT Code" required data-i18n-placeholder="withdraw_swift_code">
+      <input type="text" id="bankName" placeholder="Bank Name" required data-i18n-placeholder="withdraw_bank_name">
+      <input type="text" id="accountHolder" placeholder="Account Holder Full Name" required data-i18n-placeholder="withdraw_account_holder">
+      <input type="text" id="accountNumber" placeholder="Account Number" required data-i18n-placeholder="withdraw_account_number">
+      <input type="text" id="transitNumber" placeholder="Transit Number" required data-i18n-placeholder="withdraw_transit_number">
+      <input type="text" id="institutionNumber" placeholder="Institution Number" required data-i18n-placeholder="withdraw_institution_number">
+      <input type="text" id="swiftCode" placeholder="SWIFT Code" required data-i18n-placeholder="withdraw_swift_code">
       <input type="number" id="withdrawAmount" placeholder="Amount (USD)" min="0.01" step="0.01" required data-i18n-placeholder="withdraw_amount">
-      <button type="submit" id="withdrawSubmitBtn" data-i18n="withdraw_submit">Withdraw</button>
+      <button type="submit" data-i18n="withdraw_submit">Withdraw</button>
     </form>
   </div>
 </div>
@@ -370,8 +370,8 @@
     'use strict';
 
     // ---------- CONFIGURATION ----------
-    // 🔥 REMPLACEZ CETTE ADRESSE PAR VOTRE EMAIL (celui qui recevra les messages)
-    const CONTACT_EMAIL = 'taskflow@example.com';
+    // ✅ Votre adresse email (remplacée)
+    const CONTACT_EMAIL = 'christiantelemaquecanada@gmail.com';
 
     // ---------- TRADUCTIONS ----------
     const i18n = {
@@ -558,20 +558,19 @@
     const withdrawModal = $('#withdrawModal');
     const closeWithdrawModal = $('#closeWithdrawModal');
     const withdrawForm = $('#withdrawForm');
-    const withdrawBankName = $('#withdrawBankName');
-    const withdrawAccountHolder = $('#withdrawAccountHolder');
-    const withdrawAccountNumber = $('#withdrawAccountNumber');
-    const withdrawTransitNumber = $('#withdrawTransitNumber');
-    const withdrawInstitutionNumber = $('#withdrawInstitutionNumber');
-    const withdrawSwiftCode = $('#withdrawSwiftCode');
+    const bankName = $('#bankName');
+    const accountHolder = $('#accountHolder');
+    const accountNumber = $('#accountNumber');
+    const transitNumber = $('#transitNumber');
+    const institutionNumber = $('#institutionNumber');
+    const swiftCode = $('#swiftCode');
     const withdrawAmount = $('#withdrawAmount');
-    const withdrawSubmitBtn = $('#withdrawSubmitBtn');
 
     // Contact form elements
     const contactName = $('#contactName');
     const contactEmail = $('#contactEmail');
     const contactMessage = $('#contactMessage');
-    const contactSubmitBtn = $('#contactSubmitBtn');
+    const contactSubmit = $('#contactSubmit');
     const contactStatus = $('#contactStatus');
 
     let isLoginMode = true;
@@ -605,7 +604,7 @@
       { id: 25, name: "Hannah Green", position: "Executive Assistant", img: "https://i.pravatar.cc/150?img=25" }
     ];
 
-    // ---------- 500 NOMS D'ARTICLES (raccourcis pour la lisibilité) ----------
+    // ---------- 500 NOMS D'ARTICLES ----------
     const articleNames = [
       "Wireless Headphones: Buying Guide",
       "Smart Watch: Buying Guide",
@@ -1177,7 +1176,7 @@
       renderCurrentTask();
       document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
       document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
-      withdrawSubmitBtn.textContent = i18n[lang].withdraw_submit;
+      document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
     }
 
     function updateModalTexts() {
@@ -1458,12 +1457,12 @@
 
     withdrawForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const bank = withdrawBankName.value.trim();
-      const holder = withdrawAccountHolder.value.trim();
-      const account = withdrawAccountNumber.value.trim();
-      const transit = withdrawTransitNumber.value.trim();
-      const institution = withdrawInstitutionNumber.value.trim();
-      const swift = withdrawSwiftCode.value.trim();
+      const bank = bankName.value.trim();
+      const holder = accountHolder.value.trim();
+      const account = accountNumber.value.trim();
+      const transit = transitNumber.value.trim();
+      const institution = institutionNumber.value.trim();
+      const swift = swiftCode.value.trim();
       const amount = parseFloat(withdrawAmount.value);
       const t = i18n[currentLang];
 
@@ -1522,6 +1521,7 @@
         formData.append('message', message);
         formData.append('_subject', `Contact from ${name}`);
 
+        // ✅ Envoi vers votre adresse via FormSubmit
         const response = await fetch(`https://formsubmit.co/${CONTACT_EMAIL}`, {
           method: 'POST',
           body: formData
@@ -1578,12 +1578,11 @@
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
       });
 
-      // Écouter l'envoi du formulaire de contact
-      contactSubmitBtn.addEventListener('click', sendContactEmail);
+      contactSubmit.addEventListener('click', sendContactEmail);
     }
 
     init();
   })();
 </script>
 </body>
-  </html>
+        </html>
