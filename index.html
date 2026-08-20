@@ -81,29 +81,29 @@
     /* ---------- DIRECTORY (Répertoire) ---------- */
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 24px;
       margin-top: 30px;
     }
     .team-card {
       background: #fff;
-      border-radius: 24px;
-      padding: 24px 16px;
+      border-radius: 20px;
+      padding: 20px 12px;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0,0,0,0.04);
       transition: transform 0.2s;
     }
     .team-card:hover { transform: translateY(-4px); }
     .team-card img {
-      width: 100px;
-      height: 100px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       background: #e8e8ed;
     }
-    .team-card h4 { font-weight:600; font-size:1.1rem; }
-    .team-card p { color:#6e6e73; font-size:0.9rem; }
+    .team-card h4 { font-weight:600; font-size:1rem; margin-bottom:4px; }
+    .team-card p { color:#6e6e73; font-size:0.8rem; }
 
     /* ---------- DASHBOARD ---------- */
     #section-dashboard .balance-box {
@@ -283,7 +283,7 @@
   <!-- DIRECTORY (Répertoire) -->
   <section id="section-directory">
     <h2 class="section-title" data-i18n="directory_title">Our Team</h2>
-    <p class="section-sub" data-i18n="directory_sub">Meet the people behind TaskFlow.</p>
+    <p class="section-sub" data-i18n="directory_sub">Meet the 25 talented people behind TaskFlow.</p>
     <div class="team-grid" id="teamGrid">
       <!-- généré par JS -->
     </div>
@@ -342,7 +342,7 @@
   (function() {
     'use strict';
 
-    // ---------- TRADUCTIONS ----------
+    // ---------- TRADUCTIONS (raccourcies pour la lisibilité, mais complètes) ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -353,9 +353,7 @@
         about_card2_text:"Every opinion counts and pays instantly.",
         about_card3_title:"💡 Values",
         about_card3_text:"Trust, transparency, and fair rewards.",
-        // Long about (1200+ chars)
         about_long: `TaskFlow was born from a simple yet powerful observation: in today's digital economy, every individual interaction holds intrinsic value. We believe that micro-tasks, such as sharing honest product reviews, should not only contribute to the community but also provide tangible, immediate rewards to the contributors. Our platform is engineered to bridge the gap between consumer feedback and financial empowerment. We operate on a foundation of radical transparency, ensuring that every cent earned is clearly displayed and instantly accessible. Our sophisticated matching algorithm pairs users with products that align with their interests, making the review process engaging and authentic. We are committed to fostering a global community where trust is paramount. Every review submitted on TaskFlow undergoes rigorous quality checks to maintain the integrity of our ecosystem. We envision a future where every voice, no matter how small, can influence market trends and earn a fair share of the value it generates. Our team is dedicated to continuous innovation, constantly refining our user experience to be seamless and intuitive. We are not just a platform; we are a movement towards a more equitable digital marketplace. By choosing TaskFlow, you join a family of forward-thinking individuals who believe that effort deserves immediate, meaningful compensation. Together, we are redefining the landscape of online feedback, one review at a time.`,
-
         history_title:"Our Story", history_sub:"Key milestones since day one.",
         history_2023:"Founded in Paris with a simple idea.",
         history_2024:"Launched the beta version, 10k users.",
@@ -374,16 +372,8 @@
         special:"SPECIAL", multiplier:"x", task_completed:"Completed",
         product:"Product", min_chars:"Minimum 160 characters", 
         select_stars:"Select 1 to 5 stars", task_accepted:"Task accepted, write your review below.",
-        // footer
         footer_about:"About", footer_contact:"Contact", footer_revision:"Re-vision", footer_directory:"Directory",
-        // directory
-        directory_title:"Our Team", directory_sub:"Meet the people behind TaskFlow.",
-        // Team (names & positions)
-        team_name1:"Jean Dupont", team_pos1:"President & CEO",
-        team_name2:"Marie Curie", team_pos2:"Chief Technology Officer",
-        team_name3:"Amadou Diallo", team_pos3:"Vice President of Marketing",
-        team_name4:"Sophie Martin", team_pos4:"Chief Operating Officer",
-        team_name5:"Carlos Gomez", team_pos5:"Senior Accountant"
+        directory_title:"Our Team", directory_sub:"Meet the 25 talented people behind TaskFlow."
       },
       fr: {
         about_title:"À propos de TaskFlow",
@@ -414,12 +404,7 @@
         product:"Produit", min_chars:"160 caractères minimum",
         select_stars:"Sélectionnez 1 à 5 étoiles", task_accepted:"Tâche acceptée, écrivez votre avis.",
         footer_about:"À propos", footer_contact:"Contact", footer_revision:"Révision", footer_directory:"Répertoire",
-        directory_title:"Notre équipe", directory_sub:"Rencontrez les personnes derrière TaskFlow.",
-        team_name1:"Jean Dupont", team_pos1:"Président & CEO",
-        team_name2:"Marie Curie", team_pos2:"Directrice Technique",
-        team_name3:"Amadou Diallo", team_pos3:"Vice-Président Marketing",
-        team_name4:"Sophie Martin", team_pos4:"Directrice Administrative",
-        team_name5:"Carlos Gomez", team_pos5:"Comptable Senior"
+        directory_title:"Notre équipe", directory_sub:"Rencontrez les 25 personnes talentueuses derrière TaskFlow."
       },
       es: {
         about_title:"Acerca de TaskFlow",
@@ -450,12 +435,7 @@
         product:"Producto", min_chars:"Mínimo 160 caracteres",
         select_stars:"Selecciona 1 a 5 estrellas", task_accepted:"Tarea aceptada, escribe tu reseña.",
         footer_about:"Acerca de", footer_contact:"Contacto", footer_revision:"Re-visión", footer_directory:"Directorio",
-        directory_title:"Nuestro equipo", directory_sub:"Conoce a las personas detrás de TaskFlow.",
-        team_name1:"Jean Dupont", team_pos1:"Presidente & CEO",
-        team_name2:"Marie Curie", team_pos2:"Directora Técnica",
-        team_name3:"Amadou Diallo", team_pos3:"Vicepresidente de Marketing",
-        team_name4:"Sophie Martin", team_pos4:"Directora de Operaciones",
-        team_name5:"Carlos Gomez", team_pos5:"Contador Senior"
+        directory_title:"Nuestro equipo", directory_sub:"Conoce a las 25 personas talentosas detrás de TaskFlow."
       }
     };
 
@@ -500,13 +480,33 @@
 
     let isLoginMode = true;
 
-    // ---------- TEAM DATA ----------
+    // ---------- TEAM DATA (25 membres, photos professionnelles) ----------
     const teamMembers = [
-      { id: 1, nameKey: 'team_name1', posKey: 'team_pos1', img: 'https://i.pravatar.cc/150?img=1' },
-      { id: 2, nameKey: 'team_name2', posKey: 'team_pos2', img: 'https://i.pravatar.cc/150?img=2' },
-      { id: 3, nameKey: 'team_name3', posKey: 'team_pos3', img: 'https://i.pravatar.cc/150?img=3' },
-      { id: 4, nameKey: 'team_name4', posKey: 'team_pos4', img: 'https://i.pravatar.cc/150?img=4' },
-      { id: 5, nameKey: 'team_name5', posKey: 'team_pos5', img: 'https://i.pravatar.cc/150?img=5' }
+      { id: 1, name: "Jean Dupont", position: "President & CEO", img: "https://i.pravatar.cc/150?img=1" },
+      { id: 2, name: "Marie Curie", position: "Chief Technology Officer", img: "https://i.pravatar.cc/150?img=2" },
+      { id: 3, name: "Amadou Diallo", position: "VP of Marketing", img: "https://i.pravatar.cc/150?img=3" },
+      { id: 4, name: "Sophie Martin", position: "Chief Operating Officer", img: "https://i.pravatar.cc/150?img=4" },
+      { id: 5, name: "Carlos Gomez", position: "Senior Accountant", img: "https://i.pravatar.cc/150?img=5" },
+      { id: 6, name: "Emily Johnson", position: "Head of Product", img: "https://i.pravatar.cc/150?img=6" },
+      { id: 7, name: "David Kim", position: "Lead Developer", img: "https://i.pravatar.cc/150?img=7" },
+      { id: 8, name: "Anna Kowalski", position: "UX/UI Designer", img: "https://i.pravatar.cc/150?img=8" },
+      { id: 9, name: "Mohammed Al-Fahd", position: "Data Scientist", img: "https://i.pravatar.cc/150?img=9" },
+      { id: 10, name: "Laura Garcia", position: "Content Strategist", img: "https://i.pravatar.cc/150?img=10" },
+      { id: 11, name: "James O'Brien", position: "DevOps Engineer", img: "https://i.pravatar.cc/150?img=11" },
+      { id: 12, name: "Isabella Rossi", position: "Product Manager", img: "https://i.pravatar.cc/150?img=12" },
+      { id: 13, name: "Lucas Schmidt", position: "Full-Stack Developer", img: "https://i.pravatar.cc/150?img=13" },
+      { id: 14, name: "Nina Patel", position: "QA Lead", img: "https://i.pravatar.cc/150?img=14" },
+      { id: 15, name: "Omar Hassan", position: "Cloud Architect", img: "https://i.pravatar.cc/150?img=15" },
+      { id: 16, name: "Emma Wilson", position: "Community Manager", img: "https://i.pravatar.cc/150?img=16" },
+      { id: 17, name: "Sebastian Müller", position: "Security Specialist", img: "https://i.pravatar.cc/150?img=17" },
+      { id: 18, name: "Yuki Tanaka", position: "Mobile Developer", img: "https://i.pravatar.cc/150?img=18" },
+      { id: 19, name: "Rachel Cohen", position: "Marketing Analyst", img: "https://i.pravatar.cc/150?img=19" },
+      { id: 20, name: "Diego Santos", position: "Sales Director", img: "https://i.pravatar.cc/150?img=20" },
+      { id: 21, name: "Priya Sharma", position: "HR Manager", img: "https://i.pravatar.cc/150?img=21" },
+      { id: 22, name: "Thomas Andersen", position: "Business Developer", img: "https://i.pravatar.cc/150?img=22" },
+      { id: 23, name: "Fatima El-Sayed", position: "Legal Counsel", img: "https://i.pravatar.cc/150?img=23" },
+      { id: 24, name: "Daniel Lee", position: "IT Support Manager", img: "https://i.pravatar.cc/150?img=24" },
+      { id: 25, name: "Hannah Green", position: "Executive Assistant", img: "https://i.pravatar.cc/150?img=25" }
     ];
 
     // ---------- GENERATE 500 TASKS ----------
@@ -550,6 +550,8 @@
     function setCompleted(u, arr) { localStorage.setItem(`tf_done_${u}`, JSON.stringify(arr)); }
     function getAccepted(u) { try { return JSON.parse(localStorage.getItem(`tf_accepted_${u}`)) || []; } catch { return []; } }
     function setAccepted(u, arr) { localStorage.setItem(`tf_accepted_${u}`, JSON.stringify(arr)); }
+    function getCurrentUser() { return localStorage.getItem('taskflow_current_user') || null; }
+    function setCurrentUser(u) { if (u) localStorage.setItem('taskflow_current_user', u); else localStorage.removeItem('taskflow_current_user'); }
 
     // ---------- LANG ----------
     function detectLanguage() {
@@ -562,11 +564,9 @@
       currentLang = lang;
       langBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
       
-      // Traductions standard
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
         if (i18n[lang] && i18n[lang][key] !== undefined) {
-          // Si c'est le long texte, on le met dans innerHTML pour les retours à la ligne
           if (key === 'about_long') {
             el.innerHTML = i18n[lang][key];
           } else {
@@ -651,14 +651,7 @@
       if (isLoginMode) {
         if (users[username] && users[username] === password) {
           currentUser = username;
-          balanceCache = getBalance(username);
-          completedIds = getCompleted(username);
-          acceptedIds = getAccepted(username);
-          tasksData.forEach(task => {
-            if (completedIds.includes(task.id)) task.status = 'completed';
-            else if (acceptedIds.includes(task.id)) task.status = 'accepted';
-            else task.status = 'pending';
-          });
+          loadUserData(username);
           closeModalFn();
           updateUIAfterLogin();
           showSection('dashboard');
@@ -683,6 +676,7 @@
         setBalance(currentUser, balanceCache);
         setCompleted(currentUser, completedIds);
         setAccepted(currentUser, acceptedIds);
+        setCurrentUser(null);
       }
       currentUser = null; balanceCache = 0; completedIds = []; acceptedIds = [];
       tasksData.forEach(t => t.status = 'pending');
@@ -690,12 +684,26 @@
       showSection('about');
     });
 
+    // ---------- LOAD USER DATA ----------
+    function loadUserData(username) {
+      balanceCache = getBalance(username);
+      completedIds = getCompleted(username);
+      acceptedIds = getAccepted(username);
+      tasksData.forEach(task => {
+        if (completedIds.includes(task.id)) task.status = 'completed';
+        else if (acceptedIds.includes(task.id)) task.status = 'accepted';
+        else task.status = 'pending';
+      });
+      setCurrentUser(username);
+    }
+
     // ---------- UI UPDATE ----------
     function updateUIAfterLogin() {
       updateAuthButtons();
       updateBalanceDisplay();
       renderTasks();
       updateCompletedCount();
+      // Show dashboard if not already
     }
     function updateUIAfterLogout() {
       updateAuthButtons();
@@ -711,18 +719,15 @@
       completedCount.textContent = completedIds.length;
     }
 
-    // ---------- RENDER TEAM ----------
+    // ---------- RENDER TEAM (25 membres) ----------
     function renderTeam() {
-      const t = i18n[currentLang];
       let html = '';
       teamMembers.forEach(m => {
-        const name = t[m.nameKey] || m.nameKey;
-        const pos = t[m.posKey] || m.posKey;
         html += `
           <div class="team-card">
-            <img src="${m.img}" alt="${name}" loading="lazy">
-            <h4>${name}</h4>
-            <p>${pos}</p>
+            <img src="${m.img}" alt="${m.name}" loading="lazy">
+            <h4>${m.name}</h4>
+            <p>${m.position}</p>
           </div>
         `;
       });
@@ -871,23 +876,43 @@
       const detected = detectLanguage();
       applyLanguage(detected);
 
-      currentUser = null;
-      balanceCache = 0;
-      completedIds = [];
-      acceptedIds = [];
-      updateUIAfterLogout();
-      showSection('about');
+      // Restaurer la session si un utilisateur est stocké
+      const savedUser = getCurrentUser();
+      if (savedUser) {
+        const users = getUsers();
+        if (users[savedUser]) {
+          currentUser = savedUser;
+          loadUserData(savedUser);
+          updateUIAfterLogin();
+          // On affiche le dashboard par défaut s'il est connecté
+          showSection('dashboard');
+        } else {
+          // L'utilisateur n'existe plus dans la base locale
+          setCurrentUser(null);
+          currentUser = null;
+          updateUIAfterLogout();
+          showSection('about');
+        }
+      } else {
+        currentUser = null;
+        balanceCache = 0;
+        completedIds = [];
+        acceptedIds = [];
+        updateUIAfterLogout();
+        showSection('about');
+      }
 
+      // Rendre l'équipe (les noms sont fixes, pas besoin de traduction)
+      renderTeam();
+
+      // Événements de langue
       langBtns.forEach(btn => {
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
       });
-
-      // Rendre l'équipe au cas où
-      renderTeam();
     }
 
     init();
   })();
 </script>
 </body>
-  </html>
+                                   </html>
