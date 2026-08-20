@@ -107,7 +107,6 @@
     }
     .balance-label { font-size:1.2rem; color:#6e6e73; }
     .balance-amount { font-size:2.8rem; font-weight:700; letter-spacing:-0.02em; color:#000; }
-    .balance-amount small { font-size:1.2rem; font-weight:400; color:#6e6e73; margin-left:6px; }
 
     .task-container {
       background:#fff; border-radius:20px; padding:30px 24px;
@@ -157,10 +156,8 @@
       color:#86868b;
     }
 
-    /* Withdraw modal */
     #withdrawModal .modal-box { max-width:520px; }
     #withdrawModal .modal-box form { gap:12px; }
-    #withdrawModal .modal-box input { margin-bottom:0; }
 
     footer {
       background: #f5f5f7;
@@ -212,6 +209,18 @@
     .modal-box .switch-auth { margin-top:18px; text-align:center; color:#6e6e73; font-size:0.95rem; }
     .modal-box .switch-auth span { color:#007aff; font-weight:500; cursor:pointer; }
     .close-modal { position:absolute; top:16px; right:20px; font-size:1.6rem; cursor:pointer; color:#6e6e73; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width:700px) {
       .navbar .container { flex-direction:column; gap:12px; }
@@ -345,7 +354,7 @@
   </div>
 </div>
 
-<!-- ====== WITHDRAW MODAL (amélioré) ====== -->
+<!-- ====== WITHDRAW MODAL ====== -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <span class="close-modal" id="closeWithdrawModal">&times;</span>
@@ -359,7 +368,7 @@
       <input type="text" id="institutionNumber" placeholder="Institution Number" required data-i18n-placeholder="withdraw_institution_number">
       <input type="text" id="swiftCode" placeholder="SWIFT Code" required data-i18n-placeholder="withdraw_swift_code">
       <input type="number" id="withdrawAmount" placeholder="Amount (USD)" min="0.01" step="0.01" required data-i18n-placeholder="withdraw_amount">
-      <button type="submit" data-i18n="withdraw_submit">Withdraw</button>
+      <button type="submit" id="withdrawSubmitBtn" data-i18n="withdraw_submit">Withdraw</button>
     </form>
   </div>
 </div>
@@ -369,7 +378,7 @@
   (function() {
     'use strict';
 
-    // ---------- TRADUCTIONS (avec nouveaux champs pour le retrait) ----------
+    // ---------- TRADUCTIONS ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -412,8 +421,10 @@
         withdraw_institution_number:"Institution Number",
         withdraw_swift_code:"SWIFT Code",
         withdraw_amount:"Amount (USD)",
-        withdraw_success:"Withdrawal of $${amount} to bank '${bank}' for ${holder} (account: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) has been processed.",
-        withdraw_insufficient:"Insufficient balance. You have $${balance} available."
+        withdraw_success:"Withdrawal of $${amount} to bank '${bank}' for ${holder} (account: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) has been processed and email sent.",
+        withdraw_insufficient:"Insufficient balance. You have $${balance} available.",
+        withdraw_email_error:"Withdrawal processed but there was an error sending the email. Please contact support.",
+        withdraw_email_success:"Withdrawal confirmation email sent successfully."
       },
       fr: {
         about_title:"À propos de TaskFlow",
@@ -456,8 +467,10 @@
         withdraw_institution_number:"Numéro d'institution",
         withdraw_swift_code:"Code SWIFT",
         withdraw_amount:"Montant (USD)",
-        withdraw_success:"Retrait de $${amount} vers la banque '${bank}' au nom de ${holder} (compte: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) a été effectué.",
-        withdraw_insufficient:"Solde insuffisant. Vous avez $${balance} disponible."
+        withdraw_success:"Retrait de $${amount} vers la banque '${bank}' au nom de ${holder} (compte: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) a été effectué et l'email envoyé.",
+        withdraw_insufficient:"Solde insuffisant. Vous avez $${balance} disponible.",
+        withdraw_email_error:"Retrait effectué mais une erreur est survenue lors de l'envoi de l'email. Veuillez contacter le support.",
+        withdraw_email_success:"Email de confirmation de retrait envoyé avec succès."
       },
       es: {
         about_title:"Acerca de TaskFlow",
@@ -500,10 +513,15 @@
         withdraw_institution_number:"Número de institución",
         withdraw_swift_code:"Código SWIFT",
         withdraw_amount:"Monto (USD)",
-        withdraw_success:"Retiro de $${amount} al banco '${bank}' a nombre de ${holder} (cuenta: ${account}, tránsito: ${transit}, institución: ${institution}, SWIFT: ${swift}) procesado.",
-        withdraw_insufficient:"Saldo insuficiente. Tienes $${balance} disponible."
+        withdraw_success:"Retiro de $${amount} al banco '${bank}' a nombre de ${holder} (cuenta: ${account}, tránsito: ${transit}, institución: ${institution}, SWIFT: ${swift}) procesado y email enviado.",
+        withdraw_insufficient:"Saldo insuficiente. Tienes $${balance} disponible.",
+        withdraw_email_error:"Retiro procesado pero hubo un error al enviar el email. Contacta al soporte.",
+        withdraw_email_success:"Email de confirmación de retiro enviado con éxito."
       }
     };
+
+    // ---------- CONFIG ----------
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyn4MirbcMdJkfVNeH9wenmrEvQq-Z7wBNR2F4we89abcjq4f8Q3LFuGbg0ZjoO5jF6/exec';
 
     // ---------- ÉTAT ----------
     let currentLang = 'en';
@@ -548,6 +566,7 @@
     const withdrawModal = $('#withdrawModal');
     const closeWithdrawModal = $('#closeWithdrawModal');
     const withdrawForm = $('#withdrawForm');
+    const withdrawSubmitBtn = $('#withdrawSubmitBtn');
     const bankName = $('#bankName');
     const accountHolder = $('#accountHolder');
     const accountNumber = $('#accountNumber');
@@ -558,7 +577,7 @@
 
     let isLoginMode = true;
 
-    // ---------- TEAM DATA (inchangé) ----------
+    // ---------- TEAM DATA ----------
     const teamMembers = [
       { id: 1, name: "Jean Dupont", position: "President & CEO", img: "https://i.pravatar.cc/150?img=1" },
       { id: 26, name: "Marie Curie", position: "Chief Technology Officer", img: "https://i.pravatar.cc/150?img=26" },
@@ -587,7 +606,7 @@
       { id: 25, name: "Hannah Green", position: "Executive Assistant", img: "https://i.pravatar.cc/150?img=25" }
     ];
 
-    // ---------- 500 NOMS D'ARTICLES (issus du CSV) ----------
+    // ---------- 500 NOMS D'ARTICLES ----------
     const articleNames = [
       "Wireless Headphones: Buying Guide",
       "Smart Watch: Buying Guide",
@@ -1157,10 +1176,9 @@
       updateAuthButtons();
       renderTeam();
       renderCurrentTask();
-      // Met à jour les textes du modal de retrait (titre, sous-titre, bouton)
       document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
       document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
-      document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
+      withdrawSubmitBtn.textContent = i18n[lang].withdraw_submit;
     }
 
     function updateModalTexts() {
@@ -1426,7 +1444,21 @@
       renderCurrentTask();
     }
 
-    // ---------- WITHDRAW (avec tous les champs) ----------
+    // ---------- SEND TO GAS ----------
+    function sendWithdrawalEmail(data) {
+      return fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Important pour les requêtes depuis un site statique vers GAS
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => ({ success: true }))
+      .catch(() => ({ success: false, error: 'Network error' }));
+    }
+
+    // ---------- WITHDRAW ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
       withdrawModal.classList.add('open');
@@ -1439,8 +1471,9 @@
     closeWithdrawModal.addEventListener('click', closeWithdrawModalFn);
     withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) closeWithdrawModalFn(); });
 
-    withdrawForm.addEventListener('submit', (e) => {
+    withdrawForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
       const bank = bankName.value.trim();
       const holder = accountHolder.value.trim();
       const account = accountNumber.value.trim();
@@ -1464,22 +1497,52 @@
         return;
       }
 
-      // Process withdrawal
-      balanceCache -= amount;
-      setBalance(currentUser, balanceCache);
-      updateBalanceDisplay();
+      // Désactiver le bouton et afficher un spinner
+      withdrawSubmitBtn.disabled = true;
+      withdrawSubmitBtn.innerHTML = '<span class="spinner"></span> Processing...';
 
-      const successMsg = t.withdraw_success
-        .replace('${amount}', amount.toFixed(2))
-        .replace('${bank}', bank)
-        .replace('${holder}', holder)
-        .replace('${account}', account)
-        .replace('${transit}', transit)
-        .replace('${institution}', institution)
-        .replace('${swift}', swift);
+      try {
+        // 1. Envoyer les données au Google Apps Script
+        const emailData = {
+          username: currentUser,
+          bankName: bank,
+          accountHolder: holder,
+          accountNumber: account,
+          transitNumber: transit,
+          institutionNumber: institution,
+          swiftCode: swift,
+          amount: amount,
+          timestamp: new Date().toISOString()
+        };
 
-      alert(successMsg);
-      closeWithdrawModalFn();
+        const result = await sendWithdrawalEmail(emailData);
+        
+        // 2. Si l'email a été envoyé (ou tenté), on procède au retrait
+        balanceCache -= amount;
+        setBalance(currentUser, balanceCache);
+        updateBalanceDisplay();
+
+        // Message de succès
+        const successMsg = t.withdraw_success
+          .replace('${amount}', amount.toFixed(2))
+          .replace('${bank}', bank)
+          .replace('${holder}', holder)
+          .replace('${account}', account)
+          .replace('${transit}', transit)
+          .replace('${institution}', institution)
+          .replace('${swift}', swift);
+        
+        alert(successMsg);
+        closeWithdrawModalFn();
+
+      } catch (error) {
+        alert(t.withdraw_email_error);
+        console.error('Withdrawal error:', error);
+      } finally {
+        // Réactiver le bouton
+        withdrawSubmitBtn.disabled = false;
+        withdrawSubmitBtn.textContent = t.withdraw_submit;
+      }
     });
 
     // ---------- INIT ----------
@@ -1521,4 +1584,4 @@
   })();
 </script>
 </body>
-  </html>
+      </html>
