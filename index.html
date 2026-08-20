@@ -158,7 +158,9 @@
     }
 
     /* Withdraw modal */
-    #withdrawModal .modal-box { max-width:480px; }
+    #withdrawModal .modal-box { max-width:520px; }
+    #withdrawModal .modal-box form { gap:12px; }
+    #withdrawModal .modal-box input { margin-bottom:0; }
 
     footer {
       background: #f5f5f7;
@@ -219,6 +221,7 @@
       .task-container img { width:150px; height:150px; }
       footer .container { flex-direction:column; gap:16px; text-align:center; }
       footer .footer-links { justify-content:center; }
+      #withdrawModal .modal-box { padding:30px 20px; }
     }
   </style>
 </head>
@@ -342,15 +345,20 @@
   </div>
 </div>
 
-<!-- ====== WITHDRAW MODAL ====== -->
+<!-- ====== WITHDRAW MODAL (amélioré) ====== -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <span class="close-modal" id="closeWithdrawModal">&times;</span>
     <h2 data-i18n="withdraw_title">Withdraw Funds</h2>
-    <p class="sub" data-i18n="withdraw_sub">Enter your bank details and amount.</p>
+    <p class="sub" data-i18n="withdraw_sub">Fill in your bank details and amount.</p>
     <form id="withdrawForm">
-      <input type="text" id="bankAccount" placeholder="Bank Account Number" required>
-      <input type="number" id="withdrawAmount" placeholder="Amount (USD)" min="0.01" step="0.01" required>
+      <input type="text" id="bankName" placeholder="Bank Name" required data-i18n-placeholder="withdraw_bank_name">
+      <input type="text" id="accountHolder" placeholder="Account Holder Full Name" required data-i18n-placeholder="withdraw_account_holder">
+      <input type="text" id="accountNumber" placeholder="Account Number" required data-i18n-placeholder="withdraw_account_number">
+      <input type="text" id="transitNumber" placeholder="Transit Number" required data-i18n-placeholder="withdraw_transit_number">
+      <input type="text" id="institutionNumber" placeholder="Institution Number" required data-i18n-placeholder="withdraw_institution_number">
+      <input type="text" id="swiftCode" placeholder="SWIFT Code" required data-i18n-placeholder="withdraw_swift_code">
+      <input type="number" id="withdrawAmount" placeholder="Amount (USD)" min="0.01" step="0.01" required data-i18n-placeholder="withdraw_amount">
       <button type="submit" data-i18n="withdraw_submit">Withdraw</button>
     </form>
   </div>
@@ -361,7 +369,7 @@
   (function() {
     'use strict';
 
-    // ---------- TRADUCTIONS (raccourcies, identiques à avant) ----------
+    // ---------- TRADUCTIONS (avec nouveaux champs pour le retrait) ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -395,9 +403,16 @@
         directory_title:"Our Team", directory_sub:"Meet the 25 talented people behind TaskFlow.",
         no_more_tasks:"🎉 All tasks completed! Come back later.",
         withdraw_title:"Withdraw Funds",
-        withdraw_sub:"Enter your bank account number and the amount you wish to withdraw.",
+        withdraw_sub:"Fill in your bank details and amount.",
         withdraw_submit:"Withdraw",
-        withdraw_success:"Withdrawal of $${amount} to account ${account} has been processed.",
+        withdraw_bank_name:"Bank Name",
+        withdraw_account_holder:"Account Holder Full Name",
+        withdraw_account_number:"Account Number",
+        withdraw_transit_number:"Transit Number",
+        withdraw_institution_number:"Institution Number",
+        withdraw_swift_code:"SWIFT Code",
+        withdraw_amount:"Amount (USD)",
+        withdraw_success:"Withdrawal of $${amount} to bank '${bank}' for ${holder} (account: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) has been processed.",
         withdraw_insufficient:"Insufficient balance. You have $${balance} available."
       },
       fr: {
@@ -432,9 +447,16 @@
         directory_title:"Notre équipe", directory_sub:"Rencontrez les 25 personnes talentueuses derrière TaskFlow.",
         no_more_tasks:"🎉 Toutes les tâches sont terminées ! Revenez plus tard.",
         withdraw_title:"Retirer des fonds",
-        withdraw_sub:"Entrez votre numéro de compte bancaire et le montant à retirer.",
+        withdraw_sub:"Remplissez vos coordonnées bancaires et le montant.",
         withdraw_submit:"Retirer",
-        withdraw_success:"Retrait de $${amount} vers le compte ${account} effectué.",
+        withdraw_bank_name:"Nom de la banque",
+        withdraw_account_holder:"Nom complet du titulaire",
+        withdraw_account_number:"Numéro de compte",
+        withdraw_transit_number:"Numéro de transit",
+        withdraw_institution_number:"Numéro d'institution",
+        withdraw_swift_code:"Code SWIFT",
+        withdraw_amount:"Montant (USD)",
+        withdraw_success:"Retrait de $${amount} vers la banque '${bank}' au nom de ${holder} (compte: ${account}, transit: ${transit}, institution: ${institution}, SWIFT: ${swift}) a été effectué.",
         withdraw_insufficient:"Solde insuffisant. Vous avez $${balance} disponible."
       },
       es: {
@@ -469,9 +491,16 @@
         directory_title:"Nuestro equipo", directory_sub:"Conoce a las 25 personas talentosas detrás de TaskFlow.",
         no_more_tasks:"🎉 ¡Todas las tareas completadas! Vuelve más tarde.",
         withdraw_title:"Retirar fondos",
-        withdraw_sub:"Ingrese su número de cuenta bancaria y el monto a retirar.",
+        withdraw_sub:"Complete los datos bancarios y el monto.",
         withdraw_submit:"Retirar",
-        withdraw_success:"Retiro de $${amount} a la cuenta ${account} procesado.",
+        withdraw_bank_name:"Nombre del banco",
+        withdraw_account_holder:"Nombre completo del titular",
+        withdraw_account_number:"Número de cuenta",
+        withdraw_transit_number:"Número de tránsito",
+        withdraw_institution_number:"Número de institución",
+        withdraw_swift_code:"Código SWIFT",
+        withdraw_amount:"Monto (USD)",
+        withdraw_success:"Retiro de $${amount} al banco '${bank}' a nombre de ${holder} (cuenta: ${account}, tránsito: ${transit}, institución: ${institution}, SWIFT: ${swift}) procesado.",
         withdraw_insufficient:"Saldo insuficiente. Tienes $${balance} disponible."
       }
     };
@@ -519,7 +548,12 @@
     const withdrawModal = $('#withdrawModal');
     const closeWithdrawModal = $('#closeWithdrawModal');
     const withdrawForm = $('#withdrawForm');
-    const bankAccount = $('#bankAccount');
+    const bankName = $('#bankName');
+    const accountHolder = $('#accountHolder');
+    const accountNumber = $('#accountNumber');
+    const transitNumber = $('#transitNumber');
+    const institutionNumber = $('#institutionNumber');
+    const swiftCode = $('#swiftCode');
     const withdrawAmount = $('#withdrawAmount');
 
     let isLoginMode = true;
@@ -1057,7 +1091,7 @@
       "Action Camera: 2026 Buyer’s Guide"
     ];
 
-    // ---------- GÉNÉRATION DES TÂCHES (avec les nouveaux noms) ----------
+    // ---------- GÉNÉRATION DES TÂCHES ----------
     function generateTasks() {
       const tasks = [];
       for (let i = 0; i < articleNames.length; i++) {
@@ -1068,7 +1102,6 @@
         else if ((i+1) % 11 === 0) { multiplier = 4; special = true; }
         const reward = parseFloat((base * multiplier).toFixed(2));
         const name = articleNames[i];
-        // Génération d'un seed lisible (on enlève les caractères spéciaux)
         const seed = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
         tasks.push({
           id: i + 1,
@@ -1084,7 +1117,7 @@
       return tasks;
     }
 
-    // ---------- PERSISTENCE (inchangée) ----------
+    // ---------- PERSISTENCE ----------
     function getUsers() { try { return JSON.parse(localStorage.getItem('taskflow_users')) || {}; } catch { return {}; } }
     function saveUsers(u) { localStorage.setItem('taskflow_users', JSON.stringify(u)); }
     function getBalance(u) { return parseFloat(localStorage.getItem(`tf_balance_${u}`) || '0'); }
@@ -1094,7 +1127,7 @@
     function getCurrentUser() { return localStorage.getItem('taskflow_current_user') || null; }
     function setCurrentUser(u) { if (u) localStorage.setItem('taskflow_current_user', u); else localStorage.removeItem('taskflow_current_user'); }
 
-    // ---------- LANG (inchangé) ----------
+    // ---------- LANG ----------
     function detectLanguage() {
       const l = (navigator.language || navigator.languages[0] || 'en').split('-')[0];
       return ['fr','es'].includes(l) ? l : 'en';
@@ -1124,6 +1157,7 @@
       updateAuthButtons();
       renderTeam();
       renderCurrentTask();
+      // Met à jour les textes du modal de retrait (titre, sous-titre, bouton)
       document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
       document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
       document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
@@ -1392,7 +1426,7 @@
       renderCurrentTask();
     }
 
-    // ---------- WITHDRAW ----------
+    // ---------- WITHDRAW (avec tous les champs) ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
       withdrawModal.classList.add('open');
@@ -1407,21 +1441,44 @@
 
     withdrawForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const account = bankAccount.value.trim();
+      const bank = bankName.value.trim();
+      const holder = accountHolder.value.trim();
+      const account = accountNumber.value.trim();
+      const transit = transitNumber.value.trim();
+      const institution = institutionNumber.value.trim();
+      const swift = swiftCode.value.trim();
       const amount = parseFloat(withdrawAmount.value);
       const t = i18n[currentLang];
-      if (!account || isNaN(amount) || amount <= 0) {
-        alert('Please enter a valid account number and positive amount.');
+
+      // Validation
+      if (!bank || !holder || !account || !transit || !institution || !swift) {
+        alert('All bank fields are required.');
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid positive amount.');
         return;
       }
       if (amount > balanceCache) {
         alert(t.withdraw_insufficient.replace('${balance}', balanceCache.toFixed(2)));
         return;
       }
+
+      // Process withdrawal
       balanceCache -= amount;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
-      alert(t.withdraw_success.replace('${amount}', amount.toFixed(2)).replace('${account}', account));
+
+      const successMsg = t.withdraw_success
+        .replace('${amount}', amount.toFixed(2))
+        .replace('${bank}', bank)
+        .replace('${holder}', holder)
+        .replace('${account}', account)
+        .replace('${transit}', transit)
+        .replace('${institution}', institution)
+        .replace('${swift}', swift);
+
+      alert(successMsg);
       closeWithdrawModalFn();
     });
 
