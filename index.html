@@ -399,6 +399,7 @@
     // =============================================================
     // CONFIGURATION — SUPABASE EDGE FUNCTION
     // =============================================================
+    // ✅ CORRECT EDGE FUNCTION URL
     const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-contact';
 
     // ---------- TRADUCTIONS ----------
@@ -1479,7 +1480,7 @@
       renderCurrentTask();
     }
 
-    // ---------- WITHDRAW (UPDATED: sends data to Edge Function) ----------
+    // ---------- WITHDRAW ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
       withdrawModal.classList.add('open');
@@ -1591,6 +1592,8 @@
           userEmail: currentUser?.email || 'Not provided'
         };
 
+        console.log('📤 Sending to Edge Function:', EDGE_FUNCTION_URL, data);
+
         const response = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
           headers: {
@@ -1599,7 +1602,10 @@
           body: JSON.stringify(data)
         });
 
+        console.log('📥 Response status:', response.status);
+
         const result = await response.json();
+        console.log('📥 Response body:', result);
 
         if (response.ok && result.success !== false) {
           statusEl.className = 'success';
@@ -1612,7 +1618,7 @@
           statusEl.textContent = result.error || t.contact_error;
         }
       } catch (error) {
-        console.error('Contact form error:', error);
+        console.error('❌ Contact form error:', error);
         statusEl.className = 'error';
         statusEl.textContent = t.contact_error;
       }
@@ -1664,4 +1670,4 @@
   })();
 </script>
 </body>
-                                                                 </html>
+        </html>
