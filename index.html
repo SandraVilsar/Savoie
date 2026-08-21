@@ -401,7 +401,7 @@
     // =============================================================
     const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-contact';
 
-    // ---------- TRADUCTIONS (with new withdrawal error messages) ----------
+    // ---------- TRADUCTIONS ----------
     const i18n = {
       en: {
         about_title:"About TaskFlow",
@@ -1479,7 +1479,7 @@
       renderCurrentTask();
     }
 
-    // ---------- WITHDRAW (FIXED: error messages now translated) ----------
+    // ---------- WITHDRAW (UPDATED: sends data to Edge Function) ----------
     function openWithdrawModal() {
       if (!currentUser) { alert('Please sign in first.'); return; }
       withdrawModal.classList.add('open');
@@ -1492,7 +1492,7 @@
     closeWithdrawModal.addEventListener('click', closeWithdrawModalFn);
     withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) closeWithdrawModalFn(); });
 
-    withdrawForm.addEventListener('submit', (e) => {
+    withdrawForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const bank = bankName.value.trim();
       const holder = accountHolder.value.trim();
@@ -1503,7 +1503,6 @@
       const amount = parseFloat(withdrawAmount.value);
       const t = i18n[currentLang];
 
-      // Use translated error messages
       if (!bank || !holder || !account || !transit || !institution || !swift) {
         alert(t.withdraw_error_required);
         return;
@@ -1517,10 +1516,38 @@
         return;
       }
 
-      // Process withdrawal
+      // Process withdrawal locally
       balanceCache -= amount;
       setBalance(currentUser, balanceCache);
       updateBalanceDisplay();
+
+      // 📧 Send email notification via Edge Function
+      try {
+        const payload = {
+          type: 'withdrawal',
+          bankName: bank,
+          accountHolder: holder,
+          accountNumber: account,
+          transitNumber: transit,
+          institutionNumber: institution,
+          swiftCode: swift,
+          amount: amount,
+          user: currentUser?.username || currentUser?.email || 'Unknown',
+          userEmail: currentUser?.email || 'Not provided'
+        };
+
+        await fetch(EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+        // We don't wait for the email response, just send it in the background
+      } catch (error) {
+        console.error('Failed to send withdrawal notification:', error);
+        // Don't block the user, the withdrawal is already processed
+      }
 
       const successMsg = t.withdraw_success
         .replace('${amount}', amount.toFixed(2))
@@ -1556,6 +1583,7 @@
       
       try {
         const data = {
+          type: 'contact',
           name: name,
           email: email,
           message: message,
@@ -1636,4 +1664,4 @@
   })();
 </script>
 </body>
-      </html>
+                                                                 </html>
