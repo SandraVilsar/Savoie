@@ -357,9 +357,7 @@
       <div class="card"><h3 data-i18n="about_card2_title">⚡ Vision</h3><p data-i18n="about_card2_text">Every opinion counts and pays instantly.</p></div>
       <div class="card"><h3 data-i18n="about_card3_title">💡 Values</h3><p data-i18n="about_card3_text">Trust, transparency, and fair rewards.</p></div>
     </div>
-    <div class="long-text" data-i18n="about_long">
-      TaskFlow was born from a simple yet powerful observation... <!-- long text truncated for brevity, but included in full in the JS translations -->
-    </div>
+    <div class="long-text" data-i18n="about_long"></div>
   </section>
 
   <!-- HISTORY -->
@@ -494,7 +492,7 @@
 
 <script type="module">
   // =============================================================
-  // CONFIGURATION — REPLACE THESE WITH YOUR OWN VALUES
+  // CONFIGURATION — REPLACE WITH YOUR ACTUAL VALUES
   // =============================================================
   const SUPABASE_URL = 'https://cbzcnvrotryodapyjzya.supabase.co';
   const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // <-- REPLACE
@@ -503,7 +501,6 @@
 
   import { createClient } from '@supabase/supabase-js';
 
-  // ---------- INIT SUPABASE ----------
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // =============================================================
@@ -750,49 +747,43 @@
   ];
 
   // =============================================================
-  // 500 ARTICLE NAMES (simplified for brevity – only first 20 shown)
+  // 500 ARTICLE NAMES (base list, repeated 25 times)
   // =============================================================
-  const articleNames = [
-    "Wireless Headphones: Buying Guide", "Smart Watch: Buying Guide", "Running Shoes: Buying Guide",
-    "Coffee Maker: Buying Guide", "Desk Lamp: Buying Guide", "Backpack: Buying Guide",
-    "Bluetooth Speaker: Buying Guide", "Webcam: Buying Guide", "Keyboard: Buying Guide",
-    "Mouse: Buying Guide", "Monitor: Buying Guide", "USB Hub: Buying Guide",
-    "Phone Case: Buying Guide", "Charger: Buying Guide", "Power Bank: Buying Guide",
-    "Fitness Tracker: Buying Guide", "E-reader: Buying Guide", "Tablet Stand: Buying Guide",
-    "Laptop Sleeve: Buying Guide", "Action Camera: Buying Guide"
-    // ... add the full list from your CSV if you wish (500 items)
+  const baseArticles = [
+    "Wireless Headphones", "Smart Watch", "Running Shoes", "Coffee Maker",
+    "Desk Lamp", "Backpack", "Bluetooth Speaker", "Webcam", "Keyboard",
+    "Mouse", "Monitor", "USB Hub", "Phone Case", "Charger", "Power Bank",
+    "Fitness Tracker", "E-reader", "Tablet Stand", "Laptop Sleeve", "Action Camera"
   ];
-  // For a full 500 list, replace the above array with the complete one.
 
   // =============================================================
   // GENERATE TASKS (500)
   // =============================================================
   function generateTasks() {
     const tasks = [];
-    // Repeat the 20 base names 25 times to get 500
-    for (let round = 0; round < 25; round++) {
-      for (let i = 0; i < articleNames.length; i++) {
-        const base = parseFloat((Math.floor(Math.random() * 8) + 2) / 10);
-        let multiplier = 1;
-        let special = false;
-        const idx = round * articleNames.length + i;
-        if ((idx+1) % 7 === 0) { multiplier = 3; special = true; }
-        else if ((idx+1) % 11 === 0) { multiplier = 4; special = true; }
-        const reward = parseFloat((base * multiplier).toFixed(2));
-        let name = articleNames[i];
-        if (round > 0) name += ` ${round+1}`;
-        const seed = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-        tasks.push({
-          id: idx + 1,
-          product: name,
-          image: `https://picsum.photos/seed/${encodeURIComponent(seed)}/300/300`,
-          baseReward: base,
-          multiplier: multiplier,
-          reward: reward,
-          special: special,
-          status: 'pending'
-        });
-      }
+    const total = 500;
+    for (let i = 0; i < total; i++) {
+      const base = parseFloat((Math.floor(Math.random() * 8) + 2) / 10);
+      let multiplier = 1;
+      let special = false;
+      if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
+      else if ((i+1) % 11 === 0) { multiplier = 4; special = true; }
+      const reward = parseFloat((base * multiplier).toFixed(2));
+      const baseIdx = i % baseArticles.length;
+      let name = baseArticles[baseIdx];
+      const round = Math.floor(i / baseArticles.length);
+      if (round > 0) name += ` ${round+1}`;
+      const seed = name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+      tasks.push({
+        id: i + 1,
+        product: name,
+        image: `https://picsum.photos/seed/${encodeURIComponent(seed)}/300/300`,
+        baseReward: base,
+        multiplier: multiplier,
+        reward: reward,
+        special: special,
+        status: 'pending'
+      });
     }
     return tasks;
   }
@@ -888,8 +879,7 @@
       showSection(id);
     });
   });
-
-  // Also footer links have data-section, they are already covered.
+  // Also footer links have data-section, they will work automatically.
 
   // =============================================================
   // AUTH
@@ -1196,7 +1186,7 @@
   contactSubmit.addEventListener('click', sendContactEmail);
 
   // =============================================================
-  // CHAT WIDGET
+  // CHAT WIDGET (with x-token header)
   // =============================================================
   const TOKEN_KEY = 'chat_token';
   let token = localStorage.getItem(TOKEN_KEY);
@@ -1233,13 +1223,15 @@
     stopPolling();
   });
 
+  // ---------- LOAD MESSAGES (with x-token header) ----------
   async function loadChatMessages() {
     try {
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
         .eq('token', token)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .headers({ 'x-token': token });   // <--- FIXED: add header
 
       if (error) throw error;
       renderChatMessages(data);
@@ -1247,11 +1239,11 @@
     } catch (err) {
       console.error('Error loading chat messages:', err);
       chatStatus.textContent = 'Error loading messages';
-      // Still show a friendly message in the chat area
       chatMessages.innerHTML = `<div style="color:#86868b;text-align:center;padding:20px;">Unable to load messages. Please try again later.</div>`;
     }
   }
 
+  // ---------- RENDER MESSAGES ----------
   function renderChatMessages(messages) {
     chatMessages.innerHTML = '';
     if (!messages || messages.length === 0) {
@@ -1275,6 +1267,7 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
+  // ---------- SEND MESSAGE ----------
   async function sendChatMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
@@ -1313,6 +1306,7 @@
   chatSendBtn.addEventListener('click', sendChatMessage);
   chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatMessage(); });
 
+  // ---------- POLLING (with x-token header) ----------
   function startPolling() {
     if (pollInterval) clearInterval(pollInterval);
     pollInterval = setInterval(async () => {
@@ -1322,7 +1316,8 @@
           .from('chat_messages')
           .select('*')
           .eq('token', token)
-          .order('created_at', { ascending: true });
+          .order('created_at', { ascending: true })
+          .headers({ 'x-token': token });   // <--- FIXED: add header
         if (!error) {
           renderChatMessages(data);
         }
@@ -1374,11 +1369,7 @@
     btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
   });
 
-  // Initial chat load (closed by default, but we can pre‑fetch if opened)
   console.log('Chat initialized with token:', token);
-
-  // Make sure sections are properly displayed
-  // (We already show "about" by default)
 </script>
 </body>
 </html>
