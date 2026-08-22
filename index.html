@@ -492,10 +492,10 @@
 
 <script type="module">
   // =============================================================
-  // CONFIGURATION — REPLACE WITH YOUR ACTUAL VALUES
+  // CONFIGURATION — WITH YOUR SUPABASE ANON KEY
   // =============================================================
   const SUPABASE_URL = 'https://cbzcnvrotryodapyjzya.supabase.co';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // <-- REPLACE
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiemNudnJvdHJ5b2RhcHlqenlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTk1NTQsImV4cCI6MjEwMjgzNTU1NH0.r84grkOpKpk5bqTS8FhZxvwcWAVtMhnjs9obGR1sWj0';
   const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-chat-message';
   // -----------------------------------------------------------------
 
@@ -1231,7 +1231,7 @@
         .select('*')
         .eq('token', token)
         .order('created_at', { ascending: true })
-        .headers({ 'x-token': token });   // <--- FIXED: add header
+        .headers({ 'x-token': token });
 
       if (error) throw error;
       renderChatMessages(data);
@@ -1317,7 +1317,7 @@
           .select('*')
           .eq('token', token)
           .order('created_at', { ascending: true })
-          .headers({ 'x-token': token });   // <--- FIXED: add header
+          .headers({ 'x-token': token });
         if (!error) {
           renderChatMessages(data);
         }
