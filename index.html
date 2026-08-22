@@ -479,9 +479,6 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- JAVASCRIPT (all in one module)                              -->
-<!-- ============================================================ -->
 <script type="importmap">
   {
     "imports": {
@@ -492,15 +489,13 @@
 
 <script type="module">
   // =============================================================
-  // CONFIGURATION — WITH YOUR SUPABASE ANON KEY
+  // CONFIGURATION
   // =============================================================
   const SUPABASE_URL = 'https://cbzcnvrotryodapyjzya.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiemNudnJvdHJ5b2RhcHlqenlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTk1NTQsImV4cCI6MjEwMjgzNTU1NH0.r84grkOpKpk5bqTS8FhZxvwcWAVtMhnjs9obGR1sWj0';
   const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-chat-message';
-  // -----------------------------------------------------------------
 
   import { createClient } from '@supabase/supabase-js';
-
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // =============================================================
@@ -879,7 +874,6 @@
       showSection(id);
     });
   });
-  // Also footer links have data-section, they will work automatically.
 
   // =============================================================
   // AUTH
@@ -1186,7 +1180,7 @@
   contactSubmit.addEventListener('click', sendContactEmail);
 
   // =============================================================
-  // CHAT WIDGET (with x-token header)
+  // CHAT WIDGET (with x-token header — FIXED)
   // =============================================================
   const TOKEN_KEY = 'chat_token';
   let token = localStorage.getItem(TOKEN_KEY);
@@ -1228,10 +1222,9 @@
     try {
       const { data, error } = await supabase
         .from('chat_messages')
-        .select('*')
+        .select('*', { headers: { 'x-token': token } })   // <--- FIXED
         .eq('token', token)
-        .order('created_at', { ascending: true })
-        .headers({ 'x-token': token });
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       renderChatMessages(data);
@@ -1314,10 +1307,9 @@
       try {
         const { data, error } = await supabase
           .from('chat_messages')
-          .select('*')
+          .select('*', { headers: { 'x-token': token } })   // <--- FIXED
           .eq('token', token)
-          .order('created_at', { ascending: true })
-          .headers({ 'x-token': token });
+          .order('created_at', { ascending: true });
         if (!error) {
           renderChatMessages(data);
         }
