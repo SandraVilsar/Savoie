@@ -347,7 +347,6 @@
 
 <!-- ====== MAIN CONTENT ====== -->
 <main class="container">
-
   <!-- ABOUT -->
   <section id="section-about" class="active-section">
     <h1 class="section-title" data-i18n="about_title">About TaskFlow</h1>
@@ -479,9 +478,6 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- JAVASCRIPT (all in one module)                              -->
-<!-- ============================================================ -->
 <script type="importmap">
   {
     "imports": {
@@ -502,7 +498,7 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // =============================================================
-  // TRANSLATIONS (i18n)
+  // TRANSLATIONS (i18n) – full translations included
   // =============================================================
   const i18n = {
     en: {
@@ -1183,7 +1179,7 @@
   contactSubmit.addEventListener('click', sendContactEmail);
 
   // =============================================================
-  // CHAT WIDGET (with x-token header — FIXED)
+  // CHAT WIDGET (updated with new data model)
   // =============================================================
   const TOKEN_KEY = 'chat_token';
   let token = localStorage.getItem(TOKEN_KEY);
@@ -1220,12 +1216,29 @@
     stopPolling();
   });
 
-  // ---------- LOAD MESSAGES (with x-token header) ----------
+  // ---------- RENDER MESSAGES (UPDATED) ----------
+  function renderChatMessages(messages) {
+    chatMessages.innerHTML = '';
+    if (!messages || messages.length === 0) {
+      chatMessages.innerHTML = '<div style="color:#86868b;text-align:center;padding:20px;">No messages yet. Say hi!</div>';
+      return;
+    }
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      // is_agent is a boolean column. User messages have false (default), agent replies true.
+      div.className = msg.is_agent ? 'message reply' : 'message user';
+      div.textContent = msg.text;
+      chatMessages.appendChild(div);
+    });
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // ---------- LOAD MESSAGES (UPDATED) ----------
   async function loadChatMessages() {
     try {
       const { data, error } = await supabase
         .from('chat_messages')
-        .select('*', { headers: { 'x-token': token } })
+        .select('*')
         .eq('token', token)
         .order('created_at', { ascending: true });
 
@@ -1237,30 +1250,6 @@
       chatStatus.textContent = 'Error loading messages';
       chatMessages.innerHTML = `<div style="color:#86868b;text-align:center;padding:20px;">Unable to load messages. Please try again later.</div>`;
     }
-  }
-
-  // ---------- RENDER MESSAGES ----------
-  function renderChatMessages(messages) {
-    chatMessages.innerHTML = '';
-    if (!messages || messages.length === 0) {
-      chatMessages.innerHTML = '<div style="color:#86868b;text-align:center;padding:20px;">No messages yet. Say hi!</div>';
-      return;
-    }
-    messages.forEach(msg => {
-      if (msg.message) {
-        const userDiv = document.createElement('div');
-        userDiv.className = 'message user';
-        userDiv.textContent = msg.message;
-        chatMessages.appendChild(userDiv);
-      }
-      if (msg.reply) {
-        const replyDiv = document.createElement('div');
-        replyDiv.className = 'message reply';
-        replyDiv.textContent = msg.reply;
-        chatMessages.appendChild(replyDiv);
-      }
-    });
-    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   // ---------- SEND MESSAGE ----------
@@ -1302,7 +1291,7 @@
   chatSendBtn.addEventListener('click', sendChatMessage);
   chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatMessage(); });
 
-  // ---------- POLLING (with x-token header) ----------
+  // ---------- POLLING (UPDATED) ----------
   function startPolling() {
     if (pollInterval) clearInterval(pollInterval);
     pollInterval = setInterval(async () => {
@@ -1310,7 +1299,7 @@
       try {
         const { data, error } = await supabase
           .from('chat_messages')
-          .select('*', { headers: { 'x-token': token } })
+          .select('*')
           .eq('token', token)
           .order('created_at', { ascending: true });
         if (!error) {
