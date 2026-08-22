@@ -479,6 +479,9 @@
   </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- JAVASCRIPT (all in one module)                              -->
+<!-- ============================================================ -->
 <script type="importmap">
   {
     "imports": {
@@ -1222,7 +1225,7 @@
     try {
       const { data, error } = await supabase
         .from('chat_messages')
-        .select('*', { headers: { 'x-token': token } })   // <--- FIXED
+        .select('*', { headers: { 'x-token': token } })
         .eq('token', token)
         .order('created_at', { ascending: true });
 
@@ -1307,7 +1310,7 @@
       try {
         const { data, error } = await supabase
           .from('chat_messages')
-          .select('*', { headers: { 'x-token': token } })   // <--- FIXED
+          .select('*', { headers: { 'x-token': token } })
           .eq('token', token)
           .order('created_at', { ascending: true });
         if (!error) {
