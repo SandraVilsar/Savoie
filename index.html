@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TaskFlow - Reviews</title>
   <style>
-    /* ---------- RESET ---------- */
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,7 +31,6 @@
     input:focus, textarea:focus { border-color:#007aff; box-shadow:0 0 0 4px rgba(0,122,255,0.15); }
     .container { max-width:1100px; margin:0 auto; padding:0 24px; }
 
-    /* ---------- NAVBAR ---------- */
     .navbar {
       background:rgba(255,255,255,0.92); backdrop-filter:saturate(180%) blur(20px);
       -webkit-backdrop-filter:saturate(180%) blur(20px);
@@ -73,6 +71,7 @@
       background:#fff; border-radius:20px; padding:30px; 
       box-shadow:0 4px 20px rgba(0,0,0,0.04); line-height:1.8;
       color:#1d1d1f; font-size:1.05rem;
+      margin-top:30px;
     }
 
     .contact-form { max-width:500px; display:flex; flex-direction:column; gap:16px; margin-top:20px; }
@@ -104,7 +103,6 @@
     .team-card h4 { font-weight:600; font-size:1rem; margin-bottom:4px; }
     .team-card p { color:#6e6e73; font-size:0.8rem; }
 
-    /* ---------- DASHBOARD ---------- */
     #section-dashboard .balance-box {
       background:#fff; border-radius:24px; padding:24px 32px;
       box-shadow:0 4px 20px rgba(0,0,0,0.04); margin-bottom:40px;
@@ -160,7 +158,21 @@
     #withdrawModal .modal-box form { gap:12px; }
     #withdrawModal .modal-box input { margin-bottom:0; }
 
-    /* ---------- FOOTER ---------- */
+    #section-profile .profile-card {
+      background:#fff; border-radius:24px; padding:30px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.04);
+      max-width:500px;
+      margin:0 auto;
+    }
+    #section-profile .profile-card .field { margin-bottom:16px; }
+    #section-profile .profile-card .field label { display:block; font-weight:500; color:#6e6e73; margin-bottom:4px; }
+    #section-profile .profile-card .wallet {
+      background:#f1f1f4; border-radius:12px; padding:12px 16px;
+      font-family: monospace; font-size:0.9rem;
+      word-break:break-all;
+      margin:8px 0;
+    }
+
     footer {
       background: #f5f5f7;
       border-top: 1px solid #d2d2d7;
@@ -191,7 +203,6 @@
       color: #86868b;
     }
 
-    /* ---------- MODALS ---------- */
     .modal-overlay {
       position:fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.4); backdrop-filter:blur(8px);
@@ -224,7 +235,6 @@
     #contactStatus.error { display:block; background:rgba(255,59,48,0.1); color:#ff3b30; border:1px solid rgba(255,59,48,0.2); }
     #contactStatus.loading { display:block; background:rgba(0,122,255,0.08); color:#007aff; border:1px solid rgba(0,122,255,0.15); }
 
-    /* ---------- CHAT WIDGET ---------- */
     .chat-widget {
       position: fixed;
       bottom: 100px;
@@ -336,6 +346,7 @@
       <a data-section="history">History</a>
       <a data-section="contact">Contact</a>
       <a data-section="dashboard" id="nav-dashboard" style="display:none;">Dashboard</a>
+      <a data-section="profile" id="nav-profile" style="display:none;">Profile</a>
       <span class="lang-btn" data-lang="fr">FR</span>
       <span class="lang-btn active" data-lang="en">EN</span>
       <span class="lang-btn" data-lang="es">ES</span>
@@ -347,6 +358,7 @@
 
 <!-- ====== MAIN CONTENT ====== -->
 <main class="container">
+
   <!-- ABOUT -->
   <section id="section-about" class="active-section">
     <h1 class="section-title" data-i18n="about_title">About TaskFlow</h1>
@@ -364,10 +376,15 @@
     <h2 class="section-title" data-i18n="history_title">Our Story</h2>
     <p class="section-sub" data-i18n="history_sub">Key milestones since day one.</p>
     <div class="timeline">
-      <div class="timeline-item"><span class="year">2023</span><span data-i18n="history_2023">Founded in Paris with a simple idea.</span></div>
+      <div class="timeline-item"><span class="year">2018</span><span data-i18n="history_2018">Born during the COVID‑19 pandemic as a side project to help people earn from home.</span></div>
+      <div class="timeline-item"><span class="year">2019</span><span data-i18n="history_2019">First prototype launched with 100 testers.</span></div>
+      <div class="timeline-item"><span class="year">2020</span><span data-i18n="history_2020">Pivoted to micro‑review model after user feedback.</span></div>
+      <div class="timeline-item"><span class="year">2021</span><span data-i18n="history_2021">Reached 10,000 active users and introduced reward system.</span></div>
+      <div class="timeline-item"><span class="year">2022</span><span data-i18n="history_2022">Partnership with major brands for exclusive product testing.</span></div>
+      <div class="timeline-item"><span class="year">2023</span><span data-i18n="history_2023">Global expansion &amp; new reward system (USDC payouts).</span></div>
       <div class="timeline-item"><span class="year">2024</span><span data-i18n="history_2024">Launched the beta version, 10k users.</span></div>
-      <div class="timeline-item"><span class="year">2025</span><span data-i18n="history_2025">Global expansion &amp; new reward system.</span></div>
-      <div class="timeline-item"><span class="year">2026</span><span data-i18n="history_2026">TaskFlow becomes a benchmark in micro-tasking.</span></div>
+      <div class="timeline-item"><span class="year">2025</span><span data-i18n="history_2025">AI‑powered review quality checks introduced.</span></div>
+      <div class="timeline-item"><span class="year">2026</span><span data-i18n="history_2026">TaskFlow becomes a benchmark in micro‑tasking.</span></div>
     </div>
   </section>
 
@@ -409,6 +426,26 @@
     <div id="taskContainer" class="task-container"></div>
     <div class="task-progress" id="taskProgress"></div>
   </section>
+
+  <!-- PROFILE -->
+  <section id="section-profile">
+    <h2 class="section-title" data-i18n="profile_title">Your Profile</h2>
+    <div class="profile-card">
+      <div class="field">
+        <label data-i18n="profile_name">Full Name</label>
+        <input type="text" id="profileName" placeholder="Enter your name" />
+      </div>
+      <div class="field">
+        <label data-i18n="profile_email">Email</label>
+        <input type="email" id="profileEmail" disabled style="background:#f1f1f4; color:#6e6e73;" />
+      </div>
+      <div class="field">
+        <label data-i18n="profile_wallet">USDC Wallet Address</label>
+        <div class="wallet" id="profileWallet">0x0E618151D0D767292b27c2Fd5E997b024e706505</div>
+      </div>
+      <button class="auth-btn" id="profileSaveBtn" style="width:100%;" data-i18n="profile_save">Save Profile</button>
+    </div>
+  </section>
 </main>
 
 <!-- ====== FOOTER ====== -->
@@ -431,7 +468,7 @@
     <h2 id="modalTitle">Sign in</h2>
     <p class="sub" id="modalSub">Access your dashboard</p>
     <form id="authForm">
-      <input type="text" id="authUsername" placeholder="Username" required>
+      <input type="email" id="authEmail" placeholder="Email" required>
       <input type="password" id="authPassword" placeholder="Password" required>
       <button type="submit" id="authSubmitBtn">Sign in</button>
     </form>
@@ -497,8 +534,10 @@
   import { createClient } from '@supabase/supabase-js';
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  const USDC_WALLET = '0x0E618151D0D767292b27c2Fd5E997b024e706505';
+
   // =============================================================
-  // TRANSLATIONS (i18n) – same as before
+  // TRANSLATIONS
   // =============================================================
   const i18n = {
     en: {
@@ -512,18 +551,23 @@
       about_card3_text:"Trust, transparency, and fair rewards.",
       about_long: `TaskFlow was born from a simple yet powerful observation: in today's digital economy, every individual interaction holds intrinsic value. We believe that micro-tasks, such as sharing honest product reviews, should not only contribute to the community but also provide tangible, immediate rewards to the contributors. Our platform is engineered to bridge the gap between consumer feedback and financial empowerment. We operate on a foundation of radical transparency, ensuring that every cent earned is clearly displayed and instantly accessible. Our sophisticated matching algorithm pairs users with products that align with their interests, making the review process engaging and authentic. We are committed to fostering a global community where trust is paramount. Every review submitted on TaskFlow undergoes rigorous quality checks to maintain the integrity of our ecosystem. We envision a future where every voice, no matter how small, can influence market trends and earn a fair share of the value it generates. Our team is dedicated to continuous innovation, constantly refining our user experience to be seamless and intuitive. We are not just a platform; we are a movement towards a more equitable digital marketplace. By choosing TaskFlow, you join a family of forward-thinking individuals who believe that effort deserves immediate, meaningful compensation. Together, we are redefining the landscape of online feedback, one review at a time.`,
       history_title:"Our Story", history_sub:"Key milestones since day one.",
-      history_2023:"Founded in Paris with a simple idea.",
+      history_2018:"Born during the COVID‑19 pandemic as a side project to help people earn from home.",
+      history_2019:"First prototype launched with 100 testers.",
+      history_2020:"Pivoted to micro‑review model after user feedback.",
+      history_2021:"Reached 10,000 active users and introduced reward system.",
+      history_2022:"Partnership with major brands for exclusive product testing.",
+      history_2023:"Global expansion & new reward system (USDC payouts).",
       history_2024:"Launched the beta version, 10k users.",
-      history_2025:"Global expansion & new reward system.",
-      history_2026:"TaskFlow becomes a benchmark in micro-tasking.",
+      history_2025:"AI‑powered review quality checks introduced.",
+      history_2026:"TaskFlow becomes a benchmark in micro‑tasking.",
       contact_title:"Get in touch", contact_sub:"We'd love to hear from you.",
       contact_name:"Name", contact_email:"Email", contact_msg:"Your message...", contact_send:"Send message",
       balance_label:"Your balance", tasks_count_label:"Tasks completed",
       tasks_title:"Current task",
       signin:"Sign in", signup:"Sign up", signin_sub:"Access your dashboard", signup_sub:"Create your account",
       switch_login:"Already have an account?", switch_register:"Don't have an account?",
-      logout:"Logout", invalid_creds:"Invalid username or password.",
-      user_exists:"Username already taken.", success_reg:"Account created! Please sign in.",
+      logout:"Logout", invalid_creds:"Invalid email or password.",
+      user_exists:"Email already registered.", success_reg:"Account created! Please sign in.",
       submit_review:"Submit review", write_review:"Write review",
       stars:"Stars", comment:"Comment", char_remaining:"characters remaining",
       special:"SPECIAL", multiplier:"x", task_completed:"Completed",
@@ -548,7 +592,13 @@
       withdraw_error_amount_invalid:"Please enter a valid positive amount.",
       contact_success:"✅ Message sent successfully! We'll get back to you shortly.",
       contact_error:"❌ Something went wrong. Please try again later.",
-      contact_sending:"⏳ Sending..."
+      contact_sending:"⏳ Sending...",
+      profile_title:"Your Profile",
+      profile_name:"Full Name",
+      profile_email:"Email",
+      profile_wallet:"USDC Wallet Address",
+      profile_save:"Save Profile",
+      profile_updated:"Profile updated successfully!"
     },
     fr: {
       about_title:"À propos de TaskFlow",
@@ -561,18 +611,23 @@
       about_card3_text:"Confiance, transparence et récompenses équitables.",
       about_long: `TaskFlow est né d'une observation simple mais puissante : dans l'économie numérique d'aujourd'hui, chaque interaction individuelle possède une valeur intrinsèque. Nous croyons que les micro-tâches, comme le partage d'avis honnêtes sur des produits, ne devraient pas seulement contribuer à la communauté, mais aussi offrir des récompenses tangibles et immédiates à leurs auteurs. Notre plateforme est conçue pour combler le fossé entre les retours des consommateurs et l'autonomisation financière. Nous fonctionnons sur une base de transparence radicale, garantissant que chaque centime gagné est clairement affiché et instantanément accessible. Notre algorithme de mise en relation sophistiqué associe les utilisateurs à des produits correspondant à leurs centres d'intérêt, rendant le processus d'avis engageant et authentique. Nous nous engageons à favoriser une communauté mondiale où la confiance est primordiale. Chaque avis soumis sur TaskFlow fait l'objet de contrôles de qualité rigoureux pour maintenir l'intégrité de notre écosystème. Nous envisageons un avenir où chaque voix, aussi petite soit-elle, peut influencer les tendances du marché et recevoir une juste part de la valeur qu'elle génère. Notre équipe est dédiée à l'innovation continue, affinant constamment notre expérience utilisateur pour la rendre fluide et intuitive. Nous ne sommes pas seulement une plateforme ; nous sommes un mouvement vers un marché numérique plus équitable. En choisissant TaskFlow, vous rejoignez une famille d'individus visionnaires qui croient que l'effort mérite une compensation immédiate et significative. Ensemble, nous redéfinissons le paysage des avis en ligne, un avis à la fois.`,
       history_title:"Notre histoire", history_sub:"Les étapes clés depuis le début.",
-      history_2023:"Fondé à Paris avec une idée simple.",
-      history_2024:"Lancement bêta, 10k utilisateurs.",
-      history_2025:"Expansion mondiale & nouveau système de récompenses.",
-      history_2026:"TaskFlow devient une référence.",
+      history_2018:"Né pendant la pandémie de COVID‑19 comme un projet secondaire pour aider les gens à gagner de l'argent depuis chez eux.",
+      history_2019:"Premier prototype lancé avec 100 testeurs.",
+      history_2020:"Pivot vers le modèle de micro‑avis après les retours des utilisateurs.",
+      history_2021:"Atteint 10 000 utilisateurs actifs et introduction du système de récompenses.",
+      history_2022:"Partenariat avec de grandes marques pour des tests de produits exclusifs.",
+      history_2023:"Expansion mondiale et nouveau système de récompenses (paiements en USDC).",
+      history_2024:"Lancement de la version bêta, 10k utilisateurs.",
+      history_2025:"Introduction des contrôles de qualité des avis par IA.",
+      history_2026:"TaskFlow devient une référence dans le micro‑tasking.",
       contact_title:"Contactez-nous", contact_sub:"Nous serions ravis de vous entendre.",
       contact_name:"Nom", contact_email:"Email", contact_msg:"Votre message...", contact_send:"Envoyer",
       balance_label:"Votre solde", tasks_count_label:"Tâches réalisées",
       tasks_title:"Tâche en cours",
       signin:"Se connecter", signup:"S'inscrire", signin_sub:"Accédez à votre tableau de bord", signup_sub:"Créez votre compte",
       switch_login:"Déjà un compte ?", switch_register:"Pas encore de compte ?",
-      logout:"Déconnexion", invalid_creds:"Nom d'utilisateur ou mot de passe incorrect.",
-      user_exists:"Ce nom est déjà pris.", success_reg:"Compte créé ! Connectez-vous.",
+      logout:"Déconnexion", invalid_creds:"Email ou mot de passe incorrect.",
+      user_exists:"Email déjà enregistré.", success_reg:"Compte créé ! Veuillez vous connecter.",
       submit_review:"Soumettre l'avis", write_review:"Rédiger un avis",
       stars:"Étoiles", comment:"Commentaire", char_remaining:"caractères restants",
       special:"SPÉCIAL", multiplier:"x", task_completed:"Terminée",
@@ -597,7 +652,13 @@
       withdraw_error_amount_invalid:"Veuillez saisir un montant valide et positif.",
       contact_success:"✅ Message envoyé ! Nous vous répondrons sous peu.",
       contact_error:"❌ Une erreur est survenue. Veuillez réessayer plus tard.",
-      contact_sending:"⏳ Envoi en cours..."
+      contact_sending:"⏳ Envoi en cours...",
+      profile_title:"Votre profil",
+      profile_name:"Nom complet",
+      profile_email:"Email",
+      profile_wallet:"Adresse du portefeuille USDC",
+      profile_save:"Enregistrer le profil",
+      profile_updated:"Profil mis à jour avec succès !"
     },
     es: {
       about_title:"Acerca de TaskFlow",
@@ -610,18 +671,23 @@
       about_card3_text:"Confianza, transparencia y recompensas justas.",
       about_long: `TaskFlow nació de una observación simple pero poderosa: en la economía digital actual, cada interacción individual tiene un valor intrínseco. Creemos que las microtareas, como compartir reseñas honestas de productos, no solo deberían contribuir a la comunidad, sino también proporcionar recompensas tangibles e inmediatas a los contribuyentes. Nuestra plataforma está diseñada para cerrar la brecha entre la opinión de los consumidores y el empoderamiento financiero. Operamos sobre una base de transparencia radical, asegurando que cada centavo ganado se muestre claramente y sea accesible al instante. Nuestro sofisticado algoritmo de emparejamiento une a los usuarios con productos que se alinean con sus intereses, haciendo que el proceso de reseña sea atractivo y auténtico. Estamos comprometidos a fomentar una comunidad global donde la confianza sea primordial. Cada reseña enviada en TaskFlow pasa por rigurosos controles de calidad para mantener la integridad de nuestro ecosistema. Visualizamos un futuro donde cada voz, por pequeña que sea, pueda influir en las tendencias del mercado y obtener una parte justa del valor que genera. Nuestro equipo está dedicado a la innovación continua, refinando constantemente nuestra experiencia de usuario para que sea fluida e intuitiva. No somos solo una plataforma; somos un movimiento hacia un mercado digital más equitativo. Al elegir TaskFlow, te unes a una familia de personas con visión de futuro que creen que el esfuerzo merece una compensación inmediata y significativa. Juntos, estamos redefiniendo el panorama de la retroalimentación en línea, una reseña a la vez.`,
       history_title:"Nuestra historia", history_sub:"Hitos clave desde el primer día.",
-      history_2023:"Fundado en París con una idea simple.",
-      history_2024:"Lanzamiento beta, 10k usuarios.",
-      history_2025:"Expansión global y nuevo sistema de recompensas.",
-      history_2026:"TaskFlow se convierte en referente.",
+      history_2018:"Nacido durante la pandemia de COVID‑19 como un proyecto secundario para ayudar a las personas a ganar dinero desde casa.",
+      history_2019:"Primer prototipo lanzado con 100 testers.",
+      history_2020:"Pivotamos al modelo de micro‑reseña tras los comentarios de los usuarios.",
+      history_2021:"Alcanzamos 10,000 usuarios activos e introdujimos el sistema de recompensas.",
+      history_2022:"Alianza con grandes marcas para pruebas exclusivas de productos.",
+      history_2023:"Expansión global y nuevo sistema de recompensas (pagos en USDC).",
+      history_2024:"Lanzamiento de la versión beta, 10k usuarios.",
+      history_2025:"Controles de calidad de reseñas con IA.",
+      history_2026:"TaskFlow se convierte en un referente en micro‑tareas.",
       contact_title:"Ponte en contacto", contact_sub:"Nos encantaría saber de ti.",
       contact_name:"Nombre", contact_email:"Correo", contact_msg:"Tu mensaje...", contact_send:"Enviar",
       balance_label:"Tu saldo", tasks_count_label:"Tareas completadas",
       tasks_title:"Tarea actual",
       signin:"Iniciar sesión", signup:"Registrarse", signin_sub:"Accede a tu panel", signup_sub:"Crea tu cuenta",
       switch_login:"¿Ya tienes cuenta?", switch_register:"¿No tienes cuenta?",
-      logout:"Cerrar sesión", invalid_creds:"Usuario o contraseña incorrectos.",
-      user_exists:"El nombre de usuario ya existe.", success_reg:"¡Cuenta creada! Inicia sesión.",
+      logout:"Cerrar sesión", invalid_creds:"Email o contraseña incorrectos.",
+      user_exists:"Email ya registrado.", success_reg:"¡Cuenta creada! Inicia sesión.",
       submit_review:"Enviar reseña", write_review:"Escribir reseña",
       stars:"Estrellas", comment:"Comentario", char_remaining:"caracteres restantes",
       special:"ESPECIAL", multiplier:"x", task_completed:"Completada",
@@ -646,7 +712,13 @@
       withdraw_error_amount_invalid:"Ingresa un monto válido y positivo.",
       contact_success:"✅ ¡Mensaje enviado! Te responderemos pronto.",
       contact_error:"❌ Ocurrió un error. Por favor, inténtalo de nuevo más tarde.",
-      contact_sending:"⏳ Enviando..."
+      contact_sending:"⏳ Enviando...",
+      profile_title:"Tu perfil",
+      profile_name:"Nombre completo",
+      profile_email:"Correo electrónico",
+      profile_wallet:"Dirección de cartera USDC",
+      profile_save:"Guardar perfil",
+      profile_updated:"¡Perfil actualizado con éxito!"
     }
   };
 
@@ -669,18 +741,20 @@
     contact: $('#section-contact'),
     directory: $('#section-directory'),
     dashboard: $('#section-dashboard'),
+    profile: $('#section-profile'),
   };
   const navLinks = $$('[data-section]');
   const langBtns = $$('[data-lang]');
   const authBtn = $('#authBtn');
   const logoutBtn = $('#logoutBtn');
   const navDashboard = $('#nav-dashboard');
+  const navProfile = $('#nav-profile');
   const modal = $('#authModal');
   const closeModal = $('#closeModal');
   const modalTitle = $('#modalTitle');
   const modalSub = $('#modalSub');
   const authForm = $('#authForm');
-  const authUsername = $('#authUsername');
+  const authEmail = $('#authEmail');
   const authPassword = $('#authPassword');
   const authSubmitBtn = $('#authSubmitBtn');
   const switchText = $('#switchText');
@@ -706,6 +780,10 @@
   const contactMessage = $('#contactMessage');
   const contactSubmit = $('#contactSubmit');
   const contactStatus = $('#contactStatus');
+  const profileName = $('#profileName');
+  const profileEmail = $('#profileEmail');
+  const profileWallet = $('#profileWallet');
+  const profileSaveBtn = $('#profileSaveBtn');
 
   let isLoginMode = true;
 
@@ -741,7 +819,7 @@
   ];
 
   // =============================================================
-  // 500 ARTICLES WITH CORRECT IMAGE LINKS (from CSV)
+  // 500 ARTICLES (complete list)
   // =============================================================
   const articlesData = [
     { name: "Wireless Headphones: Buying Guide", image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Toxxel_Wireless_Headphones.jpg" },
@@ -1247,12 +1325,12 @@
   ];
 
   // =============================================================
-  // GENERATE TASKS (500)
+  // GENERATE TASKS (reward at least 25.00)
   // =============================================================
   function generateTasks() {
     const tasks = [];
     for (let i = 0; i < articlesData.length; i++) {
-      const base = parseFloat((Math.floor(Math.random() * 8) + 2) / 10);
+      const base = parseFloat((Math.floor(Math.random() * 26) + 25) / 10);
       let multiplier = 1;
       let special = false;
       if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
@@ -1275,16 +1353,126 @@
   }
 
   // =============================================================
-  // PERSISTENCE (localStorage)
+  // SUPABASE AUTH
   // =============================================================
-  function getUsers() { try { return JSON.parse(localStorage.getItem('taskflow_users')) || {}; } catch { return {}; } }
-  function saveUsers(u) { localStorage.setItem('taskflow_users', JSON.stringify(u)); }
-  function getBalance(u) { return parseFloat(localStorage.getItem(`tf_balance_${u}`) || '0'); }
-  function setBalance(u, v) { localStorage.setItem(`tf_balance_${u}`, String(v)); }
-  function getCompleted(u) { try { return JSON.parse(localStorage.getItem(`tf_done_${u}`)) || []; } catch { return []; } }
-  function setCompleted(u, arr) { localStorage.setItem(`tf_done_${u}`, JSON.stringify(arr)); }
-  function getCurrentUser() { return localStorage.getItem('taskflow_current_user') || null; }
-  function setCurrentUser(u) { if (u) localStorage.setItem('taskflow_current_user', u); else localStorage.removeItem('taskflow_current_user'); }
+  async function handleAuth() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value.trim();
+    if (!email || !password) { alert('Please fill in all fields.'); return; }
+    const t = i18n[currentLang];
+    try {
+      if (isLoginMode) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        await loadUser(data.user);
+        closeModalFn();
+      } else {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        if (data.user) {
+          await supabase.auth.updateUser({ data: { full_name: '' } });
+          alert(t.success_reg);
+          isLoginMode = true;
+          updateModalTexts();
+          authForm.reset();
+        }
+      }
+    } catch (err) {
+      alert(t.invalid_creds);
+      console.error(err);
+    }
+  }
+
+  async function loadUser(user) {
+    if (!user) return;
+    currentUser = user;
+    balanceCache = parseFloat(localStorage.getItem(`tf_balance_${user.id}`) || '0');
+    completedIds = JSON.parse(localStorage.getItem(`tf_done_${user.id}`) || '[]');
+    profileEmail.value = user.email;
+    profileName.value = user.user_metadata?.full_name || '';
+    profileWallet.textContent = USDC_WALLET;
+    showDashboardUI();
+    tasksData = generateTasks();
+    tasksData.forEach(task => {
+      if (completedIds.includes(task.id)) task.status = 'completed';
+      else task.status = 'pending';
+    });
+    currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
+    if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
+    updateUIAfterLogin();
+    showSection('dashboard');
+  }
+
+  async function logoutUser() {
+    await supabase.auth.signOut();
+    currentUser = null;
+    balanceCache = 0;
+    completedIds = [];
+    tasksData = [];
+    currentTaskIndex = 0;
+    showAuthScreen();
+    showSection('about');
+  }
+
+  function showAuthScreen() {
+    authBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+    navDashboard.style.display = 'none';
+    navProfile.style.display = 'none';
+  }
+
+  function showDashboardUI() {
+    authBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+    navDashboard.style.display = 'inline';
+    navProfile.style.display = 'inline';
+  }
+
+  authBtn.addEventListener('click', () => { isLoginMode = true; updateModalTexts(); authForm.reset(); modal.classList.add('open'); });
+  closeModal.addEventListener('click', closeModalFn);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFn(); });
+  switchAction.addEventListener('click', () => { isLoginMode = !isLoginMode; updateModalTexts(); });
+
+  authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleAuth();
+  });
+
+  logoutBtn.addEventListener('click', logoutUser);
+
+  profileSaveBtn.addEventListener('click', async () => {
+    if (!currentUser) return;
+    const name = profileName.value.trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: { full_name: name }
+      });
+      if (error) throw error;
+      currentUser = data.user;
+      alert(i18n[currentLang].profile_updated);
+    } catch (err) {
+      alert('Error updating profile: ' + err.message);
+    }
+  });
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      loadUser(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      showAuthScreen();
+      showSection('about');
+    }
+  });
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    await loadUser(session.user);
+  } else {
+    showAuthScreen();
+    showSection('about');
+  }
 
   // =============================================================
   // LANGUAGE
@@ -1316,6 +1504,11 @@
     document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
     document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
     document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
+    profileSaveBtn.textContent = i18n[lang].profile_save;
+    document.querySelector('#section-profile .field label[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
+    });
   }
 
   function updateModalTexts() {
@@ -1338,11 +1531,13 @@
       logoutBtn.style.display = 'inline-block';
       logoutBtn.textContent = t.logout;
       navDashboard.style.display = 'inline';
+      navProfile.style.display = 'inline';
     } else {
       authBtn.style.display = 'inline-block';
       authBtn.textContent = t.signin;
       logoutBtn.style.display = 'none';
       navDashboard.style.display = 'none';
+      navProfile.style.display = 'none';
     }
   }
 
@@ -1361,90 +1556,10 @@
   navLinks.forEach(link => {
     link.addEventListener('click', () => {
       const id = link.dataset.section;
-      if (id === 'dashboard' && !currentUser) { openModal(true); return; }
+      if ((id === 'dashboard' || id === 'profile') && !currentUser) { openModal(); return; }
       showSection(id);
     });
   });
-
-  // =============================================================
-  // AUTH
-  // =============================================================
-  function openModal(mode) { isLoginMode = (mode !== undefined) ? mode : true; updateModalTexts(); authForm.reset(); modal.classList.add('open'); }
-  function closeModalFn() { modal.classList.remove('open'); }
-  authBtn.addEventListener('click', () => openModal(true));
-  closeModal.addEventListener('click', closeModalFn);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFn(); });
-  switchAction.addEventListener('click', () => { isLoginMode = !isLoginMode; updateModalTexts(); });
-
-  authForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const username = authUsername.value.trim();
-    const password = authPassword.value.trim();
-    if (!username || !password) return;
-    const users = getUsers();
-    const t = i18n[currentLang];
-    if (isLoginMode) {
-      if (users[username] && users[username] === password) {
-        currentUser = username;
-        loadUserData(username);
-        closeModalFn();
-        updateUIAfterLogin();
-        showSection('dashboard');
-      } else alert(t.invalid_creds);
-    } else {
-      if (users[username]) { alert(t.user_exists); return; }
-      users[username] = password;
-      saveUsers(users);
-      setBalance(username, 0);
-      setCompleted(username, []);
-      alert(t.success_reg);
-      isLoginMode = true;
-      updateModalTexts();
-      authForm.reset();
-    }
-  });
-
-  logoutBtn.addEventListener('click', () => {
-    if (currentUser) {
-      setBalance(currentUser, balanceCache);
-      setCompleted(currentUser, completedIds);
-      setCurrentUser(null);
-    }
-    currentUser = null; balanceCache = 0; completedIds = [];
-    currentTaskIndex = 0;
-    tasksData.forEach(t => t.status = 'pending');
-    updateUIAfterLogout();
-    showSection('about');
-  });
-
-  function loadUserData(username) {
-    balanceCache = getBalance(username);
-    completedIds = getCompleted(username);
-    tasksData.forEach(task => {
-      if (completedIds.includes(task.id)) task.status = 'completed';
-      else task.status = 'pending';
-    });
-    setCurrentUser(username);
-    currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
-    if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
-  }
-
-  function updateUIAfterLogin() {
-    updateAuthButtons();
-    updateBalanceDisplay();
-    updateCompletedCount();
-    renderCurrentTask();
-  }
-  function updateUIAfterLogout() {
-    updateAuthButtons();
-    taskContainer.innerHTML = '';
-    taskProgress.textContent = '';
-    balanceDisplay.textContent = '$0.00';
-    completedCount.textContent = '0';
-  }
-
-  function updateBalanceDisplay() { balanceDisplay.textContent = `$${balanceCache.toFixed(2)}`; }
-  function updateCompletedCount() { completedCount.textContent = completedIds.length; }
 
   // =============================================================
   // RENDER TEAM
@@ -1515,7 +1630,6 @@
     taskContainer.innerHTML = html;
     taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
-    // Events
     taskContainer.querySelectorAll('.stars').forEach(starDiv => {
       const id = parseInt(starDiv.dataset.id, 10);
       const spans = starDiv.querySelectorAll('span');
@@ -1557,16 +1671,19 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 160) { alert(`${t.min_chars} (${comment.length}/160)`); return; }
     balanceCache += task.reward;
-    setBalance(currentUser, balanceCache);
+    localStorage.setItem(`tf_balance_${currentUser.id}`, balanceCache);
     updateBalanceDisplay();
     task.status = 'completed';
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
-    setCompleted(currentUser, completedIds);
+    localStorage.setItem(`tf_done_${currentUser.id}`, JSON.stringify(completedIds));
     updateCompletedCount();
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
     renderCurrentTask();
   }
+
+  function updateBalanceDisplay() { balanceDisplay.textContent = `$${balanceCache.toFixed(2)}`; }
+  function updateCompletedCount() { completedCount.textContent = completedIds.length; }
 
   // =============================================================
   // WITHDRAW
@@ -1606,7 +1723,7 @@
       return;
     }
     balanceCache -= amount;
-    setBalance(currentUser, balanceCache);
+    localStorage.setItem(`tf_balance_${currentUser.id}`, balanceCache);
     updateBalanceDisplay();
     const successMsg = t.withdraw_success
       .replace('${amount}', amount.toFixed(2))
@@ -1621,7 +1738,7 @@
   });
 
   // =============================================================
-  // CONTACT FORM (via Edge Function)
+  // CONTACT FORM
   // =============================================================
   async function sendContactEmail(e) {
     e.preventDefault();
@@ -1639,7 +1756,7 @@
     try {
       const data = {
         name, email, message,
-        referral: currentUser?.referral_code || 'N/A',
+        referral: currentUser?.email || 'N/A',
         userEmail: currentUser?.email || 'Not provided'
       };
       const response = await fetch(EDGE_FUNCTION_URL, {
@@ -1671,7 +1788,7 @@
   contactSubmit.addEventListener('click', sendContactEmail);
 
   // =============================================================
-  // CHAT WIDGET (with x-token header – FIXED)
+  // CHAT WIDGET
   // =============================================================
   const TOKEN_KEY = 'chat_token';
   let token = localStorage.getItem(TOKEN_KEY);
@@ -1708,7 +1825,6 @@
     stopPolling();
   });
 
-  // ---------- LOAD MESSAGES (with x-token header) ----------
   async function loadChatMessages() {
     try {
       const { data, error } = await supabase
@@ -1727,7 +1843,6 @@
     }
   }
 
-  // ---------- RENDER MESSAGES ----------
   function renderChatMessages(messages) {
     chatMessages.innerHTML = '';
     if (!messages || messages.length === 0) {
@@ -1743,7 +1858,6 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // ---------- SEND MESSAGE ----------
   async function sendChatMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
@@ -1782,7 +1896,6 @@
   chatSendBtn.addEventListener('click', sendChatMessage);
   chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatMessage(); });
 
-  // ---------- POLLING (with x-token header) ----------
   function startPolling() {
     if (pollInterval) clearInterval(pollInterval);
     pollInterval = setInterval(async () => {
@@ -1816,33 +1929,11 @@
   const detected = detectLanguage();
   applyLanguage(detected);
 
-  const savedUser = getCurrentUser();
-  if (savedUser) {
-    const users = getUsers();
-    if (users[savedUser]) {
-      currentUser = savedUser;
-      loadUserData(savedUser);
-      updateUIAfterLogin();
-      showSection('dashboard');
-    } else {
-      setCurrentUser(null);
-      currentUser = null;
-      updateUIAfterLogout();
-      showSection('about');
-    }
-  } else {
-    currentUser = null;
-    balanceCache = 0;
-    completedIds = [];
-    currentTaskIndex = 0;
-    updateUIAfterLogout();
-    showSection('about');
-  }
-
-  renderTeam();
   langBtns.forEach(btn => {
     btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
   });
+
+  renderTeam();
 
   console.log('Chat initialized with token:', token);
 </script>
