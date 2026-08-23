@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TaskFlow - Reviews</title>
   <style>
-    /* ---------- RESET & BASE ---------- */
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -32,7 +31,6 @@
     input:focus, textarea:focus { border-color:#007aff; box-shadow:0 0 0 4px rgba(0,122,255,0.15); }
     .container { max-width:1100px; margin:0 auto; padding:0 24px; }
 
-    /* ---------- NAVBAR ---------- */
     .navbar {
       background:rgba(255,255,255,0.92); backdrop-filter:saturate(180%) blur(20px);
       -webkit-backdrop-filter:saturate(180%) blur(20px);
@@ -69,39 +67,14 @@
     .timeline-item { display:flex; align-items:baseline; gap:20px; border-left:3px solid #007aff; padding-left:24px; }
     .timeline-item .year { font-weight:600; color:#007aff; min-width:70px; }
 
-    .long-text { 
-      background:#fff; border-radius:20px; padding:30px; 
-      box-shadow:0 4px 20px rgba(0,0,0,0.04); line-height:1.8;
-      color:#1d1d1f; font-size:1.05rem;
-      margin-top:30px;
-    }
-
+    .long-text { background:#fff; border-radius:20px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.04); line-height:1.8; color:#1d1d1f; font-size:1.05rem; margin-top:30px; }
     .contact-form { max-width:500px; display:flex; flex-direction:column; gap:16px; margin-top:20px; }
     .contact-form button { align-self:flex-start; background:#007aff; color:#fff; padding:12px 32px; border-radius:980px; font-weight:500; }
 
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 24px;
-      margin-top: 30px;
-    }
-    .team-card {
-      background: #fff;
-      border-radius: 20px;
-      padding: 20px 12px;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-      transition: transform 0.2s;
-    }
-    .team-card:hover { transform: translateY(-4px); }
-    .team-card img {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 10px;
-      background: #e8e8ed;
-    }
+    .team-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:24px; margin-top:30px; }
+    .team-card { background:#fff; border-radius:20px; padding:20px 12px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.04); transition:transform 0.2s; }
+    .team-card:hover { transform:translateY(-4px); }
+    .team-card img { width:90px; height:90px; border-radius:50%; object-fit:cover; margin-bottom:10px; background:#e8e8ed; }
     .team-card h4 { font-weight:600; font-size:1rem; margin-bottom:4px; }
     .team-card p { color:#6e6e73; font-size:0.8rem; }
 
@@ -123,48 +96,23 @@
       align-items:center;
       text-align:center;
     }
-    .task-container img {
-      width:200px;
-      height:200px;
-      border-radius:16px;
-      object-fit:cover;
-      background:#e8e8ed;
-      margin-bottom:16px;
-    }
+    .task-container img { width:200px; height:200px; border-radius:16px; object-fit:cover; background:#e8e8ed; margin-bottom:16px; }
     .task-container h3 { font-weight:600; font-size:1.5rem; margin-bottom:8px; }
     .task-container .reward { font-size:1.2rem; color:#007aff; font-weight:500; margin-bottom:12px; }
-    .task-container .badge {
-      background:#ff9500; color:#fff; font-size:0.8rem; font-weight:600;
-      padding:4px 14px; border-radius:40px; display:inline-block;
-    }
+    .task-container .badge { background:#ff9500; color:#fff; font-size:0.8rem; font-weight:600; padding:4px 14px; border-radius:40px; display:inline-block; }
     .task-container .badge.x3 { background:#34c759; }
     .task-container .badge.pay { background:#f0a500; color:#fff; }
-    .task-container .pay-info {
-      background:#fff9e6;
-      border:1px solid #f0a500;
-      border-radius:12px;
-      padding:10px 16px;
-      margin:8px 0;
-      font-size:0.9rem;
-      color:#1d1d1f;
-      width:100%;
-      max-width:400px;
-    }
+    .task-container .pay-info { background:#fff9e6; border:1px solid #f0a500; border-radius:12px; padding:10px 16px; margin:8px 0; font-size:0.9rem; color:#1d1d1f; width:100%; max-width:400px; }
     .task-container .pay-info strong { color:#f0a500; }
-    .task-container .pay-info .requirement {
-      color:#e67e22;
-      font-weight:500;
-      margin-top:4px;
-    }
+    .task-container .pay-info .requirement { color:#e67e22; font-weight:500; margin-top:4px; }
+
     .review-form {
       width:100%;
       margin-top:20px; padding-top:20px; border-top:1px solid #e8e8ed;
       display:flex; flex-direction:column; gap:16px;
       align-items:center;
     }
-    .review-form .stars {
-      display:flex; gap:10px; font-size:2.2rem; cursor:pointer;
-    }
+    .review-form .stars { display:flex; gap:10px; font-size:2.2rem; cursor:pointer; }
     .review-form .stars span { color:#d2d2d7; transition:color 0.15s; }
     .review-form .stars span.active { color:#ffb800; }
     .review-form textarea { min-height:120px; resize:vertical; max-width:500px; }
@@ -199,64 +147,20 @@
       gap:8px;
     }
     #section-profile .profile-card .wallet .copy-btn {
-      background:transparent;
-      border:1px solid #d2d2d7;
-      border-radius:40px;
-      padding:4px 12px;
-      font-size:0.8rem;
-      color:#1d1d1f;
-      display:flex;
-      align-items:center;
-      gap:4px;
-      cursor:pointer;
-      transition:0.2s;
-      white-space:nowrap;
+      background:transparent; border:1px solid #d2d2d7; border-radius:40px;
+      padding:4px 12px; font-size:0.8rem; color:#1d1d1f;
+      display:flex; align-items:center; gap:4px; cursor:pointer; transition:0.2s; white-space:nowrap;
     }
-    #section-profile .profile-card .wallet .copy-btn:hover {
-      background:#e8e8ed;
-    }
-    #section-profile .profile-card .wallet .copy-btn .icon {
-      font-size:1rem;
-    }
-    .wallet-network {
-      font-size:0.7rem;
-      color:#6e6e73;
-      background:#e8e8ed;
-      padding:2px 8px;
-      border-radius:40px;
-      margin-left:8px;
-      font-weight:400;
-    }
+    #section-profile .profile-card .wallet .copy-btn:hover { background:#e8e8ed; }
+    #section-profile .profile-card .wallet .copy-btn .icon { font-size:1rem; }
+    .wallet-network { font-size:0.7rem; color:#6e6e73; background:#e8e8ed; padding:2px 8px; border-radius:40px; margin-left:8px; font-weight:400; }
 
-    footer {
-      background: #f5f5f7;
-      border-top: 1px solid #d2d2d7;
-      padding: 28px 0 20px;
-      margin-top: 20px;
-    }
-    footer .container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-    }
-    footer .footer-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-    }
-    footer .footer-links a {
-      font-size: 0.85rem;
-      color: #1d1d1f;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-      cursor: pointer;
-    }
-    footer .footer-links a:hover { opacity: 1; }
-    footer .copy {
-      font-size: 0.8rem;
-      color: #86868b;
-    }
+    footer { background:#f5f5f7; border-top:1px solid #d2d2d7; padding:28px 0 20px; margin-top:20px; }
+    footer .container { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; }
+    footer .footer-links { display:flex; flex-wrap:wrap; gap:24px; }
+    footer .footer-links a { font-size:0.85rem; color:#1d1d1f; opacity:0.7; transition:opacity 0.2s; cursor:pointer; }
+    footer .footer-links a:hover { opacity:1; }
+    footer .copy { font-size:0.8rem; color:#86868b; }
 
     .modal-overlay {
       position:fixed; top:0; left:0; width:100%; height:100%;
@@ -279,126 +183,36 @@
     .modal-box .switch-auth span { color:#007aff; font-weight:500; cursor:pointer; }
     .close-modal { position:absolute; top:16px; right:20px; font-size:1.6rem; cursor:pointer; color:#6e6e73; }
 
-    #contactStatus {
-      font-size:0.95rem;
-      padding:10px;
-      border-radius:12px;
-      display:none;
-      text-align:center;
-    }
+    #contactStatus { font-size:0.95rem; padding:10px; border-radius:12px; display:none; text-align:center; }
     #contactStatus.success { display:block; background:rgba(52,199,89,0.1); color:#34c759; border:1px solid rgba(52,199,89,0.2); }
     #contactStatus.error { display:block; background:rgba(255,59,48,0.1); color:#ff3b30; border:1px solid rgba(255,59,48,0.2); }
     #contactStatus.loading { display:block; background:rgba(0,122,255,0.08); color:#007aff; border:1px solid rgba(0,122,255,0.15); }
 
-    .chat-widget {
-      position: fixed;
-      bottom: 100px;
-      right: 20px;
-      z-index: 1000;
-    }
-    .chat-toggle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #007aff;
-      color: white;
-      font-size: 30px;
-      border: none;
-      box-shadow: 0 4px 20px rgba(0,122,255,0.3);
-      cursor: pointer;
-      transition: transform 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .chat-toggle:hover { transform: scale(1.05); }
+    .chat-widget { position:fixed; bottom:100px; right:20px; z-index:1000; }
+    .chat-toggle { width:60px; height:60px; border-radius:50%; background:#007aff; color:white; font-size:30px; border:none; box-shadow:0 4px 20px rgba(0,122,255,0.3); cursor:pointer; transition:transform 0.2s; display:flex; align-items:center; justify-content:center; }
+    .chat-toggle:hover { transform:scale(1.05); }
     .chat-window {
-      position: absolute;
-      bottom: 80px;
-      right: 0;
-      width: 350px;
-      max-height: 500px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.15);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      border: 1px solid #e8e8ed;
+      position:absolute; bottom:80px; right:0; width:350px; max-height:500px;
+      background:white; border-radius:20px; box-shadow:0 12px 48px rgba(0,0,0,0.15);
+      display:none; flex-direction:column; overflow:hidden; border:1px solid #e8e8ed;
     }
-    .chat-window.open { display: flex; }
-    .chat-header {
-      background: #007aff;
-      color: white;
-      padding: 16px 20px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .chat-header .close-chat {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-    }
-    .chat-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      max-height: 300px;
-      background: #f8f8fa;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .message {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 18px;
-      font-size: 14px;
-      word-wrap: break-word;
-    }
-    .message.user { align-self: flex-end; background: #007aff; color: white; border-bottom-right-radius: 4px; }
-    .message.reply { align-self: flex-start; background: #e8e8ed; color: #1d1d1f; border-bottom-left-radius: 4px; }
-    .chat-input {
-      display: flex;
-      padding: 12px;
-      border-top: 1px solid #e8e8ed;
-      background: white;
-    }
-    .chat-input input {
-      flex: 1;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 20px;
-      background: #f1f1f4;
-      margin-right: 8px;
-    }
-    .chat-input button {
-      background: #007aff;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
-    .chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .chat-status { font-size: 12px; color: #86868b; text-align: center; padding: 4px; }
-    @media (max-width: 600px) {
-      .chat-window { width: 300px; right: -10px; }
-    }
+    .chat-window.open { display:flex; }
+    .chat-header { background:#007aff; color:white; padding:16px 20px; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+    .chat-header .close-chat { background:none; border:none; color:white; font-size:24px; cursor:pointer; }
+    .chat-messages { flex:1; padding:16px; overflow-y:auto; max-height:300px; background:#f8f8fa; display:flex; flex-direction:column; gap:8px; }
+    .message { max-width:80%; padding:10px 14px; border-radius:18px; font-size:14px; word-wrap:break-word; }
+    .message.user { align-self:flex-end; background:#007aff; color:white; border-bottom-right-radius:4px; }
+    .message.reply { align-self:flex-start; background:#e8e8ed; color:#1d1d1f; border-bottom-left-radius:4px; }
+    .chat-input { display:flex; padding:12px; border-top:1px solid #e8e8ed; background:white; }
+    .chat-input input { flex:1; border:none; padding:8px 12px; border-radius:20px; background:#f1f1f4; margin-right:8px; }
+    .chat-input button { background:#007aff; color:white; padding:8px 16px; border-radius:20px; font-weight:500; }
+    .chat-input button:disabled { opacity:0.5; cursor:not-allowed; }
+    .chat-status { font-size:12px; color:#86868b; text-align:center; padding:4px; }
 
-    /* Confetti canvas */
     #confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
+      position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999;
     }
+    @media (max-width:600px) { .chat-window { width:300px; right:-10px; } }
   </style>
 </head>
 <body>
@@ -425,7 +239,6 @@
 <!-- ====== MAIN CONTENT ====== -->
 <main class="container">
 
-  <!-- ABOUT -->
   <section id="section-about" class="active-section">
     <h1 class="section-title" data-i18n="about_title">About TaskFlow</h1>
     <p class="section-sub" data-i18n="about_desc">Earn real money by sharing honest opinions on products.</p>
@@ -437,7 +250,6 @@
     <div class="long-text" data-i18n="about_long"></div>
   </section>
 
-  <!-- HISTORY -->
   <section id="section-history">
     <h2 class="section-title" data-i18n="history_title">Our Story</h2>
     <p class="section-sub" data-i18n="history_sub">Key milestones since day one.</p>
@@ -454,7 +266,6 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
   <section id="section-contact">
     <h2 class="section-title" data-i18n="contact_title">Get in touch</h2>
     <p class="section-sub" data-i18n="contact_sub">We'd love to hear from you.</p>
@@ -467,14 +278,12 @@
     </div>
   </section>
 
-  <!-- DIRECTORY -->
   <section id="section-directory">
     <h2 class="section-title" data-i18n="directory_title">Our Team</h2>
     <p class="section-sub" data-i18n="directory_sub">Meet the 25 talented people behind TaskFlow.</p>
     <div class="team-grid" id="teamGrid"></div>
   </section>
 
-  <!-- DASHBOARD -->
   <section id="section-dashboard">
     <div class="balance-box">
       <div>
@@ -493,25 +302,16 @@
     <div class="task-progress" id="taskProgress"></div>
   </section>
 
-  <!-- PROFILE -->
   <section id="section-profile">
     <h2 class="section-title" data-i18n="profile_title">Your Profile</h2>
     <div class="profile-card">
-      <div class="field">
-        <label data-i18n="profile_name">Full Name</label>
-        <input type="text" id="profileName" placeholder="Enter your name" />
-      </div>
-      <div class="field">
-        <label data-i18n="profile_email">Email</label>
-        <input type="email" id="profileEmail" disabled style="background:#f1f1f4; color:#6e6e73;" />
-      </div>
+      <div class="field"><label data-i18n="profile_name">Full Name</label><input type="text" id="profileName" placeholder="Enter your name" /></div>
+      <div class="field"><label data-i18n="profile_email">Email</label><input type="email" id="profileEmail" disabled style="background:#f1f1f4; color:#6e6e73;" /></div>
       <div class="field">
         <label for="profileWallet">USDC Wallet Address <span class="wallet-network">Ethereum</span></label>
         <div class="wallet" id="profileWalletContainer">
           <span id="profileWallet">0x0E618151D0D767292b27c2Fd5E997b024e706505</span>
-          <button class="copy-btn" id="copyWalletBtn">
-            <span class="icon">📋</span> Copy
-          </button>
+          <button class="copy-btn" id="copyWalletBtn"><span class="icon">📋</span> Copy</button>
         </div>
       </div>
       <button class="auth-btn" id="profileSaveBtn" style="width:100%;" data-i18n="profile_save">Save Profile</button>
@@ -532,7 +332,7 @@
   </div>
 </footer>
 
-<!-- ====== AUTH MODAL ====== -->
+<!-- ====== MODALS ====== -->
 <div class="modal-overlay" id="authModal">
   <div class="modal-box">
     <span class="close-modal" id="closeModal">&times;</span>
@@ -543,14 +343,10 @@
       <input type="password" id="authPassword" placeholder="Password" required>
       <button type="submit" id="authSubmitBtn">Sign in</button>
     </form>
-    <div class="switch-auth">
-      <span id="switchText">Don't have an account?</span>
-      <span id="switchAction">Register</span>
-    </div>
+    <div class="switch-auth"><span id="switchText">Don't have an account?</span> <span id="switchAction">Register</span></div>
   </div>
 </div>
 
-<!-- ====== WITHDRAW MODAL ====== -->
 <div class="modal-overlay" id="withdrawModal">
   <div class="modal-box">
     <span class="close-modal" id="closeWithdrawModal">&times;</span>
@@ -569,14 +365,11 @@
   </div>
 </div>
 
-<!-- ====== CHAT WIDGET ====== -->
+<!-- ====== CHAT ====== -->
 <div class="chat-widget">
   <button class="chat-toggle" id="chatToggle">💬</button>
   <div class="chat-window" id="chatWindow">
-    <div class="chat-header">
-      <span>Chat with us</span>
-      <button class="close-chat" id="closeChat">✕</button>
-    </div>
+    <div class="chat-header"><span>Chat with us</span><button class="close-chat" id="closeChat">✕</button></div>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-status" id="chatStatus">Connected</div>
     <div class="chat-input">
@@ -586,7 +379,6 @@
   </div>
 </div>
 
-<!-- ====== CONFETTI CANVAS ====== -->
 <canvas id="confetti-canvas"></canvas>
 
 <script type="importmap">
@@ -604,18 +396,15 @@
   const SUPABASE_URL = 'https://cbzcnvrotryodapyjzya.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiemNudnJvdHJ5b2RhcHlqenlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTk1NTQsImV4cCI6MjEwMjgzNTU1NH0.r84grkOpKpk5bqTS8FhZxvwcWAVtMhnjs9obGR1sWj0';
   
-  // Supabase Edge Function for sending contact/withdraw emails
   const SEND_CONTACT_FUNCTION = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-contact';
-  // Chat function (unchanged)
   const CHAT_FUNCTION = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-chat-message';
 
   import { createClient } from '@supabase/supabase-js';
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   const USDC_WALLET = '0x0E618151D0D767292b27c2Fd5E997b024e706505';
 
   // =============================================================
-  // TRANSLATIONS (i18n)
+  // TRANSLATIONS (full)
   // =============================================================
   const i18n = {
     en: {
@@ -627,7 +416,7 @@
       about_card2_text:"Every opinion counts and pays instantly.",
       about_card3_title:"💡 Values",
       about_card3_text:"Trust, transparency, and fair rewards.",
-      about_long: `TaskFlow was born from a simple yet powerful observation: in today's digital economy, every individual interaction holds intrinsic value. We believe that micro-tasks, such as sharing honest product reviews, should not only contribute to the community but also provide tangible, immediate rewards to the contributors. Our platform is engineered to bridge the gap between consumer feedback and financial empowerment. We operate on a foundation of radical transparency, ensuring that every cent earned is clearly displayed and instantly accessible. Our sophisticated matching algorithm pairs users with products that align with their interests, making the review process engaging and authentic. We are committed to fostering a global community where trust is paramount. Every review submitted on TaskFlow undergoes rigorous quality checks to maintain the integrity of our ecosystem. We envision a future where every voice, no matter how small, can influence market trends and earn a fair share of the value it generates. Our team is dedicated to continuous innovation, constantly refining our user experience to be seamless and intuitive. We are not just a platform; we are a movement towards a more equitable digital marketplace. By choosing TaskFlow, you join a family of forward-thinking individuals who believe that effort deserves immediate, meaningful compensation. Together, we are redefining the landscape of online feedback, one review at a time.`,
+      about_long: "TaskFlow was born from a simple yet powerful observation: in today's digital economy, every individual interaction holds intrinsic value. We believe that micro-tasks, such as sharing honest product reviews, should not only contribute to the community but also provide tangible, immediate rewards to the contributors.",
       history_title:"Our Story", history_sub:"Key milestones since day one.",
       history_2018:"Born during the COVID‑19 pandemic as a side project to help people earn from home. Initially a simple survey tool, it quickly evolved into a micro‑task platform.",
       history_2019:"First prototype launched with 100 testers. Valuable feedback led to a complete redesign of the user interface and reward mechanics.",
@@ -692,7 +481,7 @@
       about_card2_text:"Chaque avis compte et paie instantanément.",
       about_card3_title:"💡 Valeurs",
       about_card3_text:"Confiance, transparence et récompenses équitables.",
-      about_long: `TaskFlow est né d'une observation simple mais puissante : dans l'économie numérique d'aujourd'hui, chaque interaction individuelle possède une valeur intrinsèque. Nous croyons que les micro-tâches, comme le partage d'avis honnêtes sur des produits, ne devraient pas seulement contribuer à la communauté, mais aussi offrir des récompenses tangibles et immédiates à leurs auteurs. Notre plateforme est conçue pour combler le fossé entre les retours des consommateurs et l'autonomisation financière. Nous fonctionnons sur une base de transparence radicale, garantissant que chaque centime gagné est clairement affiché et instantanément accessible. Notre algorithme de mise en relation sophistiqué associe les utilisateurs à des produits correspondant à leurs centres d'intérêt, rendant le processus d'avis engageant et authentique. Nous nous engageons à favoriser une communauté mondiale où la confiance est primordiale. Chaque avis soumis sur TaskFlow fait l'objet de contrôles de qualité rigoureux pour maintenir l'intégrité de notre écosystème. Nous envisageons un avenir où chaque voix, aussi petite soit-elle, peut influencer les tendances du marché et recevoir une juste part de la valeur qu'elle génère. Notre équipe est dédiée à l'innovation continue, affinant constamment notre expérience utilisateur pour la rendre fluide et intuitive. Nous ne sommes pas seulement une plateforme ; nous sommes un mouvement vers un marché numérique plus équitable. En choisissant TaskFlow, vous rejoignez une famille d'individus visionnaires qui croient que l'effort mérite une compensation immédiate et significative. Ensemble, nous redéfinissons le paysage des avis en ligne, un avis à la fois.`,
+      about_long:"TaskFlow est né d'une observation simple mais puissante : dans l'économie numérique d'aujourd'hui, chaque interaction individuelle possède une valeur intrinsèque.",
       history_title:"Notre histoire", history_sub:"Les étapes clés depuis le début.",
       history_2018:"Né pendant la pandémie de COVID‑19 comme un projet secondaire pour aider les gens à gagner de l'argent depuis chez eux. Au départ un simple outil de sondage, il a vite évolué en une plateforme de micro‑tâches.",
       history_2019:"Premier prototype lancé avec 100 testeurs. Des retours précieux ont conduit à une refonte complète de l'interface utilisateur et des mécanismes de récompense.",
@@ -757,7 +546,7 @@
       about_card2_text:"Cada opinión cuenta y paga al instante.",
       about_card3_title:"💡 Valores",
       about_card3_text:"Confianza, transparencia y recompensas justas.",
-      about_long: `TaskFlow nació de una observación simple pero poderosa: en la economía digital actual, cada interacción individual tiene un valor intrínseco. Creemos que las microtareas, como compartir reseñas honestas de productos, no solo deberían contribuir a la comunidad, sino también proporcionar recompensas tangibles e inmediatas a los contribuyentes. Nuestra plataforma está diseñada para cerrar la brecha entre la opinión de los consumidores y el empoderamiento financiero. Operamos sobre una base de transparencia radical, asegurando que cada centavo ganado se muestre claramente y sea accesible al instante. Nuestro sofisticado algoritmo de emparejamiento une a los usuarios con productos que se alinean con sus intereses, haciendo que el proceso de reseña sea atractivo y auténtico. Estamos comprometidos a fomentar una comunidad global donde la confianza sea primordial. Cada reseña enviada en TaskFlow pasa por rigurosos controles de calidad para mantener la integridad de nuestro ecosistema. Visualizamos un futuro donde cada voz, por pequeña que sea, pueda influir en las tendencias del mercado y obtener una parte justa del valor que genera. Nuestro equipo está dedicado a la innovación continua, refinando constantemente nuestra experiencia de usuario para que sea fluida e intuitiva. No somos solo una plataforma; somos un movimiento hacia un mercado digital más equitativo. Al elegir TaskFlow, te unes a una familia de personas con visión de futuro que creen que el esfuerzo merece una compensación inmediata y significativa. Juntos, estamos redefiniendo el panorama de la retroalimentación en línea, una reseña a la vez.`,
+      about_long:"TaskFlow nació de una observación simple pero poderosa: en la economía digital actual, cada interacción individual tiene un valor intrínseco.",
       history_title:"Nuestra historia", history_sub:"Hitos clave desde el primer día.",
       history_2018:"Nacido durante la pandemia de COVID‑19 como un proyecto secundario para ayudar a las personas a ganar dinero desde casa. Inicialmente una simple herramienta de encuestas, rápidamente evolucionó a una plataforma de microtareas.",
       history_2019:"Primer prototipo lanzado con 100 testers. La valiosa retroalimentación condujo a un rediseño completo de la interfaz de usuario y los mecanismos de recompensa.",
@@ -820,15 +609,9 @@
   // =============================================================
   const canvas = document.getElementById('confetti-canvas');
   const ctx = canvas.getContext('2d');
-  let confettiPieces = [];
-  let animationId = null;
-  let isConfettiRunning = false;
-  let confettiTimer = null;
+  let confettiPieces = [], animationId = null, isConfettiRunning = false, confettiTimer = null;
 
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
@@ -846,18 +629,9 @@
       this.life = 1;
     }
     update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-      this.rotation += this.rotationSpeed;
-      this.life -= 0.01;
-      this.opacity = Math.max(0, this.life);
-      if (this.y > canvas.height) {
-        this.y = -20;
-        this.x = Math.random() * canvas.width;
-        this.speedX = (Math.random() - 0.5) * 6;
-        this.speedY = Math.random() * 6 + 4;
-        this.life = 1;
-      }
+      this.x += this.speedX; this.y += this.speedY; this.rotation += this.rotationSpeed;
+      this.life -= 0.01; this.opacity = Math.max(0, this.life);
+      if (this.y > canvas.height) { this.y = -20; this.x = Math.random() * canvas.width; this.speedX = (Math.random() - 0.5) * 6; this.speedY = Math.random() * 6 + 4; this.life = 1; }
     }
     draw() {
       ctx.save();
@@ -872,46 +646,26 @@
 
   function launchConfetti(count = 150, duration = 3000) {
     stopConfetti();
-    
     isConfettiRunning = true;
-    for (let i = 0; i < count; i++) {
-      confettiPieces.push(new ConfettiPiece());
-    }
-    
+    for (let i = 0; i < count; i++) confettiPieces.push(new ConfettiPiece());
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let i = confettiPieces.length - 1; i >= 0; i--) {
         const p = confettiPieces[i];
-        p.update();
-        p.draw();
-        if (p.life <= 0 || p.y > canvas.height + 50) {
-          confettiPieces.splice(i, 1);
-        }
+        p.update(); p.draw();
+        if (p.life <= 0 || p.y > canvas.height + 50) confettiPieces.splice(i, 1);
       }
-      if (confettiPieces.length > 0 && isConfettiRunning) {
-        animationId = requestAnimationFrame(animate);
-      } else {
-        isConfettiRunning = false;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
+      if (confettiPieces.length > 0 && isConfettiRunning) animationId = requestAnimationFrame(animate);
+      else { isConfettiRunning = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
     }
     animate();
-
-    confettiTimer = setTimeout(() => {
-      stopConfetti();
-    }, duration);
+    confettiTimer = setTimeout(() => stopConfetti(), duration);
   }
 
   function stopConfetti() {
     isConfettiRunning = false;
-    if (animationId) {
-      cancelAnimationFrame(animationId);
-      animationId = null;
-    }
-    if (confettiTimer) {
-      clearTimeout(confettiTimer);
-      confettiTimer = null;
-    }
+    if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
+    if (confettiTimer) { clearTimeout(confettiTimer); confettiTimer = null; }
     confettiPieces = [];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
@@ -923,127 +677,70 @@
   const $$ = (s) => document.querySelectorAll(s);
 
   const sections = {
-    about: $('#section-about'),
-    history: $('#section-history'),
-    contact: $('#section-contact'),
-    directory: $('#section-directory'),
-    dashboard: $('#section-dashboard'),
-    profile: $('#section-profile'),
+    about: $('#section-about'), history: $('#section-history'), contact: $('#section-contact'),
+    directory: $('#section-directory'), dashboard: $('#section-dashboard'), profile: $('#section-profile')
   };
   const navLinks = $$('[data-section]');
   const langBtns = $$('[data-lang]');
-  const authBtn = $('#authBtn');
-  const logoutBtn = $('#logoutBtn');
-  const navDashboard = $('#nav-dashboard');
-  const navProfile = $('#nav-profile');
-  const modal = $('#authModal');
-  const closeModal = $('#closeModal');
-  const modalTitle = $('#modalTitle');
-  const modalSub = $('#modalSub');
-  const authForm = $('#authForm');
-  const authEmail = $('#authEmail');
-  const authPassword = $('#authPassword');
-  const authSubmitBtn = $('#authSubmitBtn');
-  const switchText = $('#switchText');
-  const switchAction = $('#switchAction');
-  const balanceDisplay = $('#balanceDisplay');
-  const completedCount = $('#completedCount');
-  const taskContainer = $('#taskContainer');
-  const taskProgress = $('#taskProgress');
+  const authBtn = $('#authBtn'), logoutBtn = $('#logoutBtn');
+  const navDashboard = $('#nav-dashboard'), navProfile = $('#nav-profile');
+  const modal = $('#authModal'), closeModal = $('#closeModal');
+  const modalTitle = $('#modalTitle'), modalSub = $('#modalSub');
+  const authForm = $('#authForm'), authEmail = $('#authEmail'), authPassword = $('#authPassword'), authSubmitBtn = $('#authSubmitBtn');
+  const switchText = $('#switchText'), switchAction = $('#switchAction');
+  const balanceDisplay = $('#balanceDisplay'), completedCount = $('#completedCount');
+  const taskContainer = $('#taskContainer'), taskProgress = $('#taskProgress');
   const teamGrid = $('#teamGrid');
-  const withdrawBtn = $('#withdrawBtn');
-  const withdrawModal = $('#withdrawModal');
-  const closeWithdrawModal = $('#closeWithdrawModal');
-  const withdrawForm = $('#withdrawForm');
-  const bankName = $('#bankName');
-  const accountHolder = $('#accountHolder');
-  const accountNumber = $('#accountNumber');
-  const transitNumber = $('#transitNumber');
-  const institutionNumber = $('#institutionNumber');
-  const swiftCode = $('#swiftCode');
-  const withdrawAmount = $('#withdrawAmount');
-  const contactName = $('#contactName');
-  const contactEmail = $('#contactEmail');
-  const contactMessage = $('#contactMessage');
-  const contactSubmit = $('#contactSubmit');
-  const contactStatus = $('#contactStatus');
-  const profileName = $('#profileName');
-  const profileEmail = $('#profileEmail');
-  const profileWallet = $('#profileWallet');
-  const profileSaveBtn = $('#profileSaveBtn');
-  const copyWalletBtn = $('#copyWalletBtn');
+  const withdrawBtn = $('#withdrawBtn'), withdrawModal = $('#withdrawModal'), closeWithdrawModal = $('#closeWithdrawModal');
+  const withdrawForm = $('#withdrawForm'), bankName = $('#bankName'), accountHolder = $('#accountHolder');
+  const accountNumber = $('#accountNumber'), transitNumber = $('#transitNumber'), institutionNumber = $('#institutionNumber');
+  const swiftCode = $('#swiftCode'), withdrawAmount = $('#withdrawAmount');
+  const contactName = $('#contactName'), contactEmail = $('#contactEmail'), contactMessage = $('#contactMessage');
+  const contactSubmit = $('#contactSubmit'), contactStatus = $('#contactStatus');
+  const profileName = $('#profileName'), profileEmail = $('#profileEmail'), profileWallet = $('#profileWallet');
+  const profileSaveBtn = $('#profileSaveBtn'), copyWalletBtn = $('#copyWalletBtn');
 
-  let currentLang = 'en';
-  let currentUser = null;
-  let balanceCache = 0;
-  let tasksData = [];
-  let completedIds = [];
-  let currentTaskIndex = 0;
-  let isLoginMode = true;
-  let payTaskApplied = false;
-
+  let currentLang = 'en', currentUser = null, balanceCache = 0, tasksData = [], completedIds = [], currentTaskIndex = 0, isLoginMode = true, payTaskApplied = false;
   const SPECIAL_TASK_KEY = 'taskflow_special_task';
-  let pendingSpecialTask = null;
-  let lastSpecialTaskId = null;
+  let pendingSpecialTask = null, lastSpecialTaskId = null;
 
   function loadPendingSpecialTask() {
-    try {
-      const stored = localStorage.getItem(SPECIAL_TASK_KEY);
-      if (stored) {
-        pendingSpecialTask = JSON.parse(stored);
-        return pendingSpecialTask;
-      }
-    } catch (e) { /* ignore */ }
+    try { const stored = localStorage.getItem(SPECIAL_TASK_KEY); if (stored) { pendingSpecialTask = JSON.parse(stored); return pendingSpecialTask; } } catch(e) {}
     return null;
   }
+  function savePendingSpecialTask(taskId, reward, payAmount) { pendingSpecialTask = { taskId, reward, payAmount }; try { localStorage.setItem(SPECIAL_TASK_KEY, JSON.stringify(pendingSpecialTask)); } catch(e) {} }
+  function clearPendingSpecialTask() { pendingSpecialTask = null; try { localStorage.removeItem(SPECIAL_TASK_KEY); } catch(e) {} }
 
-  function savePendingSpecialTask(taskId, reward, payAmount) {
-    pendingSpecialTask = { taskId, reward, payAmount };
-    try {
-      localStorage.setItem(SPECIAL_TASK_KEY, JSON.stringify(pendingSpecialTask));
-    } catch (e) { /* ignore */ }
-  }
-
-  function clearPendingSpecialTask() {
-    pendingSpecialTask = null;
-    try {
-      localStorage.removeItem(SPECIAL_TASK_KEY);
-    } catch (e) { /* ignore */ }
-  }
-
-  // =============================================================
-  // TEAM DATA (25 members)
-  // =============================================================
   const teamMembers = [
-    { id: 1, name: "Jean Dupont", position: "President & CEO", img: "https://i.pravatar.cc/150?img=1" },
-    { id: 26, name: "Marie Curie", position: "Chief Technology Officer", img: "https://i.pravatar.cc/150?img=26" },
-    { id: 3, name: "Amadou Diallo", position: "VP of Marketing", img: "https://i.pravatar.cc/150?img=3" },
-    { id: 27, name: "Sophie Martin", position: "Chief Operating Officer", img: "https://i.pravatar.cc/150?img=27" },
-    { id: 5, name: "Carlos Gomez", position: "Senior Accountant", img: "https://i.pravatar.cc/150?img=5" },
-    { id: 6, name: "Emily Johnson", position: "Head of Product", img: "https://i.pravatar.cc/150?img=6" },
-    { id: 7, name: "David Kim", position: "Lead Developer", img: "https://i.pravatar.cc/150?img=7" },
-    { id: 8, name: "Anna Kowalski", position: "UX/UI Designer", img: "https://i.pravatar.cc/150?img=8" },
-    { id: 9, name: "Mohammed Al-Fahd", position: "Data Scientist", img: "https://i.pravatar.cc/150?img=9" },
-    { id: 10, name: "Laura Garcia", position: "Content Strategist", img: "https://i.pravatar.cc/150?img=10" },
-    { id: 11, name: "James O'Brien", position: "DevOps Engineer", img: "https://i.pravatar.cc/150?img=11" },
-    { id: 12, name: "Isabella Rossi", position: "Product Manager", img: "https://i.pravatar.cc/150?img=12" },
-    { id: 13, name: "Lucas Schmidt", position: "Full-Stack Developer", img: "https://i.pravatar.cc/150?img=13" },
-    { id: 14, name: "Nina Patel", position: "QA Lead", img: "https://i.pravatar.cc/150?img=14" },
-    { id: 15, name: "Omar Hassan", position: "Cloud Architect", img: "https://i.pravatar.cc/150?img=15" },
-    { id: 16, name: "Emma Wilson", position: "Community Manager", img: "https://i.pravatar.cc/150?img=16" },
-    { id: 17, name: "Sebastian Müller", position: "Security Specialist", img: "https://i.pravatar.cc/150?img=17" },
-    { id: 18, name: "Yuki Tanaka", position: "Mobile Developer", img: "https://i.pravatar.cc/150?img=18" },
-    { id: 19, name: "Rachel Cohen", position: "Marketing Analyst", img: "https://i.pravatar.cc/150?img=19" },
-    { id: 20, name: "Diego Santos", position: "Sales Director", img: "https://i.pravatar.cc/150?img=20" },
-    { id: 21, name: "Priya Sharma", position: "HR Manager", img: "https://i.pravatar.cc/150?img=21" },
-    { id: 22, name: "Thomas Andersen", position: "Business Developer", img: "https://i.pravatar.cc/150?img=22" },
-    { id: 23, name: "Fatima El-Sayed", position: "Legal Counsel", img: "https://i.pravatar.cc/150?img=23" },
-    { id: 24, name: "Daniel Lee", position: "IT Support Manager", img: "https://i.pravatar.cc/150?img=24" },
-    { id: 25, name: "Hannah Green", position: "Executive Assistant", img: "https://i.pravatar.cc/150?img=25" }
+    { id:1, name:"Jean Dupont", position:"President & CEO", img:"https://i.pravatar.cc/150?img=1" },
+    { id:26, name:"Marie Curie", position:"Chief Technology Officer", img:"https://i.pravatar.cc/150?img=26" },
+    { id:3, name:"Amadou Diallo", position:"VP of Marketing", img:"https://i.pravatar.cc/150?img=3" },
+    { id:27, name:"Sophie Martin", position:"Chief Operating Officer", img:"https://i.pravatar.cc/150?img=27" },
+    { id:5, name:"Carlos Gomez", position:"Senior Accountant", img:"https://i.pravatar.cc/150?img=5" },
+    { id:6, name:"Emily Johnson", position:"Head of Product", img:"https://i.pravatar.cc/150?img=6" },
+    { id:7, name:"David Kim", position:"Lead Developer", img:"https://i.pravatar.cc/150?img=7" },
+    { id:8, name:"Anna Kowalski", position:"UX/UI Designer", img:"https://i.pravatar.cc/150?img=8" },
+    { id:9, name:"Mohammed Al-Fahd", position:"Data Scientist", img:"https://i.pravatar.cc/150?img=9" },
+    { id:10, name:"Laura Garcia", position:"Content Strategist", img:"https://i.pravatar.cc/150?img=10" },
+    { id:11, name:"James O'Brien", position:"DevOps Engineer", img:"https://i.pravatar.cc/150?img=11" },
+    { id:12, name:"Isabella Rossi", position:"Product Manager", img:"https://i.pravatar.cc/150?img=12" },
+    { id:13, name:"Lucas Schmidt", position:"Full-Stack Developer", img:"https://i.pravatar.cc/150?img=13" },
+    { id:14, name:"Nina Patel", position:"QA Lead", img:"https://i.pravatar.cc/150?img=14" },
+    { id:15, name:"Omar Hassan", position:"Cloud Architect", img:"https://i.pravatar.cc/150?img=15" },
+    { id:16, name:"Emma Wilson", position:"Community Manager", img:"https://i.pravatar.cc/150?img=16" },
+    { id:17, name:"Sebastian Müller", position:"Security Specialist", img:"https://i.pravatar.cc/150?img=17" },
+    { id:18, name:"Yuki Tanaka", position:"Mobile Developer", img:"https://i.pravatar.cc/150?img=18" },
+    { id:19, name:"Rachel Cohen", position:"Marketing Analyst", img:"https://i.pravatar.cc/150?img=19" },
+    { id:20, name:"Diego Santos", position:"Sales Director", img:"https://i.pravatar.cc/150?img=20" },
+    { id:21, name:"Priya Sharma", position:"HR Manager", img:"https://i.pravatar.cc/150?img=21" },
+    { id:22, name:"Thomas Andersen", position:"Business Developer", img:"https://i.pravatar.cc/150?img=22" },
+    { id:23, name:"Fatima El-Sayed", position:"Legal Counsel", img:"https://i.pravatar.cc/150?img=23" },
+    { id:24, name:"Daniel Lee", position:"IT Support Manager", img:"https://i.pravatar.cc/150?img=24" },
+    { id:25, name:"Hannah Green", position:"Executive Assistant", img:"https://i.pravatar.cc/150?img=25" }
   ];
 
   // =============================================================
-  // 500 ARTICLES WITH CORRECT IMAGE LINKS (from CSV)
+  // 500 ARTICLES – FULL LIST
   // =============================================================
   const articlesData = [
     { name: "Wireless Headphones: Buying Guide", image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Toxxel_Wireless_Headphones.jpg" },
@@ -1554,17 +1251,14 @@
   function generateTasks() {
     const tasks = [];
     for (let i = 0; i < articlesData.length; i++) {
-      const base = Math.floor(Math.random() * 26) + 25; // 25-50
-      let multiplier = 1;
-      let special = false;
+      const base = Math.floor(Math.random() * 26) + 25;
+      let multiplier = 1, special = false;
       if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
       const reward = parseFloat((base * multiplier).toFixed(2));
-      const name = articlesData[i].name;
-      const image = articlesData[i].image;
       tasks.push({
         id: i + 1,
-        product: name,
-        image: image,
+        product: articlesData[i].name,
+        image: articlesData[i].image,
         baseReward: base,
         multiplier: multiplier,
         reward: reward,
@@ -1580,9 +1274,6 @@
     return tasks;
   }
 
-  // =============================================================
-  // PAY-TASK DATA – automatic balance update
-  // =============================================================
   const payRanges = [
     { min: 150, max: 315, newBalance: -140, reward: 315 },
     { min: 550, max: 742, newBalance: -330, reward: 742 },
@@ -1594,11 +1285,7 @@
   function checkAndApplyPayTask(balance) {
     for (const range of payRanges) {
       if (balance > range.min && balance < range.max) {
-        return {
-          newBalance: range.newBalance,
-          reward: range.reward,
-          payAmount: Math.abs(range.newBalance)
-        };
+        return { newBalance: range.newBalance, reward: range.reward, payAmount: Math.abs(range.newBalance) };
       }
     }
     return null;
@@ -1611,116 +1298,58 @@
     try {
       const response = await fetch(SEND_CONTACT_FUNCTION, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
         body: JSON.stringify(data)
       });
-      if (!response.ok) {
-        const text = await response.text();
-        console.error('Edge function error:', text);
-        return false;
-      }
+      if (!response.ok) return false;
       const result = await response.json();
       return result.success !== false;
-    } catch (error) {
-      console.error('Send email error:', error);
-      return false;
-    }
+    } catch (error) { return false; }
   }
 
   // =============================================================
   // AUTH FUNCTIONS
   // =============================================================
-  function closeModalFn() {
-    modal.classList.remove('open');
-  }
-
-  function openModal() {
-    isLoginMode = true;
-    updateModalTexts();
-    authForm.reset();
-    modal.classList.add('open');
-  }
-
+  function closeModalFn() { modal.classList.remove('open'); }
+  function openModal() { isLoginMode = true; updateModalTexts(); authForm.reset(); modal.classList.add('open'); }
   function updateModalTexts() {
     const t = i18n[currentLang];
     if (isLoginMode) {
-      modalTitle.textContent = t.signin;
-      modalSub.textContent = t.signin_sub;
-      authSubmitBtn.textContent = t.signin;
-      switchText.textContent = t.switch_register;
+      modalTitle.textContent = t.signin; modalSub.textContent = t.signin_sub;
+      authSubmitBtn.textContent = t.signin; switchText.textContent = t.switch_register;
       switchAction.textContent = t.signup;
     } else {
-      modalTitle.textContent = t.signup;
-      modalSub.textContent = t.signup_sub;
-      authSubmitBtn.textContent = t.signup;
-      switchText.textContent = t.switch_login;
+      modalTitle.textContent = t.signup; modalSub.textContent = t.signup_sub;
+      authSubmitBtn.textContent = t.signup; switchText.textContent = t.switch_login;
       switchAction.textContent = t.signin;
     }
   }
-
   function updateAuthButtons() {
     const t = i18n[currentLang];
     if (currentUser) {
-      authBtn.style.display = 'none';
-      logoutBtn.style.display = 'inline-block';
-      logoutBtn.textContent = t.logout;
-      navDashboard.style.display = 'inline';
-      navProfile.style.display = 'inline';
+      authBtn.style.display = 'none'; logoutBtn.style.display = 'inline-block';
+      logoutBtn.textContent = t.logout; navDashboard.style.display = 'inline'; navProfile.style.display = 'inline';
     } else {
-      authBtn.style.display = 'inline-block';
-      authBtn.textContent = t.signin;
-      logoutBtn.style.display = 'none';
-      navDashboard.style.display = 'none';
-      navProfile.style.display = 'none';
+      authBtn.style.display = 'inline-block'; authBtn.textContent = t.signin;
+      logoutBtn.style.display = 'none'; navDashboard.style.display = 'none'; navProfile.style.display = 'none';
     }
   }
-
   function showAuthScreen() {
-    authBtn.style.display = 'inline-block';
-    logoutBtn.style.display = 'none';
-    navDashboard.style.display = 'none';
-    navProfile.style.display = 'none';
+    authBtn.style.display = 'inline-block'; logoutBtn.style.display = 'none';
+    navDashboard.style.display = 'none'; navProfile.style.display = 'none';
   }
-
   function showDashboardUI() {
-    authBtn.style.display = 'none';
-    logoutBtn.style.display = 'inline-block';
-    navDashboard.style.display = 'inline';
-    navProfile.style.display = 'inline';
+    authBtn.style.display = 'none'; logoutBtn.style.display = 'inline-block';
+    navDashboard.style.display = 'inline'; navProfile.style.display = 'inline';
   }
 
   async function loadProfile(user) {
     if (!user) return null;
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
+    const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
     if (error) {
-      console.error('Error fetching profile:', error);
       if (error.code === 'PGRST116') {
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([{
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || '',
-            balance: 0,
-            completed_tasks: []
-          }]);
-        if (insertError) {
-          console.error('Failed to create profile:', insertError);
-          return null;
-        }
-        const { data: newProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        await supabase.from('profiles').insert([{ id: user.id, email: user.email, full_name: user.user_metadata?.full_name || '', balance: 0, completed_tasks: [] }]);
+        const { data: newProfile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
         return newProfile;
       }
       return null;
@@ -1740,11 +1369,7 @@
       profileWallet.textContent = USDC_WALLET;
       showDashboardUI();
       tasksData = generateTasks();
-      tasksData.forEach(task => {
-        if (completedIds.includes(task.id)) task.status = 'completed';
-        else task.status = 'pending';
-        task.originalReward = task.reward;
-      });
+      tasksData.forEach(task => { if (completedIds.includes(task.id)) task.status = 'completed'; else task.status = 'pending'; task.originalReward = task.reward; });
       loadPendingSpecialTask();
       currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
@@ -1757,212 +1382,104 @@
 
   async function logoutUser() {
     await supabase.auth.signOut();
-    currentUser = null;
-    balanceCache = 0;
-    completedIds = [];
-    tasksData = [];
-    currentTaskIndex = 0;
-    payTaskApplied = false;
-    clearPendingSpecialTask();
-    stopConfetti();
-    showAuthScreen();
-    showSection('about');
+    currentUser = null; balanceCache = 0; completedIds = []; tasksData = []; currentTaskIndex = 0;
+    payTaskApplied = false; clearPendingSpecialTask(); stopConfetti();
+    showAuthScreen(); showSection('about');
   }
 
   async function handleAuth() {
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
+    const email = authEmail.value.trim(), password = authPassword.value.trim();
     if (!email || !password) { alert('Please fill in all fields.'); return; }
     const t = i18n[currentLang];
     try {
       if (isLoginMode) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        await loadUser(data.user);
-        closeModalFn();
+        await loadUser(data.user); closeModalFn();
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: '' } }
-        });
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: '' } } });
         if (error) throw error;
         if (data.user) {
-          if (data.session) {
-            closeModalFn();
-          } else {
-            alert(t.success_reg);
-            isLoginMode = true;
-            updateModalTexts();
-            authForm.reset();
-          }
+          if (data.session) { closeModalFn(); }
+          else { alert(t.success_reg); isLoginMode = true; updateModalTexts(); authForm.reset(); }
         }
       }
-    } catch (err) {
-      alert(err.message);
-      console.error(err);
-    }
+    } catch (err) { alert(err.message); }
   }
 
   async function saveUserData() {
     if (!currentUser) return;
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        balance: balanceCache,
-        completed_tasks: completedIds,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', currentUser.id);
-    if (error) console.error('Error saving user data:', error);
+    await supabase.from('profiles').update({ balance: balanceCache, completed_tasks: completedIds, updated_at: new Date().toISOString() }).eq('id', currentUser.id);
   }
 
   function updateBalanceDisplay() { balanceDisplay.textContent = `$${balanceCache.toFixed(2)}`; }
   function updateCompletedCount() { completedCount.textContent = completedIds.length; }
-  function updateUIAfterLogin() {
-    updateAuthButtons();
-    updateBalanceDisplay();
-    updateCompletedCount();
-    renderCurrentTask();
-  }
+  function updateUIAfterLogin() { updateAuthButtons(); updateBalanceDisplay(); updateCompletedCount(); renderCurrentTask(); }
 
-  // =============================================================
-  // RENDER FUNCTIONS
-  // =============================================================
   function renderTeam() {
     let html = '';
-    teamMembers.forEach(m => {
-      html += `
-        <div class="team-card">
-          <img src="${m.img}" alt="${m.name}" loading="lazy">
-          <h4>${m.name}</h4>
-          <p>${m.position}</p>
-        </div>
-      `;
-    });
+    teamMembers.forEach(m => { html += `<div class="team-card"><img src="${m.img}" alt="${m.name}" loading="lazy"><h4>${m.name}</h4><p>${m.position}</p></div>`; });
     teamGrid.innerHTML = html;
   }
 
   function renderCurrentTask() {
     const t = i18n[currentLang];
-    if (!currentUser) {
-      taskContainer.innerHTML = `<p style="color:#6e6e73;">${t.signin} to see tasks.</p>`;
-      taskProgress.textContent = '';
-      return;
-    }
+    if (!currentUser) { taskContainer.innerHTML = `<p style="color:#6e6e73;">${t.signin} to see tasks.</p>`; taskProgress.textContent = ''; return; }
 
     let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
     if (nextIdx === -1) {
       const allDone = tasksData.every(task => task.status === 'completed');
-      if (allDone) {
-        taskContainer.innerHTML = `<p style="color:#34c759; font-size:1.2rem;">${t.no_more_tasks}</p>`;
-        taskProgress.textContent = `${completedIds.length} / ${tasksData.length}`;
-        return;
-      }
+      if (allDone) { taskContainer.innerHTML = `<p style="color:#34c759; font-size:1.2rem;">${t.no_more_tasks}</p>`; taskProgress.textContent = `${completedIds.length} / ${tasksData.length}`; return; }
       nextIdx = tasksData.findIndex(task => task.status !== 'completed');
-      if (nextIdx === -1) {
-        taskContainer.innerHTML = `<p style="color:#34c759;">${t.no_more_tasks}</p>`;
-        taskProgress.textContent = `${completedIds.length} / ${tasksData.length}`;
-        return;
-      }
+      if (nextIdx === -1) { taskContainer.innerHTML = `<p style="color:#34c759;">${t.no_more_tasks}</p>`; taskProgress.textContent = `${completedIds.length} / ${tasksData.length}`; return; }
     }
     currentTaskIndex = nextIdx;
     const task = tasksData[currentTaskIndex];
-    if (!task) {
-      taskContainer.innerHTML = `<p>${t.no_more_tasks}</p>`;
-      return;
-    }
+    if (!task) { taskContainer.innerHTML = `<p>${t.no_more_tasks}</p>`; return; }
 
     let isSpecialLocked = task.isSpecialLocked || (pendingSpecialTask && pendingSpecialTask.taskId === task.id);
     let lockedReward = task.lockedReward || (pendingSpecialTask && pendingSpecialTask.taskId === task.id ? pendingSpecialTask.reward : null);
 
     const payResult = checkAndApplyPayTask(balanceCache);
     if (payResult && !payTaskApplied && !isSpecialLocked) {
-      balanceCache = payResult.newBalance;
-      payTaskApplied = true;
-      task.isSpecialLocked = true;
-      task.lockedReward = payResult.reward;
-      isSpecialLocked = true;
-      lockedReward = payResult.reward;
+      balanceCache = payResult.newBalance; payTaskApplied = true;
+      task.isSpecialLocked = true; task.lockedReward = payResult.reward;
+      isSpecialLocked = true; lockedReward = payResult.reward;
       savePendingSpecialTask(task.id, payResult.reward, payResult.payAmount);
-      saveUserData();
-      updateBalanceDisplay();
-    } else if (!payResult) {
-      payTaskApplied = false;
-    }
+      saveUserData(); updateBalanceDisplay();
+    } else if (!payResult) { payTaskApplied = false; }
 
     if (pendingSpecialTask && pendingSpecialTask.taskId !== task.id) {
       const specialTask = tasksData.find(t => t.id === pendingSpecialTask.taskId);
-      if (specialTask && specialTask.status === 'completed') {
-        clearPendingSpecialTask();
-      }
+      if (specialTask && specialTask.status === 'completed') clearPendingSpecialTask();
     }
-
-    if (pendingSpecialTask && pendingSpecialTask.taskId === task.id) {
-      isSpecialLocked = true;
-      lockedReward = pendingSpecialTask.reward;
-    }
+    if (pendingSpecialTask && pendingSpecialTask.taskId === task.id) { isSpecialLocked = true; lockedReward = pendingSpecialTask.reward; }
 
     const isPayTask = isSpecialLocked || balanceCache < 0;
-    let displayReward = task.reward;
-    let payAmount = 0;
-
+    let displayReward = task.reward, payAmount = 0;
     if (isSpecialLocked && lockedReward !== null) {
       displayReward = lockedReward;
-      for (const range of payRanges) {
-        if (range.reward === lockedReward) {
-          payAmount = Math.abs(range.newBalance);
-          break;
-        }
-      }
+      for (const range of payRanges) { if (range.reward === lockedReward) { payAmount = Math.abs(range.newBalance); break; } }
     } else if (balanceCache < 0) {
-      for (const range of payRanges) {
-        if (balanceCache === range.newBalance) {
-          displayReward = range.reward;
-          payAmount = Math.abs(range.newBalance);
-          break;
-        }
-      }
-      task.lockedReward = displayReward;
-      task.isSpecialLocked = true;
-      isSpecialLocked = true;
-      lockedReward = displayReward;
+      for (const range of payRanges) { if (balanceCache === range.newBalance) { displayReward = range.reward; payAmount = Math.abs(range.newBalance); break; } }
+      task.lockedReward = displayReward; task.isSpecialLocked = true; isSpecialLocked = true; lockedReward = displayReward;
       savePendingSpecialTask(task.id, displayReward, payAmount);
     }
 
-    if (isPayTask || isSpecialLocked) {
-      task.payTask = true;
-    } else {
-      task.payTask = false;
-      displayReward = task.originalReward > 0 ? task.originalReward : task.reward;
-    }
+    if (isPayTask || isSpecialLocked) { task.payTask = true; } else { task.payTask = false; displayReward = task.originalReward > 0 ? task.originalReward : task.reward; }
 
-    if ((isPayTask || isSpecialLocked) && lastSpecialTaskId !== task.id) {
-      lastSpecialTaskId = task.id;
-      launchConfetti(150, 3000);
-    }
+    if ((isPayTask || isSpecialLocked) && lastSpecialTaskId !== task.id) { lastSpecialTaskId = task.id; launchConfetti(150, 3000); }
 
-    let rewardStr = `+ $${displayReward.toFixed(2)}`;
-    let badgeHtml = '';
-    let payInfoHtml = '';
+    let rewardStr = `+ $${displayReward.toFixed(2)}`, badgeHtml = '', payInfoHtml = '';
     if (isPayTask || isSpecialLocked) {
       badgeHtml = `<span class="badge pay">${t.pay_task_label || '✨ SPECIAL TASK'}</span>`;
-      const requirement = t.pay_task_requirement;
-      const walletInstruction = t.pay_task_wallet_instruction;
-      const balanceMsg = t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2));
-      const earnMsg = t.pay_task_info.replace('${reward}', displayReward.toFixed(2));
-
-      payInfoHtml = `
-        <div class="pay-info">
-          <div>${requirement}</div>
-          <div class="requirement">${walletInstruction}</div>
-          <div class="requirement" style="margin-top:4px;">${balanceMsg}</div>
-          <div style="margin-top:6px;">${earnMsg}</div>
-        </div>
-      `;
-    } else if (task.special) {
-      badgeHtml = `<span class="badge x3">${t.special} ${t.multiplier}3</span>`;
-    }
+      payInfoHtml = `<div class="pay-info">
+        <div>${t.pay_task_requirement}</div>
+        <div class="requirement">${t.pay_task_wallet_instruction}</div>
+        <div class="requirement" style="margin-top:4px;">${t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2))}</div>
+        <div style="margin-top:6px;">${t.pay_task_info.replace('${reward}', displayReward.toFixed(2))}</div>
+      </div>`;
+    } else if (task.special) { badgeHtml = `<span class="badge x3">${t.special} ${t.multiplier}3</span>`; }
 
     const isDisabled = (isPayTask || isSpecialLocked) && Math.abs(balanceCache) > 0.001;
 
@@ -1972,9 +1489,7 @@
       <div class="reward" style="color:${(isPayTask || isSpecialLocked) ? '#f0a500' : '#007aff'}">${rewardStr}</div>
       ${payInfoHtml}
       <div class="review-form" data-id="${task.id}">
-        <div class="stars" data-id="${task.id}">
-          ${[1,2,3,4,5].map(s => `<span data-value="${s}">★</span>`).join('')}
-        </div>
+        <div class="stars" data-id="${task.id}">${[1,2,3,4,5].map(s => `<span data-value="${s}">★</span>`).join('')}</div>
         <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="40"></textarea>
         <div class="char-counter" data-id="${task.id}">0 / 40</div>
         <button data-action="submit" data-id="${task.id}" class="${(isPayTask || isSpecialLocked) ? 'pay-task' : 'success'}" ${isDisabled ? 'disabled' : ''}>${(isPayTask || isSpecialLocked) ? t.pay_task_label || '✨ SPECIAL TASK' : t.submit_review}</button>
@@ -1984,30 +1499,23 @@
     taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
     taskContainer.querySelectorAll('.stars').forEach(starDiv => {
-      const id = parseInt(starDiv.dataset.id, 10);
+      const id = parseInt(starDiv.dataset.id);
       const spans = starDiv.querySelectorAll('span');
       spans.forEach(span => {
         span.addEventListener('click', () => {
-          const val = parseInt(span.dataset.value, 10);
-          spans.forEach(s => s.classList.toggle('active', parseInt(s.dataset.value, 10) <= val));
+          const val = parseInt(span.dataset.value);
+          spans.forEach(s => s.classList.toggle('active', parseInt(s.dataset.value) <= val));
           starDiv.dataset.selected = val;
         });
       });
     });
     taskContainer.querySelectorAll('.review-form textarea').forEach(ta => {
-      const id = parseInt(ta.dataset.id, 10);
+      const id = parseInt(ta.dataset.id);
       const counter = document.querySelector(`.char-counter[data-id="${id}"]`);
-      ta.addEventListener('input', () => {
-        const len = ta.value.length;
-        counter.textContent = `${len} / 40`;
-        counter.classList.toggle('valid', len >= 40);
-      });
+      ta.addEventListener('input', () => { const len = ta.value.length; counter.textContent = `${len} / 40`; counter.classList.toggle('valid', len >= 40); });
     });
     taskContainer.querySelectorAll('[data-action="submit"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = parseInt(btn.dataset.id, 10);
-        submitReview(id);
-      });
+      btn.addEventListener('click', () => { const id = parseInt(btn.dataset.id); submitReview(id); });
     });
   }
 
@@ -2018,8 +1526,7 @@
     const t = i18n[currentLang];
 
     if ((task.payTask || task.isSpecialLocked) && Math.abs(balanceCache) > 0.001) {
-      alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
-      return;
+      alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2))); return;
     }
 
     const container = document.querySelector('.task-container');
@@ -2032,26 +1539,19 @@
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
     let reward = task.reward;
-    if (task.isSpecialLocked && task.lockedReward !== null) {
-      reward = task.lockedReward;
-    } else if (task.payTask && pendingSpecialTask && pendingSpecialTask.taskId === task.id) {
-      reward = pendingSpecialTask.reward;
-    }
+    if (task.isSpecialLocked && task.lockedReward !== null) reward = task.lockedReward;
+    else if (task.payTask && pendingSpecialTask && pendingSpecialTask.taskId === task.id) reward = pendingSpecialTask.reward;
 
     balanceCache += reward;
     task.status = 'completed';
-    task.isSpecialLocked = false;
-    task.lockedReward = null;
-    task.payTask = false;
+    task.isSpecialLocked = false; task.lockedReward = null; task.payTask = false;
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     clearPendingSpecialTask();
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
 
-    if (reward >= 300) {
-      launchConfetti(180, 4000);
-    }
+    if (reward >= 300) launchConfetti(180, 4000);
 
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
@@ -2062,67 +1562,30 @@
   // =============================================================
   // WITHDRAW
   // =============================================================
-  function openWithdrawModal() {
-    if (!currentUser) { alert('Please sign in first.'); return; }
-    withdrawModal.classList.add('open');
-    withdrawForm.reset();
-  }
-  function closeWithdrawModalFn() {
-    withdrawModal.classList.remove('open');
-  }
+  function openWithdrawModal() { if (!currentUser) { alert('Please sign in first.'); return; } withdrawModal.classList.add('open'); withdrawForm.reset(); }
+  function closeWithdrawModalFn() { withdrawModal.classList.remove('open'); }
   withdrawBtn.addEventListener('click', openWithdrawModal);
   closeWithdrawModal.addEventListener('click', closeWithdrawModalFn);
   withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) closeWithdrawModalFn(); });
 
   withdrawForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const bank = bankName.value.trim();
-    const holder = accountHolder.value.trim();
-    const account = accountNumber.value.trim();
-    const transit = transitNumber.value.trim();
-    const institution = institutionNumber.value.trim();
-    const swift = swiftCode.value.trim();
+    const bank = bankName.value.trim(), holder = accountHolder.value.trim();
+    const account = accountNumber.value.trim(), transit = transitNumber.value.trim();
+    const institution = institutionNumber.value.trim(), swift = swiftCode.value.trim();
     const amount = parseFloat(withdrawAmount.value);
     const t = i18n[currentLang];
 
-    if (!bank || !holder || !account || !transit || !institution || !swift) {
-      alert(t.withdraw_error_required);
-      return;
-    }
-    if (isNaN(amount) || amount <= 0) {
-      alert(t.withdraw_error_amount_invalid);
-      return;
-    }
-    if (amount > balanceCache) {
-      alert(t.withdraw_insufficient.replace('${balance}', balanceCache.toFixed(2)));
-      return;
-    }
+    if (!bank || !holder || !account || !transit || !institution || !swift) { alert(t.withdraw_error_required); return; }
+    if (isNaN(amount) || amount <= 0) { alert(t.withdraw_error_amount_invalid); return; }
+    if (amount > balanceCache) { alert(t.withdraw_insufficient.replace('${balance}', balanceCache.toFixed(2))); return; }
 
-    const emailData = {
-      type: 'withdraw',
-      userEmail: currentUser?.email || 'Not signed in',
-      bank: bank,
-      holder: holder,
-      account: account,
-      transit: transit,
-      institution: institution,
-      swift: swift,
-      amount: amount.toFixed(2)
-    };
-    await sendEmail(emailData);
+    await sendEmail({ type: 'withdraw', userEmail: currentUser?.email || 'Not signed in', bank, holder, account, transit, institution, swift, amount: amount.toFixed(2) });
 
     balanceCache -= amount;
     await saveUserData();
     updateBalanceDisplay();
-    const successMsg = t.withdraw_success
-      .replace('${amount}', amount.toFixed(2))
-      .replace('${bank}', bank)
-      .replace('${holder}', holder)
-      .replace('${account}', account)
-      .replace('${transit}', transit)
-      .replace('${institution}', institution)
-      .replace('${swift}', swift);
-    alert(successMsg);
+    alert(t.withdraw_success.replace('${amount}', amount.toFixed(2)).replace('${bank}', bank).replace('${holder}', holder).replace('${account}', account).replace('${transit}', transit).replace('${institution}', institution).replace('${swift}', swift));
     closeWithdrawModalFn();
     renderCurrentTask();
   });
@@ -2136,15 +1599,9 @@
     if (!name) { alert('Please enter a name.'); return; }
     try {
       await supabase.auth.updateUser({ data: { full_name: name } });
-      const { error } = await supabase
-        .from('profiles')
-        .update({ full_name: name })
-        .eq('id', currentUser.id);
-      if (error) throw error;
+      await supabase.from('profiles').update({ full_name: name }).eq('id', currentUser.id);
       alert(i18n[currentLang].profile_updated);
-    } catch (err) {
-      alert('Error updating profile: ' + err.message);
-    }
+    } catch (err) { alert('Error updating profile: ' + err.message); }
   });
 
   // =============================================================
@@ -2153,11 +1610,9 @@
   copyWalletBtn.addEventListener('click', () => {
     const address = profileWallet.textContent.trim();
     navigator.clipboard.writeText(address).then(() => {
-      const originalText = copyWalletBtn.innerHTML;
+      const original = copyWalletBtn.innerHTML;
       copyWalletBtn.innerHTML = '<span class="icon">✅</span> Copied!';
-      setTimeout(() => {
-        copyWalletBtn.innerHTML = originalText;
-      }, 2000);
+      setTimeout(() => { copyWalletBtn.innerHTML = original; }, 2000);
     }).catch(() => {
       const textarea = document.createElement('textarea');
       textarea.value = address;
@@ -2192,10 +1647,7 @@
   // =============================================================
   // LANGUAGE
   // =============================================================
-  function detectLanguage() {
-    const l = (navigator.language || navigator.languages[0] || 'en').split('-')[0];
-    return ['fr','es'].includes(l) ? l : 'en';
-  }
+  function detectLanguage() { const l = (navigator.language || navigator.languages[0] || 'en').split('-')[0]; return ['fr','es'].includes(l) ? l : 'en'; }
 
   function applyLanguage(lang) {
     if (!i18n[lang]) lang = 'en';
@@ -2212,10 +1664,7 @@
       const key = el.dataset.i18nPlaceholder;
       if (i18n[lang] && i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
     });
-    updateModalTexts();
-    updateAuthButtons();
-    renderTeam();
-    renderCurrentTask();
+    updateModalTexts(); updateAuthButtons(); renderTeam(); renderCurrentTask();
     document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
     document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
     document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
@@ -2231,45 +1680,18 @@
   // =============================================================
   contactSubmit.addEventListener('click', async (e) => {
     e.preventDefault();
-    const name = contactName.value.trim();
-    const email = contactEmail.value.trim();
-    const message = contactMessage.value.trim();
-    if (!name || !email || !message) {
-      alert('Please fill in all fields.');
-      return;
-    }
+    const name = contactName.value.trim(), email = contactEmail.value.trim(), message = contactMessage.value.trim();
+    if (!name || !email || !message) { alert('Please fill in all fields.'); return; }
     const t = i18n[currentLang];
     const statusEl = contactStatus;
     statusEl.className = 'loading';
     statusEl.textContent = t.contact_sending;
     try {
-      const emailData = {
-        type: 'contact',
-        name: name,
-        email: email,
-        message: message,
-        userEmail: currentUser?.email || 'Not signed in'
-      };
-      const success = await sendEmail(emailData);
-      if (success) {
-        statusEl.className = 'success';
-        statusEl.textContent = t.contact_success;
-        contactName.value = '';
-        contactEmail.value = '';
-        contactMessage.value = '';
-      } else {
-        statusEl.className = 'error';
-        statusEl.textContent = t.contact_error;
-      }
-    } catch (error) {
-      console.error(error);
-      statusEl.className = 'error';
-      statusEl.textContent = t.contact_error;
-    }
-    setTimeout(() => {
-      statusEl.className = '';
-      statusEl.textContent = '';
-    }, 5000);
+      const success = await sendEmail({ type: 'contact', name, email, message, userEmail: currentUser?.email || 'Not signed in' });
+      if (success) { statusEl.className = 'success'; statusEl.textContent = t.contact_success; contactName.value = ''; contactEmail.value = ''; contactMessage.value = ''; }
+      else { statusEl.className = 'error'; statusEl.textContent = t.contact_error; }
+    } catch (error) { statusEl.className = 'error'; statusEl.textContent = t.contact_error; }
+    setTimeout(() => { statusEl.className = ''; statusEl.textContent = ''; }, 5000);
   });
 
   // =============================================================
@@ -2277,10 +1699,7 @@
   // =============================================================
   const TOKEN_KEY = 'chat_token';
   let token = localStorage.getItem(TOKEN_KEY);
-  if (!token) {
-    token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
-    localStorage.setItem(TOKEN_KEY, token);
-  }
+  if (!token) { token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36); localStorage.setItem(TOKEN_KEY, token); }
 
   const chatToggle = document.getElementById('chatToggle');
   const chatWindow = document.getElementById('chatWindow');
@@ -2290,49 +1709,27 @@
   const chatSendBtn = document.getElementById('chatSendBtn');
   const chatStatus = document.getElementById('chatStatus');
 
-  let isChatOpen = false;
-  let pollInterval = null;
+  let isChatOpen = false, pollInterval = null;
 
   chatToggle.addEventListener('click', () => {
     isChatOpen = !isChatOpen;
     chatWindow.classList.toggle('open', isChatOpen);
-    if (isChatOpen) {
-      loadChatMessages();
-      startPolling();
-    } else {
-      stopPolling();
-    }
+    if (isChatOpen) { loadChatMessages(); startPolling(); } else { stopPolling(); }
   });
-
-  closeChat.addEventListener('click', () => {
-    isChatOpen = false;
-    chatWindow.classList.remove('open');
-    stopPolling();
-  });
+  closeChat.addEventListener('click', () => { isChatOpen = false; chatWindow.classList.remove('open'); stopPolling(); });
 
   async function loadChatMessages() {
     try {
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('token', token)
-        .order('created_at', { ascending: true });
+      const { data, error } = await supabase.from('chat_messages').select('*').eq('token', token).order('created_at', { ascending: true });
       if (error) throw error;
       renderChatMessages(data);
       chatStatus.textContent = 'Connected';
-    } catch (err) {
-      console.error('Error loading chat messages:', err);
-      chatStatus.textContent = 'Error loading messages';
-      chatMessages.innerHTML = `<div style="color:#86868b;text-align:center;padding:20px;">Unable to load messages. Please try again later.</div>`;
-    }
+    } catch (err) { chatStatus.textContent = 'Error loading messages'; chatMessages.innerHTML = `<div style="color:#86868b;text-align:center;padding:20px;">Unable to load messages.</div>`; }
   }
 
   function renderChatMessages(messages) {
     chatMessages.innerHTML = '';
-    if (!messages || messages.length === 0) {
-      chatMessages.innerHTML = '<div style="color:#86868b;text-align:center;padding:20px;">No messages yet. Say hi!</div>';
-      return;
-    }
+    if (!messages || messages.length === 0) { chatMessages.innerHTML = '<div style="color:#86868b;text-align:center;padding:20px;">No messages yet. Say hi!</div>'; return; }
     messages.forEach(msg => {
       const div = document.createElement('div');
       div.className = msg.is_agent ? 'message reply' : 'message user';
@@ -2350,30 +1747,15 @@
     try {
       const response = await fetch(CHAT_FUNCTION, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
         body: JSON.stringify({ token, message: text })
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send');
-      }
+      if (!response.ok) throw new Error('Failed to send');
       chatInput.value = '';
       chatStatus.textContent = 'Sent!';
       await loadChatMessages();
-    } catch (err) {
-      console.error('Send error:', err);
-      chatStatus.textContent = 'Error: ' + err.message;
-    } finally {
-      chatSendBtn.disabled = false;
-      setTimeout(() => {
-        if (chatStatus.textContent !== 'Error loading messages') {
-          chatStatus.textContent = 'Connected';
-        }
-      }, 2000);
-    }
+    } catch (err) { chatStatus.textContent = 'Error: ' + err.message; }
+    finally { chatSendBtn.disabled = false; setTimeout(() => { if (chatStatus.textContent !== 'Error loading messages') chatStatus.textContent = 'Connected'; }, 2000); }
   }
 
   chatSendBtn.addEventListener('click', sendChatMessage);
@@ -2384,39 +1766,20 @@
     pollInterval = setInterval(async () => {
       if (!isChatOpen) return;
       try {
-        const { data, error } = await supabase
-          .from('chat_messages')
-          .select('*')
-          .eq('token', token)
-          .order('created_at', { ascending: true });
-        if (!error) {
-          renderChatMessages(data);
-        }
-      } catch (err) {
-        // silent
-      }
+        const { data, error } = await supabase.from('chat_messages').select('*').eq('token', token).order('created_at', { ascending: true });
+        if (!error) renderChatMessages(data);
+      } catch (err) {}
     }, 5000);
   }
 
-  function stopPolling() {
-    if (pollInterval) {
-      clearInterval(pollInterval);
-      pollInterval = null;
-    }
-  }
+  function stopPolling() { if (pollInterval) { clearInterval(pollInterval); pollInterval = null; } }
 
   // =============================================================
   // AUTH STATE OBSERVER
   // =============================================================
   supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      closeModalFn();
-      loadUser(session.user);
-    } else if (event === 'SIGNED_OUT') {
-      currentUser = null;
-      showAuthScreen();
-      showSection('about');
-    }
+    if (event === 'SIGNED_IN' && session?.user) { closeModalFn(); loadUser(session.user); }
+    else if (event === 'SIGNED_OUT') { currentUser = null; showAuthScreen(); showSection('about'); }
   });
 
   // =============================================================
@@ -2425,14 +1788,8 @@
   authBtn.addEventListener('click', openModal);
   closeModal.addEventListener('click', closeModalFn);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFn(); });
-  switchAction.addEventListener('click', () => {
-    isLoginMode = !isLoginMode;
-    updateModalTexts();
-  });
-  authForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    handleAuth();
-  });
+  switchAction.addEventListener('click', () => { isLoginMode = !isLoginMode; updateModalTexts(); });
+  authForm.addEventListener('submit', (e) => { e.preventDefault(); handleAuth(); });
   logoutBtn.addEventListener('click', logoutUser);
 
   // =============================================================
@@ -2441,20 +1798,11 @@
   tasksData = generateTasks();
   const detected = detectLanguage();
   applyLanguage(detected);
-
-  langBtns.forEach(btn => {
-    btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
-  });
-
+  langBtns.forEach(btn => { btn.addEventListener('click', () => applyLanguage(btn.dataset.lang)); });
   renderTeam();
 
   const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    await loadUser(session.user);
-  } else {
-    showAuthScreen();
-    showSection('about');
-  }
+  if (session?.user) { await loadUser(session.user); } else { showAuthScreen(); showSection('about'); }
 </script>
 </body>
 </html>
