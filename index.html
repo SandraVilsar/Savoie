@@ -139,6 +139,7 @@
     }
     .task-container .badge.x3 { background:#34c759; }
     .task-container .badge.x4 { background:#af52de; }
+    .task-container .badge.pay { background:#ff3b30; }
     .review-form {
       width:100%;
       margin-top:20px; padding-top:20px; border-top:1px solid #e8e8ed;
@@ -154,6 +155,7 @@
     .review-form .char-counter { font-size:0.9rem; color:#86868b; }
     .review-form .char-counter.valid { color:#34c759; }
     .review-form button { background:#34c759; color:#fff; padding:10px 36px; border-radius:980px; font-weight:600; }
+    .review-form button.pay-task { background:#ff3b30; }
     .task-progress { margin-top:12px; font-size:0.9rem; color:#86868b; }
 
     #withdrawModal .modal-box { max-width:520px; }
@@ -173,6 +175,39 @@
       font-family: monospace; font-size:0.9rem;
       word-break:break-all;
       margin:8px 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    #section-profile .profile-card .wallet .copy-btn {
+      background:transparent;
+      border:1px solid #d2d2d7;
+      border-radius:40px;
+      padding:4px 12px;
+      font-size:0.8rem;
+      color:#1d1d1f;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      cursor:pointer;
+      transition:0.2s;
+      white-space:nowrap;
+    }
+    #section-profile .profile-card .wallet .copy-btn:hover {
+      background:#e8e8ed;
+    }
+    #section-profile .profile-card .wallet .copy-btn .icon {
+      font-size:1rem;
+    }
+    .wallet-network {
+      font-size:0.7rem;
+      color:#6e6e73;
+      background:#e8e8ed;
+      padding:2px 8px;
+      border-radius:40px;
+      margin-left:8px;
     }
 
     footer {
@@ -442,8 +477,13 @@
         <input type="email" id="profileEmail" disabled style="background:#f1f1f4; color:#6e6e73;" />
       </div>
       <div class="field">
-        <label data-i18n="profile_wallet">USDC Wallet Address</label>
-        <div class="wallet" id="profileWallet">0x0E618151D0D767292b27c2Fd5E997b024e706505</div>
+        <label data-i18n="profile_wallet">USDC Wallet Address <span class="wallet-network">Ethereum</span></label>
+        <div class="wallet" id="profileWalletContainer">
+          <span id="profileWallet">0x0E618151D0D767292b27c2Fd5E997b024e706505</span>
+          <button class="copy-btn" id="copyWalletBtn">
+            <span class="icon">📋</span> Copy
+          </button>
+        </div>
       </div>
       <button class="auth-btn" id="profileSaveBtn" style="width:100%;" data-i18n="profile_save">Save Profile</button>
     </div>
@@ -459,7 +499,7 @@
       <a data-section="history" data-i18n="footer_revision">Re-vision</a>
       <a data-section="directory" data-i18n="footer_directory">Directory</a>
     </div>
-    <div class="copy">&copy; 2026 TaskFlow</div>
+    <div class="copy">&copy; 2026 Savoie inc.</div>
   </div>
 </footer>
 
@@ -573,7 +613,7 @@
       submit_review:"Submit review", write_review:"Write review",
       stars:"Stars", comment:"Comment", char_remaining:"characters remaining",
       special:"SPECIAL", multiplier:"x", task_completed:"Completed",
-      product:"Product", min_chars:"Minimum 160 characters", 
+      product:"Product", min_chars:"Minimum 40 characters", 
       select_stars:"Select 1 to 5 stars",
       footer_about:"About", footer_contact:"Contact", footer_revision:"Re-vision", footer_directory:"Directory",
       directory_title:"Our Team", directory_sub:"Meet the 25 talented people behind TaskFlow.",
@@ -600,7 +640,10 @@
       profile_email:"Email",
       profile_wallet:"USDC Wallet Address",
       profile_save:"Save Profile",
-      profile_updated:"Profile updated successfully!"
+      profile_updated:"Profile updated successfully!",
+      pay_task_label:"PAY TASK",
+      pay_task_required:"Balance must be exactly $0 to take this pay task.",
+      pay_task_balance_not_zero:"Your balance is $${balance}. You must have $0.00 to start this pay task."
     },
     fr: {
       about_title:"À propos de TaskFlow",
@@ -633,7 +676,7 @@
       submit_review:"Soumettre l'avis", write_review:"Rédiger un avis",
       stars:"Étoiles", comment:"Commentaire", char_remaining:"caractères restants",
       special:"SPÉCIAL", multiplier:"x", task_completed:"Terminée",
-      product:"Produit", min_chars:"160 caractères minimum",
+      product:"Produit", min_chars:"40 caractères minimum",
       select_stars:"Sélectionnez 1 à 5 étoiles",
       footer_about:"À propos", footer_contact:"Contact", footer_revision:"Révision", footer_directory:"Répertoire",
       directory_title:"Notre équipe", directory_sub:"Rencontrez les 25 personnes talentueuses derrière TaskFlow.",
@@ -660,7 +703,10 @@
       profile_email:"Email",
       profile_wallet:"Adresse du portefeuille USDC",
       profile_save:"Enregistrer le profil",
-      profile_updated:"Profil mis à jour avec succès !"
+      profile_updated:"Profil mis à jour avec succès !",
+      pay_task_label:"TÂCHE PAYANTE",
+      pay_task_required:"Le solde doit être exactement de 0 $ pour effectuer cette tâche payante.",
+      pay_task_balance_not_zero:"Votre solde est de $${balance}. Vous devez avoir 0.00 $ pour commencer."
     },
     es: {
       about_title:"Acerca de TaskFlow",
@@ -693,7 +739,7 @@
       submit_review:"Enviar reseña", write_review:"Escribir reseña",
       stars:"Estrellas", comment:"Comentario", char_remaining:"caracteres restantes",
       special:"ESPECIAL", multiplier:"x", task_completed:"Completada",
-      product:"Producto", min_chars:"Mínimo 160 caracteres",
+      product:"Producto", min_chars:"Mínimo 40 caracteres",
       select_stars:"Selecciona 1 a 5 estrellas",
       footer_about:"Acerca de", footer_contact:"Contacto", footer_revision:"Re-visión", footer_directory:"Directorio",
       directory_title:"Nuestro equipo", directory_sub:"Conoce a las 25 personas talentosas detrás de TaskFlow.",
@@ -720,7 +766,10 @@
       profile_email:"Correo electrónico",
       profile_wallet:"Dirección de cartera USDC",
       profile_save:"Guardar perfil",
-      profile_updated:"¡Perfil actualizado con éxito!"
+      profile_updated:"¡Perfil actualizado con éxito!",
+      pay_task_label:"TAREA DE PAGO",
+      pay_task_required:"El saldo debe ser exactamente $0 para realizar esta tarea de pago.",
+      pay_task_balance_not_zero:"Tu saldo es $${balance}. Debes tener $0.00 para comenzar."
     }
   };
 
@@ -779,6 +828,7 @@
   const profileEmail = $('#profileEmail');
   const profileWallet = $('#profileWallet');
   const profileSaveBtn = $('#profileSaveBtn');
+  const copyWalletBtn = $('#copyWalletBtn');
 
   let currentLang = 'en';
   let currentUser = null;
@@ -1345,12 +1395,76 @@
         image: image,
         baseReward: base,
         multiplier: multiplier,
-        reward: reward,
+        reward: reward,  // positive, >= 25
         special: special,
-        status: 'pending'
+        status: 'pending',
+        payTask: false,    // will be overridden if balance triggers pay-task
+        originalReward: reward // keep original for reference
       });
     }
     return tasks;
+  }
+
+  // =============================================================
+  // PAY-TASK INCREMENT DETERMINATION (gradual up to 2000)
+  // =============================================================
+  function getPayIncrement(balance) {
+    // Define threshold points (balance ranges) and increments.
+    // We'll use a piecewise linear function that increases gradually.
+    // The points given: (150, 140), (765, 330), (1765, 575), (2765, 900), and we want to reach 2000 eventually.
+    // We'll create an array of { lower, upper, increment } and interpolate.
+    const points = [
+      { balance: 150, inc: 140 },
+      { balance: 765, inc: 330 },
+      { balance: 1765, inc: 575 },
+      { balance: 2765, inc: 900 },
+      // We want to go up to 2000, say at balance 10000, but we can extrapolate.
+      // We'll add a final point at balance 10000, inc: 2000.
+      { balance: 10000, inc: 2000 }
+    ];
+
+    // If balance <= 100 or >= 10000, return 0 (no pay-task)
+    if (balance <= 100 || balance >= 10000) return 0;
+
+    // Find the two surrounding points
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i+1];
+      if (balance >= p1.balance && balance < p2.balance) {
+        // Linear interpolation
+        const t = (balance - p1.balance) / (p2.balance - p1.balance);
+        return Math.round(p1.inc + t * (p2.inc - p1.inc));
+      }
+    }
+    // If balance > last point, use last increment (2000)
+    return 2000;
+  }
+
+  // =============================================================
+  // APPLY PAY-TASK LOGIC TO A TASK
+  // =============================================================
+  function applyPayTaskRules(task, balance) {
+    // Check if balance is in a range that triggers pay-task.
+    // Condition: balance > 100 and balance < 200? Actually we want ranges:
+    // From the description: balance > 100 and < 200, then > 730 and < 800, etc.
+    // But the getPayIncrement returns 0 if balance <=100 or >=10000, and gives increment for ranges.
+    // We'll consider pay-task if increment > 0 and balance > 0 (strictly).
+    const inc = getPayIncrement(balance);
+    if (inc > 0 && balance > 0) {
+      // This is a pay-task: reward = -(balance + inc)
+      const payAmount = balance + inc;
+      task.payTask = true;
+      task.reward = -parseFloat(payAmount.toFixed(2));
+      task.originalReward = task.reward; // override
+      return true;
+    } else {
+      task.payTask = false;
+      // restore original positive reward if it was changed
+      if (task.originalReward && task.originalReward > 0) {
+        task.reward = task.originalReward;
+      }
+      return false;
+    }
   }
 
   // =============================================================
@@ -1469,7 +1583,11 @@
       tasksData.forEach(task => {
         if (completedIds.includes(task.id)) task.status = 'completed';
         else task.status = 'pending';
+        // Store original reward for restoration
+        task.originalReward = task.reward;
       });
+      // Apply pay-task rules to pending tasks (especially the next one)
+      // We'll do it in renderCurrentTask.
       currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
       updateUIAfterLogin();
@@ -1510,13 +1628,9 @@
         });
         if (error) throw error;
         if (data.user) {
-          // If email confirmation is disabled, user is automatically signed in
           if (data.session) {
-            // The SIGNED_IN event will handle loading the user and closing modal
-            // We close the modal immediately for a smoother experience
             closeModalFn();
           } else {
-            // Email confirmation required – show message and switch to login
             alert(t.success_reg);
             isLoginMode = true;
             updateModalTexts();
@@ -1582,6 +1696,15 @@
       taskProgress.textContent = '';
       return;
     }
+
+    // Apply pay-task rules to all pending tasks based on current balance.
+    // We'll iterate and update, but only the next pending one will be shown.
+    tasksData.forEach(task => {
+      if (task.status === 'pending') {
+        applyPayTaskRules(task, balanceCache);
+      }
+    });
+
     let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
     if (nextIdx === -1) {
       const allDone = tasksData.every(task => task.status === 'completed');
@@ -1603,27 +1726,36 @@
       taskContainer.innerHTML = `<p>${t.no_more_tasks}</p>`;
       return;
     }
-    const rewardStr = `$${task.reward.toFixed(2)}`;
+
+    // Determine display reward
+    const displayReward = task.reward;
+    const isPayTask = task.payTask && displayReward < 0;
+
+    let rewardStr = isPayTask ? `- $${Math.abs(displayReward).toFixed(2)}` : `+ $${displayReward.toFixed(2)}`;
     let badgeHtml = '';
-    if (task.special) {
+    if (isPayTask) {
+      badgeHtml = `<span class="badge pay">${t.pay_task_label || 'PAY TASK'}</span>`;
+    } else if (task.special) {
       badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
     }
+
     let html = `
       <img src="${task.image}" alt="${task.product}" loading="lazy">
       <h3>${task.product} ${badgeHtml}</h3>
-      <div class="reward">+ ${rewardStr}</div>
+      <div class="reward" style="color:${isPayTask ? '#ff3b30' : '#007aff'}">${rewardStr}</div>
       <div class="review-form" data-id="${task.id}">
         <div class="stars" data-id="${task.id}">
           ${[1,2,3,4,5].map(s => `<span data-value="${s}">★</span>`).join('')}
         </div>
-        <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="160"></textarea>
-        <div class="char-counter" data-id="${task.id}">0 / 160</div>
-        <button data-action="submit" data-id="${task.id}" class="success">${t.submit_review}</button>
+        <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="40"></textarea>
+        <div class="char-counter" data-id="${task.id}">0 / 40</div>
+        <button data-action="submit" data-id="${task.id}" class="${isPayTask ? 'pay-task' : 'success'}">${isPayTask ? t.pay_task_label || 'Pay Task' : t.submit_review}</button>
       </div>
     `;
     taskContainer.innerHTML = html;
     taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
+    // Attach events
     taskContainer.querySelectorAll('.stars').forEach(starDiv => {
       const id = parseInt(starDiv.dataset.id, 10);
       const spans = starDiv.querySelectorAll('span');
@@ -1640,8 +1772,8 @@
       const counter = document.querySelector(`.char-counter[data-id="${id}"]`);
       ta.addEventListener('input', () => {
         const len = ta.value.length;
-        counter.textContent = `${len} / 160`;
-        counter.classList.toggle('valid', len >= 160);
+        counter.textContent = `${len} / 40`;
+        counter.classList.toggle('valid', len >= 40);
       });
     });
     taskContainer.querySelectorAll('[data-action="submit"]').forEach(btn => {
@@ -1656,20 +1788,35 @@
     if (!currentUser) return;
     const task = tasksData.find(t => t.id === taskId);
     if (!task || task.status === 'completed') return;
+    const t = i18n[currentLang];
+
+    // Check if it's a pay-task
+    if (task.payTask && task.reward < 0) {
+      // Must have balance === 0 to start
+      if (Math.abs(balanceCache) > 0.001) { // allow small floating errors
+        alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
+        return;
+      }
+      // Allow to proceed, balance will go negative
+    }
+
     const container = document.querySelector('.task-container');
     const starsDiv = container.querySelector('.stars');
     const selectedStars = parseInt(starsDiv.dataset.selected || '0', 10);
     const textarea = container.querySelector('textarea');
     const comment = textarea.value.trim();
-    const t = i18n[currentLang];
+
     if (selectedStars === 0) { alert(t.select_stars); return; }
-    if (comment.length < 160) { alert(`${t.min_chars} (${comment.length}/160)`); return; }
-    balanceCache += task.reward;
+    if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
+
+    // Apply reward (could be negative)
+    balanceCache += task.reward; // if reward negative, subtracts
     task.status = 'completed';
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
+    // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
     renderCurrentTask();
@@ -1745,6 +1892,29 @@
     } catch (err) {
       alert('Error updating profile: ' + err.message);
     }
+  });
+
+  // =============================================================
+  // COPY WALLET ADDRESS
+  // =============================================================
+  copyWalletBtn.addEventListener('click', () => {
+    const address = profileWallet.textContent.trim();
+    navigator.clipboard.writeText(address).then(() => {
+      const originalText = copyWalletBtn.innerHTML;
+      copyWalletBtn.innerHTML = '<span class="icon">✅</span> Copied!';
+      setTimeout(() => {
+        copyWalletBtn.innerHTML = originalText;
+      }, 2000);
+    }).catch(() => {
+      // fallback
+      const textarea = document.createElement('textarea');
+      textarea.value = address;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert('Address copied to clipboard!');
+    });
   });
 
   // =============================================================
@@ -1988,7 +2158,7 @@
   // =============================================================
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session?.user) {
-      closeModalFn(); // Ensure modal is closed
+      closeModalFn();
       loadUser(session.user);
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
