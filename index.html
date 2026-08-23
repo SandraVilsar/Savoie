@@ -537,7 +537,7 @@
   const USDC_WALLET = '0x0E618151D0D767292b27c2Fd5E997b024e706505';
 
   // =============================================================
-  // TRANSLATIONS
+  // TRANSLATIONS (i18n)
   // =============================================================
   const i18n = {
     en: {
@@ -723,15 +723,8 @@
   };
 
   // =============================================================
-  // STATE & DOM REFS
+  // DOM REFS
   // =============================================================
-  let currentLang = 'en';
-  let currentUser = null;
-  let balanceCache = 0;
-  let tasksData = [];
-  let completedIds = [];
-  let currentTaskIndex = 0;
-
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => document.querySelectorAll(s);
 
@@ -785,6 +778,12 @@
   const profileWallet = $('#profileWallet');
   const profileSaveBtn = $('#profileSaveBtn');
 
+  let currentLang = 'en';
+  let currentUser = null;
+  let balanceCache = 0;
+  let tasksData = [];
+  let completedIds = [];
+  let currentTaskIndex = 0;
   let isLoginMode = true;
 
   // =============================================================
@@ -819,7 +818,7 @@
   ];
 
   // =============================================================
-  // 500 ARTICLES (complete list)
+  // 500 ARTICLES WITH CORRECT IMAGE LINKS (from CSV)
   // =============================================================
   const articlesData = [
     { name: "Wireless Headphones: Buying Guide", image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Toxxel_Wireless_Headphones.jpg" },
@@ -1325,12 +1324,12 @@
   ];
 
   // =============================================================
-  // GENERATE TASKS (reward at least 25.00)
+  // GENERATE TASKS (500) with reward >= 25.00
   // =============================================================
   function generateTasks() {
     const tasks = [];
     for (let i = 0; i < articlesData.length; i++) {
-      const base = parseFloat((Math.floor(Math.random() * 26) + 25) / 10);
+      const base = parseFloat((Math.floor(Math.random() * 26) + 25) / 10); // 25.0 to 50.0
       let multiplier = 1;
       let special = false;
       if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
@@ -1353,34 +1352,65 @@
   }
 
   // =============================================================
-  // SUPABASE AUTH
+  // AUTH FUNCTIONS
   // =============================================================
-  async function handleAuth() {
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
-    if (!email || !password) { alert('Please fill in all fields.'); return; }
+  function closeModalFn() {
+    modal.classList.remove('open');
+  }
+
+  function openModal() {
+    isLoginMode = true;
+    updateModalTexts();
+    authForm.reset();
+    modal.classList.add('open');
+  }
+
+  function updateModalTexts() {
     const t = i18n[currentLang];
-    try {
-      if (isLoginMode) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        await loadUser(data.user);
-        closeModalFn();
-      } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        if (data.user) {
-          await supabase.auth.updateUser({ data: { full_name: '' } });
-          alert(t.success_reg);
-          isLoginMode = true;
-          updateModalTexts();
-          authForm.reset();
-        }
-      }
-    } catch (err) {
-      alert(t.invalid_creds);
-      console.error(err);
+    if (isLoginMode) {
+      modalTitle.textContent = t.signin;
+      modalSub.textContent = t.signin_sub;
+      authSubmitBtn.textContent = t.signin;
+      switchText.textContent = t.switch_register;
+      switchAction.textContent = t.signup;
+    } else {
+      modalTitle.textContent = t.signup;
+      modalSub.textContent = t.signup_sub;
+      authSubmitBtn.textContent = t.signup;
+      switchText.textContent = t.switch_login;
+      switchAction.textContent = t.signin;
     }
+  }
+
+  function updateAuthButtons() {
+    const t = i18n[currentLang];
+    if (currentUser) {
+      authBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      logoutBtn.textContent = t.logout;
+      navDashboard.style.display = 'inline';
+      navProfile.style.display = 'inline';
+    } else {
+      authBtn.style.display = 'inline-block';
+      authBtn.textContent = t.signin;
+      logoutBtn.style.display = 'none';
+      navDashboard.style.display = 'none';
+      navProfile.style.display = 'none';
+    }
+  }
+
+  function showAuthScreen() {
+    authBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+    navDashboard.style.display = 'none';
+    navProfile.style.display = 'none';
+  }
+
+  function showDashboardUI() {
+    authBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+    navDashboard.style.display = 'inline';
+    navProfile.style.display = 'inline';
   }
 
   async function loadUser(user) {
@@ -1414,155 +1444,48 @@
     showSection('about');
   }
 
-  function showAuthScreen() {
-    authBtn.style.display = 'inline-block';
-    logoutBtn.style.display = 'none';
-    navDashboard.style.display = 'none';
-    navProfile.style.display = 'none';
-  }
-
-  function showDashboardUI() {
-    authBtn.style.display = 'none';
-    logoutBtn.style.display = 'inline-block';
-    navDashboard.style.display = 'inline';
-    navProfile.style.display = 'inline';
-  }
-
-  authBtn.addEventListener('click', () => { isLoginMode = true; updateModalTexts(); authForm.reset(); modal.classList.add('open'); });
-  closeModal.addEventListener('click', closeModalFn);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFn(); });
-  switchAction.addEventListener('click', () => { isLoginMode = !isLoginMode; updateModalTexts(); });
-
-  authForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    handleAuth();
-  });
-
-  logoutBtn.addEventListener('click', logoutUser);
-
-  profileSaveBtn.addEventListener('click', async () => {
-    if (!currentUser) return;
-    const name = profileName.value.trim();
-    if (!name) { alert('Please enter a name.'); return; }
+  async function handleAuth() {
+    const email = authEmail.value.trim();
+    const password = authPassword.value.trim();
+    if (!email || !password) { alert('Please fill in all fields.'); return; }
+    const t = i18n[currentLang];
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        data: { full_name: name }
-      });
-      if (error) throw error;
-      currentUser = data.user;
-      alert(i18n[currentLang].profile_updated);
-    } catch (err) {
-      alert('Error updating profile: ' + err.message);
-    }
-  });
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      loadUser(session.user);
-    } else if (event === 'SIGNED_OUT') {
-      currentUser = null;
-      showAuthScreen();
-      showSection('about');
-    }
-  });
-
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    await loadUser(session.user);
-  } else {
-    showAuthScreen();
-    showSection('about');
-  }
-
-  // =============================================================
-  // LANGUAGE
-  // =============================================================
-  function detectLanguage() {
-    const l = (navigator.language || navigator.languages[0] || 'en').split('-')[0];
-    return ['fr','es'].includes(l) ? l : 'en';
-  }
-
-  function applyLanguage(lang) {
-    if (!i18n[lang]) lang = 'en';
-    currentLang = lang;
-    langBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.dataset.i18n;
-      if (i18n[lang] && i18n[lang][key] !== undefined) {
-        if (key === 'about_long') el.innerHTML = i18n[lang][key];
-        else el.textContent = i18n[lang][key];
+      if (isLoginMode) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        await loadUser(data.user);
+        closeModalFn();
+      } else {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        if (data.user) {
+          await supabase.auth.updateUser({ data: { full_name: '' } });
+          alert(t.success_reg);
+          isLoginMode = true;
+          updateModalTexts();
+          authForm.reset();
+        }
       }
-    });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const key = el.dataset.i18nPlaceholder;
-      if (i18n[lang] && i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
-    });
-    updateModalTexts();
+    } catch (err) {
+      alert(t.invalid_creds);
+      console.error(err);
+    }
+  }
+
+  // =============================================================
+  // UI UPDATE FUNCTIONS
+  // =============================================================
+  function updateBalanceDisplay() { balanceDisplay.textContent = `$${balanceCache.toFixed(2)}`; }
+  function updateCompletedCount() { completedCount.textContent = completedIds.length; }
+  function updateUIAfterLogin() {
     updateAuthButtons();
-    renderTeam();
+    updateBalanceDisplay();
+    updateCompletedCount();
     renderCurrentTask();
-    document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
-    document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
-    document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
-    profileSaveBtn.textContent = i18n[lang].profile_save;
-    document.querySelector('#section-profile .field label[data-i18n]').forEach(el => {
-      const key = el.dataset.i18n;
-      if (i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
-    });
-  }
-
-  function updateModalTexts() {
-    const t = i18n[currentLang];
-    if (isLoginMode) {
-      modalTitle.textContent = t.signin; modalSub.textContent = t.signin_sub;
-      authSubmitBtn.textContent = t.signin; switchText.textContent = t.switch_register;
-      switchAction.textContent = t.signup;
-    } else {
-      modalTitle.textContent = t.signup; modalSub.textContent = t.signup_sub;
-      authSubmitBtn.textContent = t.signup; switchText.textContent = t.switch_login;
-      switchAction.textContent = t.signin;
-    }
-  }
-
-  function updateAuthButtons() {
-    const t = i18n[currentLang];
-    if (currentUser) {
-      authBtn.style.display = 'none';
-      logoutBtn.style.display = 'inline-block';
-      logoutBtn.textContent = t.logout;
-      navDashboard.style.display = 'inline';
-      navProfile.style.display = 'inline';
-    } else {
-      authBtn.style.display = 'inline-block';
-      authBtn.textContent = t.signin;
-      logoutBtn.style.display = 'none';
-      navDashboard.style.display = 'none';
-      navProfile.style.display = 'none';
-    }
   }
 
   // =============================================================
-  // NAVIGATION
-  // =============================================================
-  function showSection(id) {
-    Object.keys(sections).forEach(k => sections[k].classList.toggle('active-section', k === id));
-    navLinks.forEach(link => {
-      const s = link.dataset.section;
-      link.style.fontWeight = (s === id) ? '600' : '400';
-      link.style.opacity = (s === id) ? '1' : '0.7';
-    });
-  }
-
-  navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      const id = link.dataset.section;
-      if ((id === 'dashboard' || id === 'profile') && !currentUser) { openModal(); return; }
-      showSection(id);
-    });
-  });
-
-  // =============================================================
-  // RENDER TEAM
+  // RENDER FUNCTIONS
   // =============================================================
   function renderTeam() {
     let html = '';
@@ -1578,9 +1501,6 @@
     teamGrid.innerHTML = html;
   }
 
-  // =============================================================
-  // RENDER TASK
-  // =============================================================
   function renderCurrentTask() {
     const t = i18n[currentLang];
     if (!currentUser) {
@@ -1682,24 +1602,106 @@
     renderCurrentTask();
   }
 
-  function updateBalanceDisplay() { balanceDisplay.textContent = `$${balanceCache.toFixed(2)}`; }
-  function updateCompletedCount() { completedCount.textContent = completedIds.length; }
+  // =============================================================
+  // NAVIGATION
+  // =============================================================
+  function showSection(id) {
+    Object.keys(sections).forEach(k => sections[k].classList.toggle('active-section', k === id));
+    navLinks.forEach(link => {
+      const s = link.dataset.section;
+      link.style.fontWeight = (s === id) ? '600' : '400';
+      link.style.opacity = (s === id) ? '1' : '0.7';
+    });
+  }
 
   // =============================================================
-  // WITHDRAW
+  // LANGUAGE
   // =============================================================
-  function openWithdrawModal() {
+  function detectLanguage() {
+    const l = (navigator.language || navigator.languages[0] || 'en').split('-')[0];
+    return ['fr','es'].includes(l) ? l : 'en';
+  }
+
+  function applyLanguage(lang) {
+    if (!i18n[lang]) lang = 'en';
+    currentLang = lang;
+    langBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (i18n[lang] && i18n[lang][key] !== undefined) {
+        if (key === 'about_long') el.innerHTML = i18n[lang][key];
+        else el.textContent = i18n[lang][key];
+      }
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.dataset.i18nPlaceholder;
+      if (i18n[lang] && i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
+    });
+    updateModalTexts();
+    updateAuthButtons();
+    renderTeam();
+    renderCurrentTask();
+    document.querySelector('#withdrawModal h2').textContent = i18n[lang].withdraw_title;
+    document.querySelector('#withdrawModal .sub').textContent = i18n[lang].withdraw_sub;
+    document.querySelector('#withdrawModal button[type="submit"]').textContent = i18n[lang].withdraw_submit;
+    profileSaveBtn.textContent = i18n[lang].profile_save;
+    document.querySelectorAll('#section-profile .field label[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (i18n[lang] && i18n[lang][key]) el.textContent = i18n[lang][key];
+    });
+  }
+
+  // =============================================================
+  // EVENT LISTENERS
+  // =============================================================
+  // Auth
+  authBtn.addEventListener('click', openModal);
+  closeModal.addEventListener('click', closeModalFn);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModalFn(); });
+  switchAction.addEventListener('click', () => {
+    isLoginMode = !isLoginMode;
+    updateModalTexts();
+  });
+  authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleAuth();
+  });
+  logoutBtn.addEventListener('click', logoutUser);
+
+  // Profile
+  profileSaveBtn.addEventListener('click', async () => {
+    if (!currentUser) return;
+    const name = profileName.value.trim();
+    if (!name) { alert('Please enter a name.'); return; }
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: { full_name: name }
+      });
+      if (error) throw error;
+      currentUser = data.user;
+      alert(i18n[currentLang].profile_updated);
+    } catch (err) {
+      alert('Error updating profile: ' + err.message);
+    }
+  });
+
+  // Navigation
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const id = link.dataset.section;
+      if ((id === 'dashboard' || id === 'profile') && !currentUser) { openModal(); return; }
+      showSection(id);
+    });
+  });
+
+  // Withdraw
+  withdrawBtn.addEventListener('click', () => {
     if (!currentUser) { alert('Please sign in first.'); return; }
     withdrawModal.classList.add('open');
     withdrawForm.reset();
-  }
-  function closeWithdrawModalFn() {
-    withdrawModal.classList.remove('open');
-  }
-  withdrawBtn.addEventListener('click', openWithdrawModal);
-  closeWithdrawModal.addEventListener('click', closeWithdrawModalFn);
-  withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) closeWithdrawModalFn(); });
-
+  });
+  closeWithdrawModal.addEventListener('click', () => { withdrawModal.classList.remove('open'); });
+  withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) withdrawModal.classList.remove('open'); });
   withdrawForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const bank = bankName.value.trim();
@@ -1734,13 +1736,11 @@
       .replace('${institution}', institution)
       .replace('${swift}', swift);
     alert(successMsg);
-    closeWithdrawModalFn();
+    withdrawModal.classList.remove('open');
   });
 
-  // =============================================================
-  // CONTACT FORM
-  // =============================================================
-  async function sendContactEmail(e) {
+  // Contact
+  contactSubmit.addEventListener('click', async (e) => {
     e.preventDefault();
     const name = contactName.value.trim();
     const email = contactEmail.value.trim();
@@ -1784,8 +1784,7 @@
       statusEl.className = '';
       statusEl.textContent = '';
     }, 5000);
-  }
-  contactSubmit.addEventListener('click', sendContactEmail);
+  });
 
   // =============================================================
   // CHAT WIDGET
@@ -1832,7 +1831,6 @@
         .select('*')
         .eq('token', token)
         .order('created_at', { ascending: true });
-
       if (error) throw error;
       renderChatMessages(data);
       chatStatus.textContent = 'Connected';
@@ -1861,22 +1859,18 @@
   async function sendChatMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
-
     chatSendBtn.disabled = true;
     chatStatus.textContent = 'Sending...';
-
     try {
       const response = await fetch(EDGE_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, message: text })
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to send');
       }
-
       chatInput.value = '';
       chatStatus.textContent = 'Sent!';
       await loadChatMessages();
@@ -1923,6 +1917,19 @@
   }
 
   // =============================================================
+  // AUTH STATE OBSERVER
+  // =============================================================
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      loadUser(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      showAuthScreen();
+      showSection('about');
+    }
+  });
+
+  // =============================================================
   // INIT
   // =============================================================
   tasksData = generateTasks();
@@ -1934,6 +1941,14 @@
   });
 
   renderTeam();
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    await loadUser(session.user);
+  } else {
+    showAuthScreen();
+    showSection('about');
+  }
 
   console.log('Chat initialized with token:', token);
 </script>
