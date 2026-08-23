@@ -140,6 +140,18 @@
     .task-container .badge.x3 { background:#34c759; }
     .task-container .badge.x4 { background:#af52de; }
     .task-container .badge.pay { background:#ff3b30; }
+    .task-container .pay-info {
+      background:#fff5f5;
+      border:1px solid #ff3b30;
+      border-radius:12px;
+      padding:10px 16px;
+      margin:8px 0;
+      font-size:0.9rem;
+      color:#1d1d1f;
+      width:100%;
+      max-width:400px;
+    }
+    .task-container .pay-info strong { color:#ff3b30; }
     .review-form {
       width:100%;
       margin-top:20px; padding-top:20px; border-top:1px solid #e8e8ed;
@@ -156,6 +168,7 @@
     .review-form .char-counter.valid { color:#34c759; }
     .review-form button { background:#34c759; color:#fff; padding:10px 36px; border-radius:980px; font-weight:600; }
     .review-form button.pay-task { background:#ff3b30; }
+    .review-form button.pay-task:disabled { background:#d2d2d7; cursor:not-allowed; }
     .task-progress { margin-top:12px; font-size:0.9rem; color:#86868b; }
 
     #withdrawModal .modal-box { max-width:520px; }
@@ -643,8 +656,9 @@
       profile_save:"Save Profile",
       profile_updated:"Profile updated successfully!",
       pay_task_label:"PAY TASK",
-      pay_task_required:"Balance must be exactly $0 to take this pay task.",
-      pay_task_balance_not_zero:"Your balance is $${balance}. You must have $0.00 to start this pay task."
+      pay_task_required:"Balance must be exactly $0 to start this pay task. Please withdraw your balance to zero first.",
+      pay_task_balance_not_zero:"Your balance is $${balance}. You must have $0.00 to start this pay task. Use the Withdraw button to reset your balance.",
+      pay_task_info:"You must pay <strong>$${payAmount}</strong> to unlock this task (balance will be set to zero). After completing, you earn <strong>$${reward}</strong>."
     },
     fr: {
       about_title:"À propos de TaskFlow",
@@ -706,8 +720,9 @@
       profile_save:"Enregistrer le profil",
       profile_updated:"Profil mis à jour avec succès !",
       pay_task_label:"TÂCHE PAYANTE",
-      pay_task_required:"Le solde doit être exactement de 0 $ pour effectuer cette tâche payante.",
-      pay_task_balance_not_zero:"Votre solde est de $${balance}. Vous devez avoir 0.00 $ pour commencer."
+      pay_task_required:"Le solde doit être exactement de 0 $ pour commencer. Retirez votre solde à zéro d'abord.",
+      pay_task_balance_not_zero:"Votre solde est de $${balance}. Vous devez avoir 0.00 $ pour commencer. Utilisez le bouton Retirer.",
+      pay_task_info:"Vous devez payer <strong>$${payAmount}</strong> pour débloquer cette tâche (solde remis à zéro). Après avoir terminé, vous gagnez <strong>$${reward}</strong>."
     },
     es: {
       about_title:"Acerca de TaskFlow",
@@ -769,8 +784,9 @@
       profile_save:"Guardar perfil",
       profile_updated:"¡Perfil actualizado con éxito!",
       pay_task_label:"TAREA DE PAGO",
-      pay_task_required:"El saldo debe ser exactamente $0 para realizar esta tarea de pago.",
-      pay_task_balance_not_zero:"Tu saldo es $${balance}. Debes tener $0.00 para comenzar."
+      pay_task_required:"El saldo debe ser exactamente $0 para comenzar. Retira tu saldo a cero primero.",
+      pay_task_balance_not_zero:"Tu saldo es $${balance}. Debes tener $0.00 para comenzar. Usa el botón Retirar.",
+      pay_task_info:"Debes pagar <strong>$${payAmount}</strong> para desbloquear esta tarea (saldo a cero). Después de completar, ganas <strong>$${reward}</strong>."
     }
   };
 
@@ -1400,50 +1416,56 @@
         special: special,
         status: 'pending',
         payTask: false,
-        originalReward: reward
+        originalReward: reward,
+        payAmount: 0
       });
     }
     return tasks;
   }
 
   // =============================================================
-  // PAY-TASK INCREMENT DETERMINATION (gradual up to 2000)
+  // PAY-TASK DATA – points for interpolation
   // =============================================================
-  function getPayIncrement(balance) {
-    const points = [
-      { balance: 150, inc: 140 },
-      { balance: 765, inc: 330 },
-      { balance: 1765, inc: 575 },
-      { balance: 2765, inc: 900 },
-      { balance: 10000, inc: 2000 }
-    ];
-    if (balance <= 100 || balance >= 10000) return 0;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p1 = points[i];
-      const p2 = points[i+1];
+  const payPoints = [
+    { balance: 150, reward: 315, payAmount: 140 },
+    { balance: 550, reward: 742, payAmount: 330 },
+    { balance: 1100, reward: 1294, payAmount: 575 },
+    { balance: 1800, reward: 2025, payAmount: 900 },
+    { balance: 3500, reward: 4000, payAmount: 2000 } // extrapolate
+  ];
+
+  function getPayTaskData(balance) {
+    // Return { reward, payAmount } if balance is in a valid range, else null
+    // We'll trigger when balance is between 100 and 5000
+    if (balance < 100 || balance > 5000) return null;
+    // Find interpolation interval
+    for (let i = 0; i < payPoints.length - 1; i++) {
+      const p1 = payPoints[i];
+      const p2 = payPoints[i+1];
       if (balance >= p1.balance && balance < p2.balance) {
         const t = (balance - p1.balance) / (p2.balance - p1.balance);
-        return Math.round(p1.inc + t * (p2.inc - p1.inc));
+        const reward = p1.reward + t * (p2.reward - p1.reward);
+        const payAmount = p1.payAmount + t * (p2.payAmount - p1.payAmount);
+        return {
+          reward: parseFloat(reward.toFixed(2)),
+          payAmount: parseFloat(payAmount.toFixed(2))
+        };
       }
     }
-    return 2000;
-  }
-
-  function applyPayTaskRules(task, balance) {
-    const inc = getPayIncrement(balance);
-    if (inc > 0 && balance > 0) {
-      const payAmount = balance + inc;
-      task.payTask = true;
-      task.reward = -parseFloat(payAmount.toFixed(2));
-      task.originalReward = task.reward;
-      return true;
-    } else {
-      task.payTask = false;
-      if (task.originalReward && task.originalReward > 0) {
-        task.reward = task.originalReward;
-      }
-      return false;
+    // If beyond last point, use last point
+    if (balance >= payPoints[payPoints.length-1].balance) {
+      const last = payPoints[payPoints.length-1];
+      // Extrapolate: keep same slope as last segment
+      const prev = payPoints[payPoints.length-2];
+      const t = (balance - prev.balance) / (last.balance - prev.balance);
+      const reward = prev.reward + t * (last.reward - prev.reward);
+      const payAmount = prev.payAmount + t * (last.payAmount - prev.payAmount);
+      return {
+        reward: parseFloat(reward.toFixed(2)),
+        payAmount: parseFloat(payAmount.toFixed(2))
+      };
     }
+    return null;
   }
 
   // =============================================================
@@ -1663,12 +1685,9 @@
       return;
     }
 
-    tasksData.forEach(task => {
-      if (task.status === 'pending') {
-        applyPayTaskRules(task, balanceCache);
-      }
-    });
-
+    // Determine if current balance triggers a pay-task
+    const payData = getPayTaskData(balanceCache);
+    // Find next pending task
     let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
     if (nextIdx === -1) {
       const allDone = tasksData.every(task => task.status === 'completed');
@@ -1691,13 +1710,40 @@
       return;
     }
 
-    const displayReward = task.reward;
-    const isPayTask = task.payTask && displayReward < 0;
+    // Apply pay-task override if applicable
+    let isPayTask = false;
+    let payAmount = 0;
+    if (payData) {
+      // Override task reward and mark as pay-task
+      task.reward = payData.reward;
+      payAmount = payData.payAmount;
+      task.payTask = true;
+      task.payAmount = payAmount;
+      isPayTask = true;
+    } else {
+      // Ensure task has its original reward and not a pay-task
+      if (task.originalReward > 0) {
+        task.reward = task.originalReward;
+      }
+      task.payTask = false;
+      task.payAmount = 0;
+      isPayTask = false;
+    }
 
-    let rewardStr = isPayTask ? `- $${Math.abs(displayReward).toFixed(2)}` : `+ $${displayReward.toFixed(2)}`;
+    const displayReward = task.reward;
+    let rewardStr = `+ $${displayReward.toFixed(2)}`;
     let badgeHtml = '';
+    let payInfoHtml = '';
     if (isPayTask) {
       badgeHtml = `<span class="badge pay">${t.pay_task_label || 'PAY TASK'}</span>`;
+      // Show pay info
+      payInfoHtml = `<div class="pay-info">${t.pay_task_info.replace('${payAmount}', payAmount.toFixed(2)).replace('${reward}', displayReward.toFixed(2))}</div>`;
+      // Check if balance is zero
+      const canStart = Math.abs(balanceCache) < 0.001;
+      if (!canStart) {
+        // Show note that balance must be zero
+        payInfoHtml += `<div style="color:#ff3b30; font-weight:500; margin-top:4px;">${t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2))}</div>`;
+      }
     } else if (task.special) {
       badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
     }
@@ -1706,18 +1752,20 @@
       <img src="${task.image}" alt="${task.product}" loading="lazy">
       <h3>${task.product} ${badgeHtml}</h3>
       <div class="reward" style="color:${isPayTask ? '#ff3b30' : '#007aff'}">${rewardStr}</div>
+      ${payInfoHtml}
       <div class="review-form" data-id="${task.id}">
         <div class="stars" data-id="${task.id}">
           ${[1,2,3,4,5].map(s => `<span data-value="${s}">★</span>`).join('')}
         </div>
         <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="40"></textarea>
         <div class="char-counter" data-id="${task.id}">0 / 40</div>
-        <button data-action="submit" data-id="${task.id}" class="${isPayTask ? 'pay-task' : 'success'}">${isPayTask ? t.pay_task_label || 'Pay Task' : t.submit_review}</button>
+        <button data-action="submit" data-id="${task.id}" class="${isPayTask ? 'pay-task' : 'success'}" ${isPayTask && Math.abs(balanceCache) > 0.001 ? 'disabled' : ''}>${isPayTask ? t.pay_task_label || 'Pay Task' : t.submit_review}</button>
       </div>
     `;
     taskContainer.innerHTML = html;
     taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
+    // Attach events
     taskContainer.querySelectorAll('.stars').forEach(starDiv => {
       const id = parseInt(starDiv.dataset.id, 10);
       const spans = starDiv.querySelectorAll('span');
@@ -1752,7 +1800,8 @@
     if (!task || task.status === 'completed') return;
     const t = i18n[currentLang];
 
-    if (task.payTask && task.reward < 0) {
+    // If pay-task, check balance is zero
+    if (task.payTask) {
       if (Math.abs(balanceCache) > 0.001) {
         alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
         return;
@@ -1768,12 +1817,14 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
+    // Apply reward (for pay-task, balance is already 0, so new balance = reward)
     balanceCache += task.reward;
     task.status = 'completed';
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
+    // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
     renderCurrentTask();
