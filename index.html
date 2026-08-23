@@ -138,7 +138,6 @@
       padding:4px 14px; border-radius:40px; display:inline-block;
     }
     .task-container .badge.x3 { background:#34c759; }
-    .task-container .badge.x4 { background:#af52de; }
     .task-container .badge.pay { background:#f0a500; color:#fff; }
     .task-container .pay-info {
       background:#fff9e6;
@@ -612,7 +611,7 @@
   const USDC_WALLET = '0x0E618151D0D767292b27c2Fd5E997b024e706505';
 
   // =============================================================
-  // TRANSLATIONS (i18n) – full version with expanded history & pay-task messages
+  // TRANSLATIONS (i18n)
   // =============================================================
   const i18n = {
     en: {
@@ -676,7 +675,7 @@
       profile_updated:"Profile updated successfully!",
       pay_task_label:"✨ SPECIAL TASK",
       pay_task_requirement:"To unlock this task, your balance must be exactly <strong>$0.00</strong>.",
-      pay_task_withdraw_instruction:"Please use the <strong>Withdraw</strong> button to reset your balance to zero.",
+      pay_task_wallet_instruction:"Please use your <strong>USDC Wallet Address</strong> (shown in your Profile) to deposit funds and reset your balance to zero.",
       pay_task_balance_not_zero:"Your current balance is <strong>$${balance}</strong>. You must have $0.00 to start this task.",
       pay_task_info:"After completing this task, you will earn <strong>$${reward}</strong>."
     },
@@ -741,7 +740,7 @@
       profile_updated:"Profil mis à jour avec succès !",
       pay_task_label:"✨ TÂCHE SPÉCIALE",
       pay_task_requirement:"Pour débloquer cette tâche, votre solde doit être exactement de <strong>0,00 $</strong>.",
-      pay_task_withdraw_instruction:"Veuillez utiliser le bouton <strong>Retirer</strong> pour remettre votre solde à zéro.",
+      pay_task_wallet_instruction:"Veuillez utiliser votre <strong>adresse de portefeuille USDC</strong> (affichée dans votre Profil) pour déposer des fonds et remettre votre solde à zéro.",
       pay_task_balance_not_zero:"Votre solde actuel est de <strong>$${balance}</strong>. Vous devez avoir 0,00 $ pour commencer.",
       pay_task_info:"Après avoir terminé cette tâche, vous gagnerez <strong>$${reward}</strong>."
     },
@@ -806,7 +805,7 @@
       profile_updated:"¡Perfil actualizado con éxito!",
       pay_task_label:"✨ TAREA ESPECIAL",
       pay_task_requirement:"Para desbloquear esta tarea, tu saldo debe ser exactamente <strong>$0.00</strong>.",
-      pay_task_withdraw_instruction:"Por favor, usa el botón <strong>Retirar</strong> para poner tu saldo a cero.",
+      pay_task_wallet_instruction:"Por favor, usa tu <strong>dirección de cartera USDC</strong> (mostrada en tu Perfil) para depositar fondos y poner tu saldo a cero.",
       pay_task_balance_not_zero:"Tu saldo actual es <strong>$${balance}</strong>. Debes tener $0.00 para comenzar.",
       pay_task_info:"Después de completar esta tarea, ganarás <strong>$${reward}</strong>."
     }
@@ -954,6 +953,7 @@
   let completedIds = [];
   let currentTaskIndex = 0;
   let isLoginMode = true;
+  let payTaskApplied = false;
 
   // =============================================================
   // TEAM DATA (25 members)
@@ -1493,7 +1493,7 @@
   ];
 
   // =============================================================
-  // GENERATE TASKS (500) with reward >= 25.00
+  // GENERATE TASKS (500) with reward >= 25.00 (only ×3 special)
   // =============================================================
   function generateTasks() {
     const tasks = [];
@@ -1501,8 +1501,8 @@
       const base = Math.floor(Math.random() * 26) + 25; // 25-50
       let multiplier = 1;
       let special = false;
+      // Only ×3 special (removed ×4)
       if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
-      else if ((i+1) % 11 === 0) { multiplier = 4; special = true; }
       const reward = parseFloat((base * multiplier).toFixed(2));
       const name = articlesData[i].name;
       const image = articlesData[i].image;
@@ -1524,41 +1524,25 @@
   }
 
   // =============================================================
-  // PAY-TASK DATA – points for interpolation
+  // PAY-TASK DATA – automatic balance update
   // =============================================================
-  const payPoints = [
-    { balance: 150, reward: 315, payAmount: 140 },
-    { balance: 550, reward: 742, payAmount: 330 },
-    { balance: 1100, reward: 1294, payAmount: 575 },
-    { balance: 1800, reward: 2025, payAmount: 900 },
-    { balance: 3500, reward: 4000, payAmount: 2000 }
+  const payRanges = [
+    { min: 150, max: 315, newBalance: -140, reward: 315 },
+    { min: 550, max: 742, newBalance: -330, reward: 742 },
+    { min: 1100, max: 1294, newBalance: -575, reward: 1294 },
+    { min: 1800, max: 2025, newBalance: -900, reward: 2025 },
+    { min: 3500, max: 4000, newBalance: -2000, reward: 4000 }
   ];
 
-  function getPayTaskData(balance) {
-    if (balance < 100 || balance > 5000) return null;
-    for (let i = 0; i < payPoints.length - 1; i++) {
-      const p1 = payPoints[i];
-      const p2 = payPoints[i+1];
-      if (balance >= p1.balance && balance < p2.balance) {
-        const t = (balance - p1.balance) / (p2.balance - p1.balance);
-        const reward = p1.reward + t * (p2.reward - p1.reward);
-        const payAmount = p1.payAmount + t * (p2.payAmount - p1.payAmount);
+  function checkAndApplyPayTask(balance) {
+    for (const range of payRanges) {
+      if (balance > range.min && balance < range.max) {
         return {
-          reward: parseFloat(reward.toFixed(2)),
-          payAmount: parseFloat(payAmount.toFixed(2))
+          newBalance: range.newBalance,
+          reward: range.reward,
+          payAmount: Math.abs(range.newBalance)
         };
       }
-    }
-    if (balance >= payPoints[payPoints.length-1].balance) {
-      const last = payPoints[payPoints.length-1];
-      const prev = payPoints[payPoints.length-2];
-      const t = (balance - prev.balance) / (last.balance - prev.balance);
-      const reward = prev.reward + t * (last.reward - prev.reward);
-      const payAmount = prev.payAmount + t * (last.payAmount - prev.payAmount);
-      return {
-        reward: parseFloat(reward.toFixed(2)),
-        payAmount: parseFloat(payAmount.toFixed(2))
-      };
     }
     return null;
   }
@@ -1694,6 +1678,7 @@
     completedIds = [];
     tasksData = [];
     currentTaskIndex = 0;
+    payTaskApplied = false;
     showAuthScreen();
     showSection('about');
   }
@@ -1780,8 +1765,17 @@
       return;
     }
 
-    // Determine if current balance triggers a pay-task
-    const payData = getPayTaskData(balanceCache);
+    // Check and apply pay-task logic (automatic balance update)
+    const payResult = checkAndApplyPayTask(balanceCache);
+    if (payResult && !payTaskApplied) {
+      balanceCache = payResult.newBalance;
+      payTaskApplied = true;
+      saveUserData();
+      updateBalanceDisplay();
+    } else if (!payResult) {
+      payTaskApplied = false;
+    }
+
     // Find next pending task
     let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
     if (nextIdx === -1) {
@@ -1805,50 +1799,49 @@
       return;
     }
 
-    // Apply pay-task override if applicable
-    let isPayTask = false;
+    // Determine if we're in a pay-task state (balance is negative)
+    const isPayTask = balanceCache < 0;
+    let displayReward = task.reward;
     let payAmount = 0;
-    if (payData) {
-      task.reward = payData.reward;
-      payAmount = payData.payAmount;
-      task.payTask = true;
-      task.payAmount = payAmount;
-      isPayTask = true;
-    } else {
-      if (task.originalReward > 0) {
-        task.reward = task.originalReward;
+
+    if (isPayTask) {
+      // Find which range we're in to get the reward and pay amount
+      for (const range of payRanges) {
+        if (balanceCache === range.newBalance) {
+          displayReward = range.reward;
+          payAmount = Math.abs(range.newBalance);
+          break;
+        }
       }
+      task.payTask = true;
+    } else {
       task.payTask = false;
-      task.payAmount = 0;
-      isPayTask = false;
+      displayReward = task.originalReward > 0 ? task.originalReward : task.reward;
     }
 
-    const displayReward = task.reward;
     let rewardStr = `+ $${displayReward.toFixed(2)}`;
     let badgeHtml = '';
     let payInfoHtml = '';
     if (isPayTask) {
       badgeHtml = `<span class="badge pay">${t.pay_task_label || '✨ SPECIAL TASK'}</span>`;
-      // Requirement message
       const requirement = t.pay_task_requirement;
-      const instruction = t.pay_task_withdraw_instruction;
-      const balanceMsg = balanceCache > 0.001 ? t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)) : '';
+      const walletInstruction = t.pay_task_wallet_instruction;
+      const balanceMsg = t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2));
       const earnMsg = t.pay_task_info.replace('${reward}', displayReward.toFixed(2));
 
       payInfoHtml = `
         <div class="pay-info">
           <div>${requirement}</div>
-          <div class="requirement">${instruction}</div>
-          ${balanceMsg ? `<div class="requirement" style="margin-top:4px;">${balanceMsg}</div>` : ''}
+          <div class="requirement">${walletInstruction}</div>
+          <div class="requirement" style="margin-top:4px;">${balanceMsg}</div>
           <div style="margin-top:6px;">${earnMsg}</div>
         </div>
       `;
     } else if (task.special) {
-      badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
+      badgeHtml = `<span class="badge x3">${t.special} ${t.multiplier}3</span>`;
     }
 
-    // Determine if submit button should be disabled
-    const isDisabled = isPayTask && Math.abs(balanceCache) > 0.001;
+    const isDisabled = isPayTask; // disabled when balance is negative
 
     let html = `
       <img src="${task.image}" alt="${task.product}" loading="lazy">
@@ -1902,12 +1895,10 @@
     if (!task || task.status === 'completed') return;
     const t = i18n[currentLang];
 
-    // If pay-task, check balance is zero
-    if (task.payTask) {
-      if (Math.abs(balanceCache) > 0.001) {
-        alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
-        return;
-      }
+    // If pay-task, balance must be zero to start
+    if (balanceCache < 0) {
+      alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
+      return;
     }
 
     const container = document.querySelector('.task-container');
@@ -1919,8 +1910,19 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
-    // Apply reward
-    balanceCache += task.reward;
+    // Determine reward (if pay-task, use the stored reward)
+    let reward = task.reward;
+    if (balanceCache === 0) {
+      // Check if we just came from a pay-task state
+      for (const range of payRanges) {
+        if (task.reward === range.reward) {
+          reward = range.reward;
+          break;
+        }
+      }
+    }
+
+    balanceCache += reward;
     task.status = 'completed';
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     saveUserData();
@@ -1928,9 +1930,10 @@
     updateCompletedCount();
 
     // If it was a pay-task, launch confetti!
-    if (task.payTask) {
+    if (task.payTask || reward >= 300) {
       launchConfetti(180);
     }
+    task.payTask = false;
 
     // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
@@ -1988,7 +1991,7 @@
       .replace('${swift}', swift);
     alert(successMsg);
     closeWithdrawModalFn();
-    // Re-render task to update button state (balance changed)
+    // Re-render task to update state
     renderCurrentTask();
   });
 
