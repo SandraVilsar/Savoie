@@ -1510,11 +1510,18 @@
         });
         if (error) throw error;
         if (data.user) {
-          alert(t.success_reg);
-          isLoginMode = true;
-          updateModalTexts();
-          authForm.reset();
-          // Profile will be created by the trigger
+          // If email confirmation is disabled, user is automatically signed in
+          if (data.session) {
+            // The SIGNED_IN event will handle loading the user and closing modal
+            // We close the modal immediately for a smoother experience
+            closeModalFn();
+          } else {
+            // Email confirmation required – show message and switch to login
+            alert(t.success_reg);
+            isLoginMode = true;
+            updateModalTexts();
+            authForm.reset();
+          }
         }
       }
     } catch (err) {
@@ -1977,10 +1984,11 @@
   }
 
   // =============================================================
-  // AUTH STATE OBSERVER
+  // AUTH STATE OBSERVER – close modal on sign‑in
   // =============================================================
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session?.user) {
+      closeModalFn(); // Ensure modal is closed
       loadUser(session.user);
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
