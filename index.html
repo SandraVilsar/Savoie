@@ -208,6 +208,7 @@
       padding:2px 8px;
       border-radius:40px;
       margin-left:8px;
+      font-weight:400;
     }
 
     footer {
@@ -477,7 +478,7 @@
         <input type="email" id="profileEmail" disabled style="background:#f1f1f4; color:#6e6e73;" />
       </div>
       <div class="field">
-        <label data-i18n="profile_wallet">USDC Wallet Address <span class="wallet-network">Ethereum</span></label>
+        <label for="profileWallet">USDC Wallet Address <span class="wallet-network">Ethereum</span></label>
         <div class="wallet" id="profileWalletContainer">
           <span id="profileWallet">0x0E618151D0D767292b27c2Fd5E997b024e706505</span>
           <button class="copy-btn" id="copyWalletBtn">
@@ -1381,7 +1382,8 @@
   function generateTasks() {
     const tasks = [];
     for (let i = 0; i < articlesData.length; i++) {
-      const base = parseFloat((Math.floor(Math.random() * 26) + 25) / 10); // 25.0 to 50.0
+      // Base reward between 25 and 50 (inclusive)
+      const base = Math.floor(Math.random() * 26) + 25; // 25-50
       let multiplier = 1;
       let special = false;
       if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
@@ -1395,11 +1397,11 @@
         image: image,
         baseReward: base,
         multiplier: multiplier,
-        reward: reward,  // positive, >= 25
+        reward: reward,
         special: special,
         status: 'pending',
-        payTask: false,    // will be overridden if balance triggers pay-task
-        originalReward: reward // keep original for reference
+        payTask: false,
+        originalReward: reward
       });
     }
     return tasks;
@@ -1409,57 +1411,35 @@
   // PAY-TASK INCREMENT DETERMINATION (gradual up to 2000)
   // =============================================================
   function getPayIncrement(balance) {
-    // Define threshold points (balance ranges) and increments.
-    // We'll use a piecewise linear function that increases gradually.
-    // The points given: (150, 140), (765, 330), (1765, 575), (2765, 900), and we want to reach 2000 eventually.
-    // We'll create an array of { lower, upper, increment } and interpolate.
     const points = [
       { balance: 150, inc: 140 },
       { balance: 765, inc: 330 },
       { balance: 1765, inc: 575 },
       { balance: 2765, inc: 900 },
-      // We want to go up to 2000, say at balance 10000, but we can extrapolate.
-      // We'll add a final point at balance 10000, inc: 2000.
       { balance: 10000, inc: 2000 }
     ];
-
-    // If balance <= 100 or >= 10000, return 0 (no pay-task)
     if (balance <= 100 || balance >= 10000) return 0;
-
-    // Find the two surrounding points
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
       const p2 = points[i+1];
       if (balance >= p1.balance && balance < p2.balance) {
-        // Linear interpolation
         const t = (balance - p1.balance) / (p2.balance - p1.balance);
         return Math.round(p1.inc + t * (p2.inc - p1.inc));
       }
     }
-    // If balance > last point, use last increment (2000)
     return 2000;
   }
 
-  // =============================================================
-  // APPLY PAY-TASK LOGIC TO A TASK
-  // =============================================================
   function applyPayTaskRules(task, balance) {
-    // Check if balance is in a range that triggers pay-task.
-    // Condition: balance > 100 and balance < 200? Actually we want ranges:
-    // From the description: balance > 100 and < 200, then > 730 and < 800, etc.
-    // But the getPayIncrement returns 0 if balance <=100 or >=10000, and gives increment for ranges.
-    // We'll consider pay-task if increment > 0 and balance > 0 (strictly).
     const inc = getPayIncrement(balance);
     if (inc > 0 && balance > 0) {
-      // This is a pay-task: reward = -(balance + inc)
       const payAmount = balance + inc;
       task.payTask = true;
       task.reward = -parseFloat(payAmount.toFixed(2));
-      task.originalReward = task.reward; // override
+      task.originalReward = task.reward;
       return true;
     } else {
       task.payTask = false;
-      // restore original positive reward if it was changed
       if (task.originalReward && task.originalReward > 0) {
         task.reward = task.originalReward;
       }
@@ -1529,7 +1509,6 @@
     navProfile.style.display = 'inline';
   }
 
-  // Load profile data from Supabase
   async function loadProfile(user) {
     if (!user) return null;
     const { data: profile, error } = await supabase
@@ -1541,7 +1520,6 @@
     if (error) {
       console.error('Error fetching profile:', error);
       if (error.code === 'PGRST116') {
-        // Profile doesn't exist – create one (fallback)
         const { error: insertError } = await supabase
           .from('profiles')
           .insert([{
@@ -1555,7 +1533,6 @@
           console.error('Failed to create profile:', insertError);
           return null;
         }
-        // Reload
         const { data: newProfile } = await supabase
           .from('profiles')
           .select('*')
@@ -1583,17 +1560,13 @@
       tasksData.forEach(task => {
         if (completedIds.includes(task.id)) task.status = 'completed';
         else task.status = 'pending';
-        // Store original reward for restoration
         task.originalReward = task.reward;
       });
-      // Apply pay-task rules to pending tasks (especially the next one)
-      // We'll do it in renderCurrentTask.
       currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
       updateUIAfterLogin();
       showSection('dashboard');
     } else {
-      // No profile – fallback, try again
       setTimeout(() => loadUser(user), 500);
     }
   }
@@ -1644,9 +1617,6 @@
     }
   }
 
-  // =============================================================
-  // SAVE USER DATA TO SUPABASE
-  // =============================================================
   async function saveUserData() {
     if (!currentUser) return;
     const { error } = await supabase
@@ -1660,9 +1630,6 @@
     if (error) console.error('Error saving user data:', error);
   }
 
-  // =============================================================
-  // UI UPDATE FUNCTIONS
-  // =============================================================
   function updateBalanceDisplay() { balanceDisplay.textContent = `$${balanceCache.toFixed(2)}`; }
   function updateCompletedCount() { completedCount.textContent = completedIds.length; }
   function updateUIAfterLogin() {
@@ -1697,8 +1664,6 @@
       return;
     }
 
-    // Apply pay-task rules to all pending tasks based on current balance.
-    // We'll iterate and update, but only the next pending one will be shown.
     tasksData.forEach(task => {
       if (task.status === 'pending') {
         applyPayTaskRules(task, balanceCache);
@@ -1727,7 +1692,6 @@
       return;
     }
 
-    // Determine display reward
     const displayReward = task.reward;
     const isPayTask = task.payTask && displayReward < 0;
 
@@ -1755,7 +1719,6 @@
     taskContainer.innerHTML = html;
     taskProgress.textContent = `Task ${currentTaskIndex+1} / ${tasksData.length} (${completedIds.length} completed)`;
 
-    // Attach events
     taskContainer.querySelectorAll('.stars').forEach(starDiv => {
       const id = parseInt(starDiv.dataset.id, 10);
       const spans = starDiv.querySelectorAll('span');
@@ -1790,14 +1753,11 @@
     if (!task || task.status === 'completed') return;
     const t = i18n[currentLang];
 
-    // Check if it's a pay-task
     if (task.payTask && task.reward < 0) {
-      // Must have balance === 0 to start
-      if (Math.abs(balanceCache) > 0.001) { // allow small floating errors
+      if (Math.abs(balanceCache) > 0.001) {
         alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
         return;
       }
-      // Allow to proceed, balance will go negative
     }
 
     const container = document.querySelector('.task-container');
@@ -1809,21 +1769,19 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
-    // Apply reward (could be negative)
-    balanceCache += task.reward; // if reward negative, subtracts
+    balanceCache += task.reward;
     task.status = 'completed';
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
-    // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
     renderCurrentTask();
   }
 
   // =============================================================
-  // WITHDRAW (with Supabase save)
+  // WITHDRAW
   // =============================================================
   function openWithdrawModal() {
     if (!currentUser) { alert('Please sign in first.'); return; }
@@ -1906,7 +1864,6 @@
         copyWalletBtn.innerHTML = originalText;
       }, 2000);
     }).catch(() => {
-      // fallback
       const textarea = document.createElement('textarea');
       textarea.value = address;
       document.body.appendChild(textarea);
@@ -1975,7 +1932,7 @@
   }
 
   // =============================================================
-  // CONTACT FORM (unchanged)
+  // CONTACT FORM
   // =============================================================
   contactSubmit.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -2024,7 +1981,7 @@
   });
 
   // =============================================================
-  // CHAT WIDGET (unchanged)
+  // CHAT WIDGET
   // =============================================================
   const TOKEN_KEY = 'chat_token';
   let token = localStorage.getItem(TOKEN_KEY);
@@ -2154,7 +2111,7 @@
   }
 
   // =============================================================
-  // AUTH STATE OBSERVER – close modal on sign‑in
+  // AUTH STATE OBSERVER
   // =============================================================
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session?.user) {
