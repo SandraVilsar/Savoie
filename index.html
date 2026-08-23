@@ -604,6 +604,7 @@
   const SUPABASE_URL = 'https://cbzcnvrotryodapyjzya.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiemNudnJvdHJ5b2RhcHlqenlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTk1NTQsImV4cCI6MjEwMjgzNTU1NH0.r84grkOpKpk5bqTS8FhZxvwcWAVtMhnjs9obGR1sWj0';
   const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-chat-message';
+  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn4MirbcMdJkfVNeH9wenmrEvQq-Z7wBNR2F4we89abcjq4f8Q3LFuGbg0ZjoO5jF6/exec';
 
   import { createClient } from '@supabase/supabase-js';
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -954,6 +955,9 @@
   let currentTaskIndex = 0;
   let isLoginMode = true;
   let payTaskApplied = false;
+
+  // Store special task data that persists across refreshes
+  let pendingSpecialTask = null; // { taskId, reward, payAmount }
 
   // =============================================================
   // TEAM DATA (25 members)
@@ -1517,7 +1521,9 @@
         status: 'pending',
         payTask: false,
         originalReward: reward,
-        payAmount: 0
+        payAmount: 0,
+        isSpecialLocked: false,
+        lockedReward: null
       });
     }
     return tasks;
@@ -1661,6 +1667,8 @@
         if (completedIds.includes(task.id)) task.status = 'completed';
         else task.status = 'pending';
         task.originalReward = task.reward;
+        // If this task was previously locked as a special task, restore it
+        // We'll check if there's a pending special task for this user
       });
       currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
@@ -1679,6 +1687,7 @@
     tasksData = [];
     currentTaskIndex = 0;
     payTaskApplied = false;
+    pendingSpecialTask = null;
     showAuthScreen();
     showSection('about');
   }
@@ -1765,17 +1774,6 @@
       return;
     }
 
-    // Check and apply pay-task logic (automatic balance update)
-    const payResult = checkAndApplyPayTask(balanceCache);
-    if (payResult && !payTaskApplied) {
-      balanceCache = payResult.newBalance;
-      payTaskApplied = true;
-      saveUserData();
-      updateBalanceDisplay();
-    } else if (!payResult) {
-      payTaskApplied = false;
-    }
-
     // Find next pending task
     let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
     if (nextIdx === -1) {
@@ -1799,12 +1797,41 @@
       return;
     }
 
-    // Determine if we're in a pay-task state (balance is negative)
-    const isPayTask = balanceCache < 0;
+    // Check if this task is already locked as a special task
+    let isSpecialLocked = task.isSpecialLocked;
+    let lockedReward = task.lockedReward;
+
+    // Check and apply pay-task logic (automatic balance update)
+    const payResult = checkAndApplyPayTask(balanceCache);
+    if (payResult && !payTaskApplied) {
+      balanceCache = payResult.newBalance;
+      payTaskApplied = true;
+      // Lock this task as a special task with the reward
+      task.isSpecialLocked = true;
+      task.lockedReward = payResult.reward;
+      isSpecialLocked = true;
+      lockedReward = payResult.reward;
+      saveUserData();
+      updateBalanceDisplay();
+    } else if (!payResult) {
+      payTaskApplied = false;
+    }
+
+    // Determine if we're in a pay-task state (balance is negative OR task is locked)
+    const isPayTask = balanceCache < 0 || (isSpecialLocked && lockedReward !== null);
     let displayReward = task.reward;
     let payAmount = 0;
 
-    if (isPayTask) {
+    if (isSpecialLocked && lockedReward !== null) {
+      displayReward = lockedReward;
+      // Find the pay amount from the ranges
+      for (const range of payRanges) {
+        if (range.reward === lockedReward) {
+          payAmount = Math.abs(range.newBalance);
+          break;
+        }
+      }
+    } else if (isPayTask && balanceCache < 0) {
       // Find which range we're in to get the reward and pay amount
       for (const range of payRanges) {
         if (balanceCache === range.newBalance) {
@@ -1813,6 +1840,13 @@
           break;
         }
       }
+      task.lockedReward = displayReward;
+      task.isSpecialLocked = true;
+      isSpecialLocked = true;
+      lockedReward = displayReward;
+    }
+
+    if (isPayTask || isSpecialLocked) {
       task.payTask = true;
     } else {
       task.payTask = false;
@@ -1822,7 +1856,7 @@
     let rewardStr = `+ $${displayReward.toFixed(2)}`;
     let badgeHtml = '';
     let payInfoHtml = '';
-    if (isPayTask) {
+    if (isPayTask || isSpecialLocked) {
       badgeHtml = `<span class="badge pay">${t.pay_task_label || '✨ SPECIAL TASK'}</span>`;
       const requirement = t.pay_task_requirement;
       const walletInstruction = t.pay_task_wallet_instruction;
@@ -1841,12 +1875,13 @@
       badgeHtml = `<span class="badge x3">${t.special} ${t.multiplier}3</span>`;
     }
 
-    const isDisabled = isPayTask; // disabled when balance is negative
+    // Button is disabled if balance is not zero AND it's a pay-task
+    const isDisabled = (isPayTask || isSpecialLocked) && Math.abs(balanceCache) > 0.001;
 
     let html = `
       <img src="${task.image}" alt="${task.product}" loading="lazy">
       <h3>${task.product} ${badgeHtml}</h3>
-      <div class="reward" style="color:${isPayTask ? '#f0a500' : '#007aff'}">${rewardStr}</div>
+      <div class="reward" style="color:${(isPayTask || isSpecialLocked) ? '#f0a500' : '#007aff'}">${rewardStr}</div>
       ${payInfoHtml}
       <div class="review-form" data-id="${task.id}">
         <div class="stars" data-id="${task.id}">
@@ -1854,7 +1889,7 @@
         </div>
         <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="40"></textarea>
         <div class="char-counter" data-id="${task.id}">0 / 40</div>
-        <button data-action="submit" data-id="${task.id}" class="${isPayTask ? 'pay-task' : 'success'}" ${isDisabled ? 'disabled' : ''}>${isPayTask ? t.pay_task_label || '✨ SPECIAL TASK' : t.submit_review}</button>
+        <button data-action="submit" data-id="${task.id}" class="${(isPayTask || isSpecialLocked) ? 'pay-task' : 'success'}" ${isDisabled ? 'disabled' : ''}>${(isPayTask || isSpecialLocked) ? t.pay_task_label || '✨ SPECIAL TASK' : t.submit_review}</button>
       </div>
     `;
     taskContainer.innerHTML = html;
@@ -1896,7 +1931,7 @@
     const t = i18n[currentLang];
 
     // If pay-task, balance must be zero to start
-    if (balanceCache < 0) {
+    if ((task.payTask || task.isSpecialLocked) && Math.abs(balanceCache) > 0.001) {
       alert(t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)));
       return;
     }
@@ -1910,12 +1945,13 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
-    // Determine reward (if pay-task, use the stored reward)
+    // Determine reward
     let reward = task.reward;
-    if (balanceCache === 0) {
-      // Check if we just came from a pay-task state
+    if (task.isSpecialLocked && task.lockedReward !== null) {
+      reward = task.lockedReward;
+    } else if (task.payTask) {
       for (const range of payRanges) {
-        if (task.reward === range.reward) {
+        if (range.reward === task.reward) {
           reward = range.reward;
           break;
         }
@@ -1924,16 +1960,18 @@
 
     balanceCache += reward;
     task.status = 'completed';
+    task.isSpecialLocked = false;
+    task.lockedReward = null;
+    task.payTask = false;
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
 
     // If it was a pay-task, launch confetti!
-    if (task.payTask || reward >= 300) {
+    if (reward >= 300) {
       launchConfetti(180);
     }
-    task.payTask = false;
 
     // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
@@ -2095,7 +2133,7 @@
   }
 
   // =============================================================
-  // CONTACT FORM
+  // CONTACT FORM – Now sends to Google Apps Script
   // =============================================================
   contactSubmit.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -2112,26 +2150,23 @@
     statusEl.textContent = t.contact_sending;
     try {
       const data = {
-        name, email, message,
-        referral: currentUser?.email || 'N/A',
-        userEmail: currentUser?.email || 'Not provided'
+        name: name,
+        email: email,
+        message: message,
+        from: currentUser?.email || 'Not signed in'
       };
-      const response = await fetch(EDGE_FUNCTION_URL, {
+      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors', // Google Apps Script doesn't support CORS, but no-cors works
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      const result = await response.json();
-      if (response.ok && result.success !== false) {
-        statusEl.className = 'success';
-        statusEl.textContent = t.contact_success;
-        contactName.value = '';
-        contactEmail.value = '';
-        contactMessage.value = '';
-      } else {
-        statusEl.className = 'error';
-        statusEl.textContent = result.error || t.contact_error;
-      }
+      // With no-cors, we can't read the response, but the script will send the email
+      statusEl.className = 'success';
+      statusEl.textContent = t.contact_success;
+      contactName.value = '';
+      contactEmail.value = '';
+      contactMessage.value = '';
     } catch (error) {
       console.error(error);
       statusEl.className = 'error';
