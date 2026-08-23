@@ -139,10 +139,10 @@
     }
     .task-container .badge.x3 { background:#34c759; }
     .task-container .badge.x4 { background:#af52de; }
-    .task-container .badge.pay { background:#ff3b30; }
+    .task-container .badge.pay { background:#f0a500; color:#fff; }
     .task-container .pay-info {
-      background:#fff5f5;
-      border:1px solid #ff3b30;
+      background:#fff9e6;
+      border:1px solid #f0a500;
       border-radius:12px;
       padding:10px 16px;
       margin:8px 0;
@@ -151,7 +151,12 @@
       width:100%;
       max-width:400px;
     }
-    .task-container .pay-info strong { color:#ff3b30; }
+    .task-container .pay-info strong { color:#f0a500; }
+    .task-container .pay-info .requirement {
+      color:#e67e22;
+      font-weight:500;
+      margin-top:4px;
+    }
     .review-form {
       width:100%;
       margin-top:20px; padding-top:20px; border-top:1px solid #e8e8ed;
@@ -167,7 +172,7 @@
     .review-form .char-counter { font-size:0.9rem; color:#86868b; }
     .review-form .char-counter.valid { color:#34c759; }
     .review-form button { background:#34c759; color:#fff; padding:10px 36px; border-radius:980px; font-weight:600; }
-    .review-form button.pay-task { background:#ff3b30; }
+    .review-form button.pay-task { background:#f0a500; color:#fff; }
     .review-form button.pay-task:disabled { background:#d2d2d7; cursor:not-allowed; }
     .task-progress { margin-top:12px; font-size:0.9rem; color:#86868b; }
 
@@ -384,6 +389,17 @@
     @media (max-width: 600px) {
       .chat-window { width: 300px; right: -10px; }
     }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
@@ -571,6 +587,9 @@
   </div>
 </div>
 
+<!-- ====== CONFETTI CANVAS ====== -->
+<canvas id="confetti-canvas"></canvas>
+
 <script type="importmap">
   {
     "imports": {
@@ -593,7 +612,7 @@
   const USDC_WALLET = '0x0E618151D0D767292b27c2Fd5E997b024e706505';
 
   // =============================================================
-  // TRANSLATIONS (i18n) – full version with expanded history
+  // TRANSLATIONS (i18n) – full version with expanded history & pay-task messages
   // =============================================================
   const i18n = {
     en: {
@@ -655,10 +674,11 @@
       profile_wallet:"USDC Wallet Address",
       profile_save:"Save Profile",
       profile_updated:"Profile updated successfully!",
-      pay_task_label:"PAY TASK",
-      pay_task_required:"Balance must be exactly $0 to start this pay task. Please withdraw your balance to zero first.",
-      pay_task_balance_not_zero:"Your balance is $${balance}. You must have $0.00 to start this pay task. Use the Withdraw button to reset your balance.",
-      pay_task_info:"You must pay <strong>$${payAmount}</strong> to unlock this task (balance will be set to zero). After completing, you earn <strong>$${reward}</strong>."
+      pay_task_label:"✨ SPECIAL TASK",
+      pay_task_requirement:"To unlock this task, your balance must be exactly <strong>$0.00</strong>.",
+      pay_task_withdraw_instruction:"Please use the <strong>Withdraw</strong> button to reset your balance to zero.",
+      pay_task_balance_not_zero:"Your current balance is <strong>$${balance}</strong>. You must have $0.00 to start this task.",
+      pay_task_info:"After completing this task, you will earn <strong>$${reward}</strong>."
     },
     fr: {
       about_title:"À propos de TaskFlow",
@@ -719,10 +739,11 @@
       profile_wallet:"Adresse du portefeuille USDC",
       profile_save:"Enregistrer le profil",
       profile_updated:"Profil mis à jour avec succès !",
-      pay_task_label:"TÂCHE PAYANTE",
-      pay_task_required:"Le solde doit être exactement de 0 $ pour commencer. Retirez votre solde à zéro d'abord.",
-      pay_task_balance_not_zero:"Votre solde est de $${balance}. Vous devez avoir 0.00 $ pour commencer. Utilisez le bouton Retirer.",
-      pay_task_info:"Vous devez payer <strong>$${payAmount}</strong> pour débloquer cette tâche (solde remis à zéro). Après avoir terminé, vous gagnez <strong>$${reward}</strong>."
+      pay_task_label:"✨ TÂCHE SPÉCIALE",
+      pay_task_requirement:"Pour débloquer cette tâche, votre solde doit être exactement de <strong>0,00 $</strong>.",
+      pay_task_withdraw_instruction:"Veuillez utiliser le bouton <strong>Retirer</strong> pour remettre votre solde à zéro.",
+      pay_task_balance_not_zero:"Votre solde actuel est de <strong>$${balance}</strong>. Vous devez avoir 0,00 $ pour commencer.",
+      pay_task_info:"Après avoir terminé cette tâche, vous gagnerez <strong>$${reward}</strong>."
     },
     es: {
       about_title:"Acerca de TaskFlow",
@@ -783,12 +804,91 @@
       profile_wallet:"Dirección de cartera USDC",
       profile_save:"Guardar perfil",
       profile_updated:"¡Perfil actualizado con éxito!",
-      pay_task_label:"TAREA DE PAGO",
-      pay_task_required:"El saldo debe ser exactamente $0 para comenzar. Retira tu saldo a cero primero.",
-      pay_task_balance_not_zero:"Tu saldo es $${balance}. Debes tener $0.00 para comenzar. Usa el botón Retirar.",
-      pay_task_info:"Debes pagar <strong>$${payAmount}</strong> para desbloquear esta tarea (saldo a cero). Después de completar, ganas <strong>$${reward}</strong>."
+      pay_task_label:"✨ TAREA ESPECIAL",
+      pay_task_requirement:"Para desbloquear esta tarea, tu saldo debe ser exactamente <strong>$0.00</strong>.",
+      pay_task_withdraw_instruction:"Por favor, usa el botón <strong>Retirar</strong> para poner tu saldo a cero.",
+      pay_task_balance_not_zero:"Tu saldo actual es <strong>$${balance}</strong>. Debes tener $0.00 para comenzar.",
+      pay_task_info:"Después de completar esta tarea, ganarás <strong>$${reward}</strong>."
     }
   };
+
+  // =============================================================
+  // CONFETTI ENGINE
+  // =============================================================
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let confettiPieces = [];
+  let animationId = null;
+  let isConfettiRunning = false;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  class ConfettiPiece {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height - canvas.height;
+      this.size = Math.random() * 8 + 4;
+      this.speedX = (Math.random() - 0.5) * 6;
+      this.speedY = Math.random() * 6 + 4;
+      this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+      this.rotation = Math.random() * 360;
+      this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+      this.opacity = 1;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.rotation += this.rotationSpeed;
+      if (this.y > canvas.height) {
+        this.y = -20;
+        this.x = Math.random() * canvas.width;
+        this.speedX = (Math.random() - 0.5) * 6;
+        this.speedY = Math.random() * 6 + 4;
+      }
+    }
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = this.opacity;
+      ctx.fillRect(-this.size/2, -this.size/4, this.size, this.size/2);
+      ctx.restore();
+    }
+  }
+
+  function launchConfetti(count = 150) {
+    if (isConfettiRunning) return;
+    isConfettiRunning = true;
+    for (let i = 0; i < count; i++) {
+      confettiPieces.push(new ConfettiPiece());
+    }
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      for (let i = confettiPieces.length - 1; i >= 0; i--) {
+        const p = confettiPieces[i];
+        p.update();
+        p.draw();
+        if (p.opacity > 0) alive = true;
+        if (p.y > canvas.height + 50) {
+          confettiPieces.splice(i, 1);
+        }
+      }
+      if (confettiPieces.length > 0) {
+        animationId = requestAnimationFrame(animate);
+      } else {
+        isConfettiRunning = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+    animate();
+  }
 
   // =============================================================
   // DOM REFS
@@ -1431,14 +1531,11 @@
     { balance: 550, reward: 742, payAmount: 330 },
     { balance: 1100, reward: 1294, payAmount: 575 },
     { balance: 1800, reward: 2025, payAmount: 900 },
-    { balance: 3500, reward: 4000, payAmount: 2000 } // extrapolate
+    { balance: 3500, reward: 4000, payAmount: 2000 }
   ];
 
   function getPayTaskData(balance) {
-    // Return { reward, payAmount } if balance is in a valid range, else null
-    // We'll trigger when balance is between 100 and 5000
     if (balance < 100 || balance > 5000) return null;
-    // Find interpolation interval
     for (let i = 0; i < payPoints.length - 1; i++) {
       const p1 = payPoints[i];
       const p2 = payPoints[i+1];
@@ -1452,10 +1549,8 @@
         };
       }
     }
-    // If beyond last point, use last point
     if (balance >= payPoints[payPoints.length-1].balance) {
       const last = payPoints[payPoints.length-1];
-      // Extrapolate: keep same slope as last segment
       const prev = payPoints[payPoints.length-2];
       const t = (balance - prev.balance) / (last.balance - prev.balance);
       const reward = prev.reward + t * (last.reward - prev.reward);
@@ -1714,14 +1809,12 @@
     let isPayTask = false;
     let payAmount = 0;
     if (payData) {
-      // Override task reward and mark as pay-task
       task.reward = payData.reward;
       payAmount = payData.payAmount;
       task.payTask = true;
       task.payAmount = payAmount;
       isPayTask = true;
     } else {
-      // Ensure task has its original reward and not a pay-task
       if (task.originalReward > 0) {
         task.reward = task.originalReward;
       }
@@ -1735,23 +1828,32 @@
     let badgeHtml = '';
     let payInfoHtml = '';
     if (isPayTask) {
-      badgeHtml = `<span class="badge pay">${t.pay_task_label || 'PAY TASK'}</span>`;
-      // Show pay info
-      payInfoHtml = `<div class="pay-info">${t.pay_task_info.replace('${payAmount}', payAmount.toFixed(2)).replace('${reward}', displayReward.toFixed(2))}</div>`;
-      // Check if balance is zero
-      const canStart = Math.abs(balanceCache) < 0.001;
-      if (!canStart) {
-        // Show note that balance must be zero
-        payInfoHtml += `<div style="color:#ff3b30; font-weight:500; margin-top:4px;">${t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2))}</div>`;
-      }
+      badgeHtml = `<span class="badge pay">${t.pay_task_label || '✨ SPECIAL TASK'}</span>`;
+      // Requirement message
+      const requirement = t.pay_task_requirement;
+      const instruction = t.pay_task_withdraw_instruction;
+      const balanceMsg = balanceCache > 0.001 ? t.pay_task_balance_not_zero.replace('${balance}', balanceCache.toFixed(2)) : '';
+      const earnMsg = t.pay_task_info.replace('${reward}', displayReward.toFixed(2));
+
+      payInfoHtml = `
+        <div class="pay-info">
+          <div>${requirement}</div>
+          <div class="requirement">${instruction}</div>
+          ${balanceMsg ? `<div class="requirement" style="margin-top:4px;">${balanceMsg}</div>` : ''}
+          <div style="margin-top:6px;">${earnMsg}</div>
+        </div>
+      `;
     } else if (task.special) {
       badgeHtml = `<span class="badge ${task.multiplier === 3 ? 'x3' : 'x4'}">${t.special} ${t.multiplier}${task.multiplier}</span>`;
     }
 
+    // Determine if submit button should be disabled
+    const isDisabled = isPayTask && Math.abs(balanceCache) > 0.001;
+
     let html = `
       <img src="${task.image}" alt="${task.product}" loading="lazy">
       <h3>${task.product} ${badgeHtml}</h3>
-      <div class="reward" style="color:${isPayTask ? '#ff3b30' : '#007aff'}">${rewardStr}</div>
+      <div class="reward" style="color:${isPayTask ? '#f0a500' : '#007aff'}">${rewardStr}</div>
       ${payInfoHtml}
       <div class="review-form" data-id="${task.id}">
         <div class="stars" data-id="${task.id}">
@@ -1759,7 +1861,7 @@
         </div>
         <textarea placeholder="${t.comment} (${t.min_chars})" data-id="${task.id}" minlength="40"></textarea>
         <div class="char-counter" data-id="${task.id}">0 / 40</div>
-        <button data-action="submit" data-id="${task.id}" class="${isPayTask ? 'pay-task' : 'success'}" ${isPayTask && Math.abs(balanceCache) > 0.001 ? 'disabled' : ''}>${isPayTask ? t.pay_task_label || 'Pay Task' : t.submit_review}</button>
+        <button data-action="submit" data-id="${task.id}" class="${isPayTask ? 'pay-task' : 'success'}" ${isDisabled ? 'disabled' : ''}>${isPayTask ? t.pay_task_label || '✨ SPECIAL TASK' : t.submit_review}</button>
       </div>
     `;
     taskContainer.innerHTML = html;
@@ -1817,13 +1919,19 @@
     if (selectedStars === 0) { alert(t.select_stars); return; }
     if (comment.length < 40) { alert(`${t.min_chars} (${comment.length}/40)`); return; }
 
-    // Apply reward (for pay-task, balance is already 0, so new balance = reward)
+    // Apply reward
     balanceCache += task.reward;
     task.status = 'completed';
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
+
+    // If it was a pay-task, launch confetti!
+    if (task.payTask) {
+      launchConfetti(180);
+    }
+
     // Find next pending task
     currentTaskIndex = tasksData.findIndex((t, idx) => idx > currentTaskIndex && t.status !== 'completed');
     if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
@@ -1880,6 +1988,8 @@
       .replace('${swift}', swift);
     alert(successMsg);
     closeWithdrawModalFn();
+    // Re-render task to update button state (balance changed)
+    renderCurrentTask();
   });
 
   // =============================================================
