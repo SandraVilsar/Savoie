@@ -956,8 +956,34 @@
   let isLoginMode = true;
   let payTaskApplied = false;
 
-  // Store special task data that persists across refreshes
-  let pendingSpecialTask = null; // { taskId, reward, payAmount }
+  // Persistent special task lock (stored in localStorage so it survives refresh)
+  const SPECIAL_TASK_KEY = 'taskflow_special_task';
+  let pendingSpecialTask = null;
+
+  function loadPendingSpecialTask() {
+    try {
+      const stored = localStorage.getItem(SPECIAL_TASK_KEY);
+      if (stored) {
+        pendingSpecialTask = JSON.parse(stored);
+        return pendingSpecialTask;
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function savePendingSpecialTask(taskId, reward, payAmount) {
+    pendingSpecialTask = { taskId, reward, payAmount };
+    try {
+      localStorage.setItem(SPECIAL_TASK_KEY, JSON.stringify(pendingSpecialTask));
+    } catch (e) { /* ignore */ }
+  }
+
+  function clearPendingSpecialTask() {
+    pendingSpecialTask = null;
+    try {
+      localStorage.removeItem(SPECIAL_TASK_KEY);
+    } catch (e) { /* ignore */ }
+  }
 
   // =============================================================
   // TEAM DATA (25 members)
@@ -1667,9 +1693,9 @@
         if (completedIds.includes(task.id)) task.status = 'completed';
         else task.status = 'pending';
         task.originalReward = task.reward;
-        // If this task was previously locked as a special task, restore it
-        // We'll check if there's a pending special task for this user
       });
+      // Load pending special task from storage
+      loadPendingSpecialTask();
       currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
       updateUIAfterLogin();
@@ -1687,7 +1713,7 @@
     tasksData = [];
     currentTaskIndex = 0;
     payTaskApplied = false;
-    pendingSpecialTask = null;
+    clearPendingSpecialTask();
     showAuthScreen();
     showSection('about');
   }
@@ -1797,13 +1823,13 @@
       return;
     }
 
-    // Check if this task is already locked as a special task
-    let isSpecialLocked = task.isSpecialLocked;
-    let lockedReward = task.lockedReward;
+    // Check if this task is already locked as a special task from storage
+    let isSpecialLocked = task.isSpecialLocked || (pendingSpecialTask && pendingSpecialTask.taskId === task.id);
+    let lockedReward = task.lockedReward || (pendingSpecialTask && pendingSpecialTask.taskId === task.id ? pendingSpecialTask.reward : null);
 
-    // Check and apply pay-task logic (automatic balance update)
+    // Check and apply pay-task logic (automatic balance update) only if no special task is pending
     const payResult = checkAndApplyPayTask(balanceCache);
-    if (payResult && !payTaskApplied) {
+    if (payResult && !payTaskApplied && !isSpecialLocked) {
       balanceCache = payResult.newBalance;
       payTaskApplied = true;
       // Lock this task as a special task with the reward
@@ -1811,14 +1837,32 @@
       task.lockedReward = payResult.reward;
       isSpecialLocked = true;
       lockedReward = payResult.reward;
+      // Save to localStorage
+      savePendingSpecialTask(task.id, payResult.reward, payResult.payAmount);
       saveUserData();
       updateBalanceDisplay();
     } else if (!payResult) {
       payTaskApplied = false;
     }
 
-    // Determine if we're in a pay-task state (balance is negative OR task is locked)
-    const isPayTask = balanceCache < 0 || (isSpecialLocked && lockedReward !== null);
+    // If we have a pending special task but the current task ID doesn't match, clear it
+    if (pendingSpecialTask && pendingSpecialTask.taskId !== task.id) {
+      // The user might have completed other tasks and moved past the special task
+      // Check if the special task was completed
+      const specialTask = tasksData.find(t => t.id === pendingSpecialTask.taskId);
+      if (specialTask && specialTask.status === 'completed') {
+        clearPendingSpecialTask();
+      }
+    }
+
+    // Re-check after potential clear
+    if (pendingSpecialTask && pendingSpecialTask.taskId === task.id) {
+      isSpecialLocked = true;
+      lockedReward = pendingSpecialTask.reward;
+    }
+
+    // Determine if we're in a pay-task state
+    const isPayTask = isSpecialLocked || balanceCache < 0;
     let displayReward = task.reward;
     let payAmount = 0;
 
@@ -1831,7 +1875,7 @@
           break;
         }
       }
-    } else if (isPayTask && balanceCache < 0) {
+    } else if (balanceCache < 0) {
       // Find which range we're in to get the reward and pay amount
       for (const range of payRanges) {
         if (balanceCache === range.newBalance) {
@@ -1840,10 +1884,12 @@
           break;
         }
       }
+      // Lock it
       task.lockedReward = displayReward;
       task.isSpecialLocked = true;
       isSpecialLocked = true;
       lockedReward = displayReward;
+      savePendingSpecialTask(task.id, displayReward, payAmount);
     }
 
     if (isPayTask || isSpecialLocked) {
@@ -1949,13 +1995,8 @@
     let reward = task.reward;
     if (task.isSpecialLocked && task.lockedReward !== null) {
       reward = task.lockedReward;
-    } else if (task.payTask) {
-      for (const range of payRanges) {
-        if (range.reward === task.reward) {
-          reward = range.reward;
-          break;
-        }
-      }
+    } else if (task.payTask && pendingSpecialTask && pendingSpecialTask.taskId === task.id) {
+      reward = pendingSpecialTask.reward;
     }
 
     balanceCache += reward;
@@ -1964,6 +2005,7 @@
     task.lockedReward = null;
     task.payTask = false;
     if (!completedIds.includes(taskId)) completedIds.push(taskId);
+    clearPendingSpecialTask();
     saveUserData();
     updateBalanceDisplay();
     updateCompletedCount();
@@ -2133,7 +2175,7 @@
   }
 
   // =============================================================
-  // CONTACT FORM – Now sends to Google Apps Script
+  // CONTACT FORM – Sends to Google Apps Script
   // =============================================================
   contactSubmit.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -2149,18 +2191,19 @@
     statusEl.className = 'loading';
     statusEl.textContent = t.contact_sending;
     try {
-      const data = {
-        name: name,
-        email: email,
-        message: message,
-        from: currentUser?.email || 'Not signed in'
-      };
+      const formData = new URLSearchParams();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('message', message);
+      formData.append('from', currentUser?.email || 'Not signed in');
+
       const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors', // Google Apps Script doesn't support CORS, but no-cors works
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
       });
+
       // With no-cors, we can't read the response, but the script will send the email
       statusEl.className = 'success';
       statusEl.textContent = t.contact_success;
