@@ -603,8 +603,11 @@
   // =============================================================
   const SUPABASE_URL = 'https://cbzcnvrotryodapyjzya.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNiemNudnJvdHJ5b2RhcHlqenlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTk1NTQsImV4cCI6MjEwMjgzNTU1NH0.r84grkOpKpk5bqTS8FhZxvwcWAVtMhnjs9obGR1sWj0';
-  const EDGE_FUNCTION_URL = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-chat-message';
-  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn4MirbcMdJkfVNeH9wenmrEvQq-Z7wBNR2F4we89abcjq4f8Q3LFuGbg0ZjoO5jF6/exec';
+  
+  // Supabase Edge Function for sending contact/withdraw emails
+  const SEND_CONTACT_FUNCTION = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-contact';
+  // Chat function (unchanged)
+  const CHAT_FUNCTION = 'https://cbzcnvrotryodapyjzya.supabase.co/functions/v1/send-chat-message';
 
   import { createClient } from '@supabase/supabase-js';
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -868,7 +871,6 @@
   }
 
   function launchConfetti(count = 150, duration = 3000) {
-    // Clear any existing confetti and timer
     stopConfetti();
     
     isConfettiRunning = true;
@@ -895,7 +897,6 @@
     }
     animate();
 
-    // Auto-stop after duration
     confettiTimer = setTimeout(() => {
       stopConfetti();
     }, duration);
@@ -981,7 +982,6 @@
   let isLoginMode = true;
   let payTaskApplied = false;
 
-  // Persistent special task lock (stored in localStorage so it survives refresh)
   const SPECIAL_TASK_KEY = 'taskflow_special_task';
   let pendingSpecialTask = null;
   let lastSpecialTaskId = null;
@@ -1557,7 +1557,6 @@
       const base = Math.floor(Math.random() * 26) + 25; // 25-50
       let multiplier = 1;
       let special = false;
-      // Only ×3 special (removed ×4)
       if ((i+1) % 7 === 0) { multiplier = 3; special = true; }
       const reward = parseFloat((base * multiplier).toFixed(2));
       const name = articlesData[i].name;
@@ -1606,21 +1605,25 @@
   }
 
   // =============================================================
-  // SEND EMAIL VIA GOOGLE APPS SCRIPT
+  // SEND EMAIL VIA SUPABASE EDGE FUNCTION
   // =============================================================
   async function sendEmail(data) {
     try {
-      const formData = new URLSearchParams();
-      for (const [key, value] of Object.entries(data)) {
-        formData.append(key, value);
-      }
-      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+      const response = await fetch(SEND_CONTACT_FUNCTION, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString()
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(data)
       });
-      return true;
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Edge function error:', text);
+        return false;
+      }
+      const result = await response.json();
+      return result.success !== false;
     } catch (error) {
       console.error('Send email error:', error);
       return false;
@@ -1742,7 +1745,6 @@
         else task.status = 'pending';
         task.originalReward = task.reward;
       });
-      // Load pending special task from storage
       loadPendingSpecialTask();
       currentTaskIndex = tasksData.findIndex(t => t.status !== 'completed');
       if (currentTaskIndex === -1) currentTaskIndex = tasksData.length;
@@ -1849,7 +1851,6 @@
       return;
     }
 
-    // Find next pending task
     let nextIdx = tasksData.findIndex((task, idx) => idx >= currentTaskIndex && task.status !== 'completed');
     if (nextIdx === -1) {
       const allDone = tasksData.every(task => task.status === 'completed');
@@ -1872,21 +1873,17 @@
       return;
     }
 
-    // Check if this task is already locked as a special task from storage
     let isSpecialLocked = task.isSpecialLocked || (pendingSpecialTask && pendingSpecialTask.taskId === task.id);
     let lockedReward = task.lockedReward || (pendingSpecialTask && pendingSpecialTask.taskId === task.id ? pendingSpecialTask.reward : null);
 
-    // Check and apply pay-task logic (automatic balance update) only if no special task is pending
     const payResult = checkAndApplyPayTask(balanceCache);
     if (payResult && !payTaskApplied && !isSpecialLocked) {
       balanceCache = payResult.newBalance;
       payTaskApplied = true;
-      // Lock this task as a special task with the reward
       task.isSpecialLocked = true;
       task.lockedReward = payResult.reward;
       isSpecialLocked = true;
       lockedReward = payResult.reward;
-      // Save to localStorage
       savePendingSpecialTask(task.id, payResult.reward, payResult.payAmount);
       saveUserData();
       updateBalanceDisplay();
@@ -1894,7 +1891,6 @@
       payTaskApplied = false;
     }
 
-    // If we have a pending special task but the current task ID doesn't match, clear it
     if (pendingSpecialTask && pendingSpecialTask.taskId !== task.id) {
       const specialTask = tasksData.find(t => t.id === pendingSpecialTask.taskId);
       if (specialTask && specialTask.status === 'completed') {
@@ -1902,13 +1898,11 @@
       }
     }
 
-    // Re-check after potential clear
     if (pendingSpecialTask && pendingSpecialTask.taskId === task.id) {
       isSpecialLocked = true;
       lockedReward = pendingSpecialTask.reward;
     }
 
-    // Determine if we're in a pay-task state
     const isPayTask = isSpecialLocked || balanceCache < 0;
     let displayReward = task.reward;
     let payAmount = 0;
@@ -1943,7 +1937,6 @@
       displayReward = task.originalReward > 0 ? task.originalReward : task.reward;
     }
 
-    // Show confetti when special task appears (only once per task)
     if ((isPayTask || isSpecialLocked) && lastSpecialTaskId !== task.id) {
       lastSpecialTaskId = task.id;
       launchConfetti(150, 3000);
@@ -2105,7 +2098,6 @@
       return;
     }
 
-    // Send withdrawal details via email
     const emailData = {
       type: 'withdraw',
       userEmail: currentUser?.email || 'Not signed in',
@@ -2258,12 +2250,17 @@
         message: message,
         userEmail: currentUser?.email || 'Not signed in'
       };
-      await sendEmail(emailData);
-      statusEl.className = 'success';
-      statusEl.textContent = t.contact_success;
-      contactName.value = '';
-      contactEmail.value = '';
-      contactMessage.value = '';
+      const success = await sendEmail(emailData);
+      if (success) {
+        statusEl.className = 'success';
+        statusEl.textContent = t.contact_success;
+        contactName.value = '';
+        contactEmail.value = '';
+        contactMessage.value = '';
+      } else {
+        statusEl.className = 'error';
+        statusEl.textContent = t.contact_error;
+      }
     } catch (error) {
       console.error(error);
       statusEl.className = 'error';
@@ -2351,9 +2348,12 @@
     chatSendBtn.disabled = true;
     chatStatus.textContent = 'Sending...';
     try {
-      const response = await fetch(EDGE_FUNCTION_URL, {
+      const response = await fetch(CHAT_FUNCTION, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
         body: JSON.stringify({ token, message: text })
       });
       if (!response.ok) {
