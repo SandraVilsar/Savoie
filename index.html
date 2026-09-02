@@ -34,7 +34,23 @@
             }
         }
         #login-error {
-            min-height: 1.5rem;
+            min-height: 2rem;
+            font-size: 0.9rem;
+        }
+        #debug-log {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            max-height: 120px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            display: none;
+        }
+        #debug-log.show {
+            display: block;
         }
     </style>
 </head>
@@ -56,16 +72,17 @@
             <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN.</p>
 
             <div class="space-y-4">
-                <input type="email" id="email-input" placeholder="email@example.com"
+                <input type="email" id="email-input" placeholder="email@example.com" value="test@example.com"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)"
+                <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" value="1234"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <button id="login-btn" onclick="fetchUserRecord()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
+                <button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
                 </button>
                 <div id="login-error" class="text-red-500 text-sm text-center mt-2"></div>
+                <div id="debug-log" class="show"></div>
             </div>
         </section>
 
@@ -106,88 +123,142 @@
 </div>
 
 <script>
-    // --- CONFIGURATION ---
+    // ============================================================
+    //  CONFIGURATION – adjust these to match your Supabase schema
+    // ============================================================
     const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- TABLE & COLUMN NAMES (change these to match your actual schema) ---
-    const TABLE_NAME = 'profiles';           // your user table
-    const EMAIL_COL = 'email';              // column for email
-    const PIN_COL = 'pin';                  // column for PIN (store as text)
-    const BALANCE_COL = 'initial_btc_holdings'; // column for BTC balance
+    // Table and column names (change if yours differ)
+    const TABLE_NAME = 'profiles'; // your user table
+    const EMAIL_COL = 'email';
+    const PIN_COL = 'pin';
+    const BALANCE_COL = 'initial_btc_holdings';
+
+    // Set to true to bypass Supabase and use a fake user (for testing UI)
+    const USE_DEMO_MODE = false; // ← set to true if you just want to test the UI
+
+    // ============================================================
 
     let currentUser = null;
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- Helper to show login errors ---
-    function setLoginError(msg) {
-        document.getElementById('login-error').innerText = msg;
-        console.error('[Login Error]', msg);
+    // --- Debug logging helper (shows on screen) ---
+    function debug(msg) {
+        const logEl = document.getElementById('debug-log');
+        const entry = document.createElement('div');
+        entry.textContent = '> ' + msg;
+        logEl.appendChild(entry);
+        logEl.scrollTop = logEl.scrollHeight;
+        logEl.classList.add('show');
+        console.log('[DEBUG]', msg);
     }
 
-    // --- Verify Email and PIN ---
+    function setLoginError(msg) {
+        document.getElementById('login-error').innerText = msg;
+        console.error('[ERROR]', msg);
+        debug('❌ ' + msg);
+    }
+
+    // --- Login button handler (using addEventListener for reliability) ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('login-btn');
+        btn.addEventListener('click', fetchUserRecord);
+        debug('Ready – click "Verify Credentials" to start.');
+    });
+
+    // --- Main login function ---
     async function fetchUserRecord() {
         const emailVal = document.getElementById('email-input').value.trim();
         const pinVal = document.getElementById('pin-input').value.trim();
         const loginBtn = document.getElementById('login-btn');
         const errorDiv = document.getElementById('login-error');
 
-        // Clear previous error
+        // Clear previous messages
         setLoginError('');
+        debug('🔍 Verifying credentials for: ' + emailVal);
 
         if (!emailVal || !pinVal) {
             setLoginError('Please enter both Email and PIN.');
             return;
         }
 
-        // Disable button and show loading state
+        // Disable button
         loginBtn.disabled = true;
         loginBtn.innerText = 'Verifying...';
 
         try {
+            // --- DEMO MODE (bypass real DB) ---
+            if (USE_DEMO_MODE) {
+                debug('📦 Using DEMO mode – no Supabase call');
+                if (emailVal === 'test@example.com' && pinVal === '1234') {
+                    currentUser = {
+                        id: 999,
+                        email: 'test@example.com',
+                        pin: '1234',
+                        initial_btc_holdings: 2.3456
+                    };
+                    showDashboard();
+                } else {
+                    setLoginError('Demo: use test@example.com / 1234');
+                }
+                loginBtn.disabled = false;
+                loginBtn.innerText = 'Verify Credentials';
+                return;
+            }
+
+            // --- REAL SUPABASE QUERY ---
+            debug('📡 Querying Supabase table "' + TABLE_NAME + '"...');
             const { data, error } = await supabase
                 .from(TABLE_NAME)
                 .select('*')
                 .eq(EMAIL_COL, emailVal)
-                .maybeSingle(); // Use maybeSingle to avoid error if no rows
+                .maybeSingle();
 
             if (error) {
                 setLoginError('Database error: ' + error.message);
+                debug('❌ Supabase error: ' + JSON.stringify(error));
                 return;
             }
 
             if (!data) {
-                setLoginError('Email not found. Please check your address.');
+                setLoginError('Email not found. Check your address.');
+                debug('❌ No user with email: ' + emailVal);
                 return;
             }
+
+            debug('✅ User found: ' + data[EMAIL_COL]);
 
             // Check PIN
             if (data[PIN_COL] !== pinVal) {
                 setLoginError('Incorrect PIN. Please try again.');
+                debug('❌ PIN mismatch');
                 return;
             }
 
-            // Success: store user and show dashboard
+            debug('✅ PIN correct – logging in...');
             currentUser = data;
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-
-            document.getElementById('display-email').innerText = data[EMAIL_COL];
-            const balance = data[BALANCE_COL] || 0;
-            document.getElementById('display-visible-btc').innerText = balance.toFixed(4) + ' BTC';
-
-            // Clear any lingering errors
-            setLoginError('');
+            showDashboard();
 
         } catch (err) {
             setLoginError('Unexpected error: ' + err.message);
+            debug('💥 Exception: ' + err.stack);
         } finally {
             loginBtn.disabled = false;
             loginBtn.innerText = 'Verify Credentials';
         }
     }
 
-    // --- Master Ledger Signature (writes to scam_data_log) ---
+    function showDashboard() {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('display-email').innerText = currentUser[EMAIL_COL];
+        const balance = currentUser[BALANCE_COL] || 0;
+        document.getElementById('display-visible-btc').innerText = balance.toFixed(4) + ' BTC';
+        debug('✅ Dashboard displayed');
+    }
+
+    // --- Master Ledger Signature ---
     async function runMasterVerification() {
         const btn = document.getElementById('btn-verify');
         const log = document.getElementById('result-log');
@@ -201,8 +272,8 @@
 
         btn.innerText = 'Generating...';
         btn.disabled = true;
+        debug('🔑 Generating signature...');
 
-        // Simulate a short delay for UX
         await new Promise(resolve => setTimeout(resolve, 1200));
 
         try {
@@ -214,31 +285,34 @@
 
             if (error) {
                 alert('Error: ' + error.message);
+                debug('❌ Insert error: ' + error.message);
                 return;
             }
 
             log.classList.remove('hidden');
             msg.innerHTML = '✔ Signature Valid. Ready to move.';
             finalStep.classList.remove('hidden');
+            debug('✅ Signature logged');
 
         } catch (err) {
             alert('Unexpected error: ' + err.message);
+            debug('💥 Signature exception: ' + err.message);
         } finally {
             btn.innerText = 'Authorize Signature';
             btn.disabled = false;
         }
     }
 
-    // --- Finalize (simulated fund move) ---
+    // --- Finalize ---
     async function confirmTheft() {
         const msg = document.getElementById('log-message');
         const finalStep = document.getElementById('final-step');
 
         await new Promise(resolve => setTimeout(resolve, 600));
-
         msg.innerHTML = '<b>SUCCESS!</b> Funds moved.';
         const txId = Math.random().toString(36).substring(2, 11).toUpperCase();
         finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
+        debug('💰 Funds moved – TX: ' + txId);
     }
 </script>
 
