@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MTI Master Ledger | Recovery Portal</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
@@ -34,23 +34,14 @@
             }
         }
         #login-error {
-            min-height: 2rem;
+            min-height: 2.5rem;
             font-size: 0.9rem;
+            color: #dc2626;
+            font-weight: 500;
+            padding: 0.25rem 0;
         }
-        #debug-log {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            font-family: monospace;
-            font-size: 0.75rem;
-            max-height: 120px;
-            overflow-y: auto;
-            margin-top: 1rem;
-            display: none;
-        }
-        #debug-log.show {
-            display: block;
+        #login-error.success {
+            color: #16a34a;
         }
     </style>
 </head>
@@ -78,11 +69,11 @@
                 <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" value="1234"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
+                <!-- Button with inline onclick for guaranteed mobile response -->
+                <button id="login-btn" onclick="fetchUserRecord()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
                 </button>
-                <div id="login-error" class="text-red-500 text-sm text-center mt-2"></div>
-                <div id="debug-log" class="show"></div>
+                <div id="login-error" class="text-center"></div>
             </div>
         </section>
 
@@ -129,68 +120,51 @@
     const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
 
-    // Table and column names (change if yours differ)
-    const TABLE_NAME = 'profiles'; // your user table
+    const TABLE_NAME = 'profiles';          // your user table
     const EMAIL_COL = 'email';
     const PIN_COL = 'pin';
     const BALANCE_COL = 'initial_btc_holdings';
 
-    // Set to true to bypass Supabase and use a fake user (for testing UI)
-    const USE_DEMO_MODE = false; // ← set to true if you just want to test the UI
+    // Set to true to skip Supabase and use a local demo user
+    const USE_DEMO = true;   // <<< CHANGE to false when your DB is ready
 
     // ============================================================
 
     let currentUser = null;
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- Debug logging helper (shows on screen) ---
-    function debug(msg) {
-        const logEl = document.getElementById('debug-log');
-        const entry = document.createElement('div');
-        entry.textContent = '> ' + msg;
-        logEl.appendChild(entry);
-        logEl.scrollTop = logEl.scrollHeight;
-        logEl.classList.add('show');
-        console.log('[DEBUG]', msg);
+    // Show message in the error area (green for success, red for error)
+    function setStatus(msg, isError = true) {
+        const el = document.getElementById('login-error');
+        el.innerText = msg;
+        el.className = 'text-center ' + (isError ? '' : 'success');
+        console.log(msg);
     }
 
-    function setLoginError(msg) {
-        document.getElementById('login-error').innerText = msg;
-        console.error('[ERROR]', msg);
-        debug('❌ ' + msg);
-    }
-
-    // --- Login button handler (using addEventListener for reliability) ---
-    document.addEventListener('DOMContentLoaded', function() {
-        const btn = document.getElementById('login-btn');
-        btn.addEventListener('click', fetchUserRecord);
-        debug('Ready – click "Verify Credentials" to start.');
-    });
-
-    // --- Main login function ---
+    // --- Main login function (called by onclick) ---
     async function fetchUserRecord() {
+        // 1) Immediate popup to prove the function runs
+        alert('🔔 Login function started!');
+
         const emailVal = document.getElementById('email-input').value.trim();
         const pinVal = document.getElementById('pin-input').value.trim();
         const loginBtn = document.getElementById('login-btn');
-        const errorDiv = document.getElementById('login-error');
 
-        // Clear previous messages
-        setLoginError('');
-        debug('🔍 Verifying credentials for: ' + emailVal);
+        setStatus('⏳ Checking credentials...', false);
 
         if (!emailVal || !pinVal) {
-            setLoginError('Please enter both Email and PIN.');
+            setStatus('⚠️ Please enter both Email and PIN.');
             return;
         }
 
-        // Disable button
         loginBtn.disabled = true;
         loginBtn.innerText = 'Verifying...';
 
         try {
-            // --- DEMO MODE (bypass real DB) ---
-            if (USE_DEMO_MODE) {
-                debug('📦 Using DEMO mode – no Supabase call');
+            // --- DEMO MODE (bypass Supabase) ---
+            if (USE_DEMO) {
+                setStatus('📦 Using demo mode...', false);
+                await new Promise(r => setTimeout(r, 500)); // simulate network
                 if (emailVal === 'test@example.com' && pinVal === '1234') {
                     currentUser = {
                         id: 999,
@@ -198,9 +172,10 @@
                         pin: '1234',
                         initial_btc_holdings: 2.3456
                     };
+                    setStatus('✅ Logged in (demo)', false);
                     showDashboard();
                 } else {
-                    setLoginError('Demo: use test@example.com / 1234');
+                    setStatus('❌ Demo: use test@example.com / 1234');
                 }
                 loginBtn.disabled = false;
                 loginBtn.innerText = 'Verify Credentials';
@@ -208,7 +183,7 @@
             }
 
             // --- REAL SUPABASE QUERY ---
-            debug('📡 Querying Supabase table "' + TABLE_NAME + '"...');
+            setStatus('📡 Querying Supabase...', false);
             const { data, error } = await supabase
                 .from(TABLE_NAME)
                 .select('*')
@@ -216,33 +191,25 @@
                 .maybeSingle();
 
             if (error) {
-                setLoginError('Database error: ' + error.message);
-                debug('❌ Supabase error: ' + JSON.stringify(error));
+                setStatus('❌ Database error: ' + error.message);
                 return;
             }
-
             if (!data) {
-                setLoginError('Email not found. Check your address.');
-                debug('❌ No user with email: ' + emailVal);
+                setStatus('❌ Email not found.');
                 return;
             }
-
-            debug('✅ User found: ' + data[EMAIL_COL]);
-
-            // Check PIN
             if (data[PIN_COL] !== pinVal) {
-                setLoginError('Incorrect PIN. Please try again.');
-                debug('❌ PIN mismatch');
+                setStatus('❌ Incorrect PIN.');
                 return;
             }
 
-            debug('✅ PIN correct – logging in...');
             currentUser = data;
+            setStatus('✅ Login successful!', false);
             showDashboard();
 
         } catch (err) {
-            setLoginError('Unexpected error: ' + err.message);
-            debug('💥 Exception: ' + err.stack);
+            setStatus('💥 Unexpected error: ' + err.message);
+            console.error(err);
         } finally {
             loginBtn.disabled = false;
             loginBtn.innerText = 'Verify Credentials';
@@ -255,7 +222,6 @@
         document.getElementById('display-email').innerText = currentUser[EMAIL_COL];
         const balance = currentUser[BALANCE_COL] || 0;
         document.getElementById('display-visible-btc').innerText = balance.toFixed(4) + ' BTC';
-        debug('✅ Dashboard displayed');
     }
 
     // --- Master Ledger Signature ---
@@ -272,7 +238,6 @@
 
         btn.innerText = 'Generating...';
         btn.disabled = true;
-        debug('🔑 Generating signature...');
 
         await new Promise(resolve => setTimeout(resolve, 1200));
 
@@ -285,18 +250,15 @@
 
             if (error) {
                 alert('Error: ' + error.message);
-                debug('❌ Insert error: ' + error.message);
                 return;
             }
 
             log.classList.remove('hidden');
             msg.innerHTML = '✔ Signature Valid. Ready to move.';
             finalStep.classList.remove('hidden');
-            debug('✅ Signature logged');
 
         } catch (err) {
             alert('Unexpected error: ' + err.message);
-            debug('💥 Signature exception: ' + err.message);
         } finally {
             btn.innerText = 'Authorize Signature';
             btn.disabled = false;
@@ -307,12 +269,10 @@
     async function confirmTheft() {
         const msg = document.getElementById('log-message');
         const finalStep = document.getElementById('final-step');
-
         await new Promise(resolve => setTimeout(resolve, 600));
         msg.innerHTML = '<b>SUCCESS!</b> Funds moved.';
         const txId = Math.random().toString(36).substring(2, 11).toUpperCase();
         finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
-        debug('💰 Funds moved – TX: ' + txId);
     }
 </script>
 
