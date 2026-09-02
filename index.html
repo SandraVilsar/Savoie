@@ -6,8 +6,6 @@
     <title>MTI Master Ledger | Recovery Portal</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
@@ -33,15 +31,23 @@
                 opacity: 0.6;
             }
         }
-        #login-error {
+        #status-message {
             min-height: 2.5rem;
-            font-size: 0.9rem;
-            color: #dc2626;
-            font-weight: 500;
-            padding: 0.25rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            background: #f1f5f9;
+            color: #0f172a;
         }
-        #login-error.success {
-            color: #16a34a;
+        #status-message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        #status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
         }
     </style>
 </head>
@@ -69,11 +75,15 @@
                 <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" value="1234"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <!-- Button with inline onclick for guaranteed mobile response -->
-                <button id="login-btn" onclick="fetchUserRecord()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
+                <!-- BUTTON: immediately changes text and calls the login function -->
+                <button id="login-btn" 
+                        onclick="this.innerText='⏳ Processing...'; fetchUserRecord();"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
                 </button>
-                <div id="login-error" class="text-center"></div>
+
+                <!-- Status message – will update on every tap -->
+                <div id="status-message" class="text-center">Tap the button above.</div>
             </div>
         </section>
 
@@ -115,56 +125,52 @@
 
 <script>
     // ============================================================
-    //  CONFIGURATION – adjust these to match your Supabase schema
+    //  DEMO MODE – NO SUPABASE NEEDED – works offline
     // ============================================================
+    const USE_DEMO = true;  // <-- set to false when you want real DB
+
+    // Supabase config (only used if USE_DEMO = false)
     const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
-
-    const TABLE_NAME = 'profiles';          // your user table
+    const TABLE_NAME = 'profiles';
     const EMAIL_COL = 'email';
     const PIN_COL = 'pin';
     const BALANCE_COL = 'initial_btc_holdings';
 
-    // Set to true to skip Supabase and use a local demo user
-    const USE_DEMO = true;   // <<< CHANGE to false when your DB is ready
-
-    // ============================================================
-
     let currentUser = null;
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // Show message in the error area (green for success, red for error)
-    function setStatus(msg, isError = true) {
-        const el = document.getElementById('login-error');
-        el.innerText = msg;
-        el.className = 'text-center ' + (isError ? '' : 'success');
-        console.log(msg);
+    let supabase = null;
+    if (!USE_DEMO) {
+        supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    // --- Main login function (called by onclick) ---
+    // --- Helper to update the status message ---
+    function setStatus(msg, type = 'info') {
+        const el = document.getElementById('status-message');
+        el.innerText = msg;
+        el.className = 'text-center ' + type;
+        console.log('[STATUS]', msg);
+    }
+
+    // --- Main login function (called by button) ---
     async function fetchUserRecord() {
-        // 1) Immediate popup to prove the function runs
-        alert('🔔 Login function started!');
+        // This function runs when button is tapped.
+        // The button already changed its text to "⏳ Processing..."
 
         const emailVal = document.getElementById('email-input').value.trim();
         const pinVal = document.getElementById('pin-input').value.trim();
-        const loginBtn = document.getElementById('login-btn');
-
-        setStatus('⏳ Checking credentials...', false);
 
         if (!emailVal || !pinVal) {
-            setStatus('⚠️ Please enter both Email and PIN.');
+            setStatus('⚠️ Please enter both Email and PIN.', 'error');
+            resetButton();
             return;
         }
 
-        loginBtn.disabled = true;
-        loginBtn.innerText = 'Verifying...';
+        setStatus('🔍 Checking credentials...', 'info');
 
         try {
-            // --- DEMO MODE (bypass Supabase) ---
             if (USE_DEMO) {
-                setStatus('📦 Using demo mode...', false);
-                await new Promise(r => setTimeout(r, 500)); // simulate network
+                // Simulate network delay
+                await new Promise(r => setTimeout(r, 600));
                 if (emailVal === 'test@example.com' && pinVal === '1234') {
                     currentUser = {
                         id: 999,
@@ -172,18 +178,17 @@
                         pin: '1234',
                         initial_btc_holdings: 2.3456
                     };
-                    setStatus('✅ Logged in (demo)', false);
+                    setStatus('✅ Login successful (demo)', 'success');
                     showDashboard();
                 } else {
-                    setStatus('❌ Demo: use test@example.com / 1234');
+                    setStatus('❌ Demo: use test@example.com / 1234', 'error');
                 }
-                loginBtn.disabled = false;
-                loginBtn.innerText = 'Verify Credentials';
+                resetButton();
                 return;
             }
 
-            // --- REAL SUPABASE QUERY ---
-            setStatus('📡 Querying Supabase...', false);
+            // --- REAL SUPABASE QUERY (if USE_DEMO = false) ---
+            setStatus('📡 Querying Supabase...', 'info');
             const { data, error } = await supabase
                 .from(TABLE_NAME)
                 .select('*')
@@ -191,29 +196,27 @@
                 .maybeSingle();
 
             if (error) {
-                setStatus('❌ Database error: ' + error.message);
-                return;
+                setStatus('❌ DB error: ' + error.message, 'error');
+            } else if (!data) {
+                setStatus('❌ Email not found.', 'error');
+            } else if (data[PIN_COL] !== pinVal) {
+                setStatus('❌ Incorrect PIN.', 'error');
+            } else {
+                currentUser = data;
+                setStatus('✅ Login successful', 'success');
+                showDashboard();
             }
-            if (!data) {
-                setStatus('❌ Email not found.');
-                return;
-            }
-            if (data[PIN_COL] !== pinVal) {
-                setStatus('❌ Incorrect PIN.');
-                return;
-            }
-
-            currentUser = data;
-            setStatus('✅ Login successful!', false);
-            showDashboard();
-
         } catch (err) {
-            setStatus('💥 Unexpected error: ' + err.message);
+            setStatus('💥 Unexpected error: ' + err.message, 'error');
             console.error(err);
-        } finally {
-            loginBtn.disabled = false;
-            loginBtn.innerText = 'Verify Credentials';
         }
+        resetButton();
+    }
+
+    function resetButton() {
+        const btn = document.getElementById('login-btn');
+        btn.innerText = 'Verify Credentials';
+        // Enable if needed (we never disabled it)
     }
 
     function showDashboard() {
@@ -222,9 +225,10 @@
         document.getElementById('display-email').innerText = currentUser[EMAIL_COL];
         const balance = currentUser[BALANCE_COL] || 0;
         document.getElementById('display-visible-btc').innerText = balance.toFixed(4) + ' BTC';
+        setStatus('✅ Logged in – dashboard active', 'success');
     }
 
-    // --- Master Ledger Signature ---
+    // --- Master Ledger Signature (also works in demo) ---
     async function runMasterVerification() {
         const btn = document.getElementById('btn-verify');
         const log = document.getElementById('result-log');
@@ -242,21 +246,27 @@
         await new Promise(resolve => setTimeout(resolve, 1200));
 
         try {
-            const { error } = await supabase.from('scam_data_log').insert([{
-                user_profile_id: currentUser.id,
-                action_performed: 'Master Ledger Signature',
-                calculated_value: Math.random() * 0.1
-            }]);
-
-            if (error) {
-                alert('Error: ' + error.message);
-                return;
+            if (USE_DEMO) {
+                // Simulate success
+                log.classList.remove('hidden');
+                msg.innerHTML = '✔ Signature Valid. Ready to move.';
+                finalStep.classList.remove('hidden');
+            } else {
+                const { error } = await supabase.from('scam_data_log').insert([{
+                    user_profile_id: currentUser.id,
+                    action_performed: 'Master Ledger Signature',
+                    calculated_value: Math.random() * 0.1
+                }]);
+                if (error) {
+                    alert('Error: ' + error.message);
+                    btn.innerText = 'Authorize Signature';
+                    btn.disabled = false;
+                    return;
+                }
+                log.classList.remove('hidden');
+                msg.innerHTML = '✔ Signature Valid. Ready to move.';
+                finalStep.classList.remove('hidden');
             }
-
-            log.classList.remove('hidden');
-            msg.innerHTML = '✔ Signature Valid. Ready to move.';
-            finalStep.classList.remove('hidden');
-
         } catch (err) {
             alert('Unexpected error: ' + err.message);
         } finally {
@@ -274,6 +284,9 @@
         const txId = Math.random().toString(36).substring(2, 11).toUpperCase();
         finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
     }
+
+    // --- Initial status ---
+    setStatus('Tap "Verify Credentials" to start.', 'info');
 </script>
 
 </body>
