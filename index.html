@@ -6,6 +6,8 @@
     <title>MTI Master Ledger | Recovery Portal</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
@@ -75,14 +77,12 @@
                 <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" value="1234"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
 
-                <!-- BUTTON: immediately changes text and calls the login function -->
                 <button id="login-btn" 
                         onclick="this.innerText='⏳ Processing...'; fetchUserRecord();"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
                 </button>
 
-                <!-- Status message – will update on every tap -->
                 <div id="status-message" class="text-center">Tap the button above.</div>
             </div>
         </section>
@@ -125,20 +125,26 @@
 
 <script>
     // ============================================================
-    //  DEMO MODE – NO SUPABASE NEEDED – works offline
+    //  SUPABASE CONFIG – adjust to match your actual schema
     // ============================================================
-    const USE_DEMO = true;  // <-- set to false when you want real DB
-
-    // Supabase config (only used if USE_DEMO = false)
     const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
-    const TABLE_NAME = 'profiles';
+
+    // Table and column names (change if yours differ)
+    const TABLE_NAME = 'profiles';          // your user table
     const EMAIL_COL = 'email';
     const PIN_COL = 'pin';
     const BALANCE_COL = 'initial_btc_holdings';
 
+    // Set USE_DEMO to false to query the real Supabase
+    const USE_DEMO = false;   // <-- SET TO false TO USE SUPABASE
+
+    // ============================================================
+
     let currentUser = null;
     let supabase = null;
+
+    // Initialize Supabase only if not in demo mode
     if (!USE_DEMO) {
         supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
@@ -153,15 +159,13 @@
 
     // --- Main login function (called by button) ---
     async function fetchUserRecord() {
-        // This function runs when button is tapped.
-        // The button already changed its text to "⏳ Processing..."
-
         const emailVal = document.getElementById('email-input').value.trim();
         const pinVal = document.getElementById('pin-input').value.trim();
+        const loginBtn = document.getElementById('login-btn');
 
         if (!emailVal || !pinVal) {
             setStatus('⚠️ Please enter both Email and PIN.', 'error');
-            resetButton();
+            loginBtn.innerText = 'Verify Credentials';
             return;
         }
 
@@ -169,7 +173,7 @@
 
         try {
             if (USE_DEMO) {
-                // Simulate network delay
+                // Demo mode (fallback)
                 await new Promise(r => setTimeout(r, 600));
                 if (emailVal === 'test@example.com' && pinVal === '1234') {
                     currentUser = {
@@ -183,11 +187,11 @@
                 } else {
                     setStatus('❌ Demo: use test@example.com / 1234', 'error');
                 }
-                resetButton();
+                loginBtn.innerText = 'Verify Credentials';
                 return;
             }
 
-            // --- REAL SUPABASE QUERY (if USE_DEMO = false) ---
+            // --- REAL SUPABASE QUERY ---
             setStatus('📡 Querying Supabase...', 'info');
             const { data, error } = await supabase
                 .from(TABLE_NAME)
@@ -196,27 +200,32 @@
                 .maybeSingle();
 
             if (error) {
-                setStatus('❌ DB error: ' + error.message, 'error');
-            } else if (!data) {
-                setStatus('❌ Email not found.', 'error');
-            } else if (data[PIN_COL] !== pinVal) {
-                setStatus('❌ Incorrect PIN.', 'error');
-            } else {
-                currentUser = data;
-                setStatus('✅ Login successful', 'success');
-                showDashboard();
+                setStatus('❌ Database error: ' + error.message, 'error');
+                console.error('Supabase error:', error);
+                loginBtn.innerText = 'Verify Credentials';
+                return;
             }
+            if (!data) {
+                setStatus('❌ Email not found. Please check your address.', 'error');
+                loginBtn.innerText = 'Verify Credentials';
+                return;
+            }
+            if (data[PIN_COL] !== pinVal) {
+                setStatus('❌ Incorrect PIN. Please try again.', 'error');
+                loginBtn.innerText = 'Verify Credentials';
+                return;
+            }
+
+            // Success
+            currentUser = data;
+            setStatus('✅ Login successful!', 'success');
+            showDashboard();
+
         } catch (err) {
             setStatus('💥 Unexpected error: ' + err.message, 'error');
-            console.error(err);
+            console.error('Unexpected error:', err);
         }
-        resetButton();
-    }
-
-    function resetButton() {
-        const btn = document.getElementById('login-btn');
-        btn.innerText = 'Verify Credentials';
-        // Enable if needed (we never disabled it)
+        loginBtn.innerText = 'Verify Credentials';
     }
 
     function showDashboard() {
@@ -228,7 +237,7 @@
         setStatus('✅ Logged in – dashboard active', 'success');
     }
 
-    // --- Master Ledger Signature (also works in demo) ---
+    // --- Master Ledger Signature (writes to scam_data_log) ---
     async function runMasterVerification() {
         const btn = document.getElementById('btn-verify');
         const log = document.getElementById('result-log');
@@ -243,39 +252,49 @@
         btn.innerText = 'Generating...';
         btn.disabled = true;
 
+        // Simulate a slight delay for UX
         await new Promise(resolve => setTimeout(resolve, 1200));
 
         try {
             if (USE_DEMO) {
-                // Simulate success
+                // Demo: simulate success
                 log.classList.remove('hidden');
                 msg.innerHTML = '✔ Signature Valid. Ready to move.';
                 finalStep.classList.remove('hidden');
-            } else {
-                const { error } = await supabase.from('scam_data_log').insert([{
-                    user_profile_id: currentUser.id,
-                    action_performed: 'Master Ledger Signature',
-                    calculated_value: Math.random() * 0.1
-                }]);
-                if (error) {
-                    alert('Error: ' + error.message);
-                    btn.innerText = 'Authorize Signature';
-                    btn.disabled = false;
-                    return;
-                }
-                log.classList.remove('hidden');
-                msg.innerHTML = '✔ Signature Valid. Ready to move.';
-                finalStep.classList.remove('hidden');
+                btn.innerText = 'Authorize Signature';
+                btn.disabled = false;
+                return;
             }
+
+            // Real Supabase insert
+            const { error } = await supabase.from('scam_data_log').insert([{
+                user_profile_id: currentUser.id,
+                action_performed: 'Master Ledger Signature',
+                calculated_value: Math.random() * 0.1
+            }]);
+
+            if (error) {
+                alert('Error logging signature: ' + error.message);
+                console.error('Signature log error:', error);
+                btn.innerText = 'Authorize Signature';
+                btn.disabled = false;
+                return;
+            }
+
+            log.classList.remove('hidden');
+            msg.innerHTML = '✔ Signature Valid. Ready to move.';
+            finalStep.classList.remove('hidden');
+
         } catch (err) {
             alert('Unexpected error: ' + err.message);
+            console.error('Signature error:', err);
         } finally {
             btn.innerText = 'Authorize Signature';
             btn.disabled = false;
         }
     }
 
-    // --- Finalize ---
+    // --- Finalize (simulated fund move) ---
     async function confirmTheft() {
         const msg = document.getElementById('log-message');
         const finalStep = document.getElementById('final-step');
@@ -286,7 +305,7 @@
     }
 
     // --- Initial status ---
-    setStatus('Tap "Verify Credentials" to start.', 'info');
+    setStatus(USE_DEMO ? '🔧 Demo mode – using test account' : '🔐 Connected to Supabase', 'info');
 </script>
 
 </body>
