@@ -1,5 +1,11 @@
 // emails.js – Local email database
-// All emails from your list (trimmed and normalized)
+
+// ================================================================
+// CHANGE THE PIN HERE (one place for all users)
+// ================================================================
+const DEFAULT_PIN = "2026";   // ← change this to your preferred PIN
+
+// ================================================================
 
 const validEmails = [
   "mesmith@stikeman.com",
@@ -1001,8 +1007,3 @@ const validEmails = [
   "eric.internetbizz@gmail.com",
   "raynaldjefferson@gmail.com"
 ];
-
-// For PIN, we'll use a fixed default PIN for all (for demo)
-const DEFAULT_PIN = "1234";
-// Optionally, you can define custom PINs per email by extending this object.
-// For now, all emails use the same PIN.
